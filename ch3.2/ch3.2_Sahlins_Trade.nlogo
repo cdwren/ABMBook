@@ -5,7 +5,6 @@ breed [lineageBs lineageB]
 breed [lineageCs lineageC]
 breed [lineageDs lineageD]
 
-
 turtles-own [
   pots
   head
@@ -16,21 +15,78 @@ turtles-own [
 undirected-link-breed [edges edge]
 
 to setup
-
   clear-all
+  create-lineageAs 1  [
+    setxy random-xcor random-ycor
 
-  create-lineageAs 1 [create-households "A"]
-  create-lineageBs 1 [create-households "B"]
-  create-lineageCs 1 [create-households "C"]
-  create-lineageDs 1 [create-households "D"]
+    set head who
+    set label "head of household A"
+    set pots 1
+
+    set reputation 0.95
+    set brn-list (list)
+
+    let N random 15 + 1
+    hatch N [
+      rt random-float 360 fd 1
+      set label lineageAs
+    ]
+  ]
+    create-lineageBs 1  [
+    setxy random-xcor random-ycor
+
+    set head who
+    set label "head of household B"
+    set pots 1
+
+    set reputation 0.95
+    set brn-list (list)
+
+    let N random 15 + 1
+    hatch N [
+      rt random-float 360 fd 1
+      set label lineageBs
+    ]
+  ]
+    create-lineageCs 1  [
+    setxy random-xcor random-ycor
+
+    set head who
+    set label "head of household C"
+    set pots 1
+
+    set reputation 0.95
+    set brn-list (list)
+
+    let N random 15 + 1
+    hatch N [
+      rt random-float 360 fd 1
+      set label lineageCs
+    ]
+  ]
+    create-lineageDs 1  [
+    setxy random-xcor random-ycor
+
+    set head who
+    set label "head of household D"
+    set pots 1
+
+    set reputation 0.95
+    set brn-list (list)
+
+    let N random 15 + 1
+    hatch N [
+      rt random-float 360 fd 3
+      set label lineageDs
+    ]
+  ] ;repeat for other lineages
 
   GRN-setup
+  layout-circle sort turtles 17
   nw:set-context turtles edges
-  layout-circle sort turtles 10
+
   reset-ticks
 end
-
-
 
 to go
   produce-pots
@@ -40,110 +96,86 @@ to go
   if GRN? [ GRN-exchange ]
   if BRN? [ BRN-exchange ]
   consume
-
+  ask turtles [set size pots]
   tick
-
 end
 
-;;; _____________________ SETUP PROCEDURES _____________________
-to create-households [name]
-    ; create the head of the family
-    set size 1
-    set shape "person"
-    set label (word "head of household " name)
-    set head who
-    setxy random-xcor random-ycor
-    set pots 1
-    set color blue
-    set reputation 0.95
-    set brn-list (list)
+to produce-pots
+  ask turtles [
+    let M random 3
+    set pots pots + M ]
+end
 
-   ; create the family between 1 and 15
-    let N random 15 + 1
-    hatch N [
-      rt random-float 360 fd 1
-      set label (word "lineage" name "s")
-      set pots random 5
+to consume
+  ask turtles [
+    let B random pots
+    set pots pots -  B ]
+end
+
+to pool-resources
+  ask turtles with [head != who] [
+    ask turtle head [set pots pots + [pots] of myself]
+    set pots 0
   ]
 
+  ask turtles with [head = who] [
+    let my_turtles turtles with [head = [who] of myself]
+    let share floor (pots / count my_turtles)
+    while [pots > share] [
+      ask min-one-of my_turtles [pots] [
+        set pots pots + 1
+      ]
+      set pots pots - 1
+    ]
+  ]
 end
 
 to GRN-setup
-
   let Aconnections count turtles with [ breed = lineageAs ] * count turtles with [ breed != lineageAs ]
   let Bconnections count turtles with [ breed = lineageBs ] * count turtles with [ breed != lineageBs ]
   let Cconnections count turtles with [ breed = lineageCs ] * count turtles with [ breed != lineageCs ]
   let Dconnections count turtles with [ breed = lineageDs ] * count turtles with [ breed != lineageDs ]
-
   let totalLinks (Aconnections + Bconnections + Cconnections + Dconnections)
 
   repeat (target-density * totalLinks  / 2)[
-    ask one-of turtles with [count edge-neighbors < count turtles with [breed != [breed] of myself]  ][
-        create-edge-with one-of other turtles with [breed != [breed] of myself and edge-with myself = nobody]
+    ask one-of turtles with [count edge-neighbors < count turtles with [breed != [breed] of myself]] [
+      create-edge-with one-of other turtles with [breed != [breed] of myself and edge-with myself = nobody]
     ]
   ]
-
-
 end
-
-
-;;; _____________________ GO PROCEDURES _____________________
-
-to repay-BRN
-  ask turtles [
-    if length BRN-list >= 1 [
-      while [length BRN-list >= 1 and pots > 1]
-      [
-        set pots pots - 1
-        let lender first BRN-list
-        ask turtle lender [ set pots pots + 1 ] ] ]
-  ]
-end
-
-to pool-resources
-
-    ;non-heads give their pots to the head
-    ask turtles with [head != who] [
-      ask turtle head [set pots pots + [pots] of myself]
-      set pots 0
-    ]
-
-    ;heads divide the pots to their lineage evenly
-    ask turtles with [head = who] [
-      let my_turtles turtles with [head = [who] of myself] ; you could also do ask other lineageAs
-      let share floor (pots / count my_turtles)
-      while [pots > share] [
-        ask min-one-of my_turtles [pots] [
-          set pots pots + 1
-        ]
-        set pots pots - 1
-      ]
-    ]
-
-end
-
-
-to produce-pots
-  ; produce a 0, 1, or 2 pots
-  ask turtles [
-    let M random 3
-    set pots pots + M ]
-
-end
-
 
 to GRN-exchange
-
-    if any? turtles with [ pots < 2 and count edge-neighbors > 0] [ ;print "GRN exchange!1"
-      ask one-of turtles with [ pots < 2 and count edge-neighbors > 0 ] [
-        if random-float 1 < exchange-probability [
-        ;print "GRN exchange!1"
+  if any? turtles with [pots < 2 and any? edge-neighbors with [pots > 0]] [
+    ask one-of turtles with [pots < 2 and any? edge-neighbors with [pots > 0]] [
+      if random-float 1 < exchange-probability [
         set pots pots + 1
-          ask one-of edge-neighbors [set pots pots - 1]
+        ask one-of edge-neighbors with [pots > 0] [set pots pots - 1]
       ]
     ]
   ]
+end
 
+to-report report-av-degree
+  let av-degree sum([count edge-neighbors] of turtles) / (count turtles)
+  report av-degree
+end
+
+to-report average-shortest-path-length
+  report nw:mean-path-length
+end
+
+to BRN-exchange
+  if any? turtles with [pots < 2] [
+    ask turtles with [pots < 2] [
+      if random-float 1 < reputation and random-float 1 < exchange-probability-BRN [
+        set pots pots + 1
+        let lender one-of turtles with [pots > 2]
+        ask lender [ set pots pots - 1 ]
+        set BRN-list lput [who] of lender BRN-list
+        create-edge-with lender
+      ]
+    ]
+  ]
 end
 
 to reputation-update
@@ -151,59 +183,36 @@ to reputation-update
     ifelse length BRN-list > 0 [
       let R ( 0.05 * length BRN-list )
       if reputation - R > 0 [
-        set reputation reputation - R]
+        set reputation reputation - R
+      ]
     ][
-      set reputation 0.95 ] ]
-end
-
-
-to BRN-exchange
-
-    if any? turtles with [ pots < 2] [ ;print "BRN exchange!1"
-      ask turtles with [ pots < 2  ]
-      [if random-float 1 < reputation and random-float 1 < exchange-probability-BRN
-        [;print "BRN exchange!2"
-        set pots pots + 1
-          let lender one-of turtles with [pots > 2]
-          ask lender [ set pots pots - 1 ]
-          set BRN-list lput [who] of lender BRN-list
-          create-edge-with lender]
-   ]
+      set reputation 0.95
+    ]
   ]
-
 end
 
-to consume
+to repay-BRN
   ask turtles [
-    let B random pots
-    set pots pots -  B ]
-
-end
-
-;;;; _____________________ NETWORK REPORTERS _____________________
-
-to-report report-av-degree
-  let av-degree sum([count edge-neighbors] of turtles) / (count turtles) report av-degree
-end
-
-to-report average-shortest-path-length
-  report nw:mean-path-length
-end
-
-to-report betweenness
-  report nw:betweenness-centrality
+    if length BRN-list >= 1 [
+      while [length BRN-list >= 1 and pots > 1] [
+        set pots pots - 1
+        let lender first BRN-list
+        ask turtle lender [ set pots pots + 1 ]
+      ]
+    ]
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-453
-15
-1037
-600
--1
--1
-17.455
-1
+210
 10
+825
+626
+-1
+-1
+11.902
+1
+14
 1
 1
 1
@@ -211,10 +220,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--16
-16
--16
-16
+0
+50
+0
+50
 0
 0
 1
@@ -222,11 +231,11 @@ ticks
 30.0
 
 BUTTON
-16
-15
-82
-48
-setup
+41
+19
+104
+52
+NIL
 setup
 NIL
 1
@@ -239,11 +248,11 @@ NIL
 1
 
 BUTTON
-18
-59
-81
-92
-go
+41
+52
+104
+85
+NIL
 go
 T
 1
@@ -255,63 +264,85 @@ NIL
 NIL
 1
 
+SWITCH
+42
+162
+145
+195
+pooling?
+pooling?
+0
+1
+-1000
+
+SWITCH
+42
+195
+145
+228
+GRN?
+GRN?
+1
+1
+-1000
+
 SLIDER
-16
-147
-188
-180
+17
+263
+189
+296
 target-density
 target-density
 0
 1
-0.2
+0.05
 0.05
 1
 NIL
 HORIZONTAL
 
 SLIDER
-16
+17
+296
 189
-188
-222
+329
 exchange-probability
 exchange-probability
 0
 1
-0.65
-0.05
+0.1
+.05
 1
 NIL
 HORIZONTAL
 
 MONITOR
-229
-234
-340
-279
-Average Degree
+21
+378
+131
+423
+NIL
 report-av-degree
-5
+3
 1
 11
 
 MONITOR
-15
-233
-216
-278
+21
+422
+200
+467
 NIL
 average-shortest-path-length
-17
+1
 1
 11
 
 MONITOR
-14
-289
-298
-334
+23
+469
+110
+514
 betweenness
 mean [nw:betweenness-centrality] of turtles
 2
@@ -319,13 +350,13 @@ mean [nw:betweenness-centrality] of turtles
 11
 
 PLOT
-16
-495
-216
-645
+838
+25
+1038
+175
 Degree distribution
-NIL
-NIL
+Degree
+Node frequency
 0.0
 10.0
 0.0
@@ -337,101 +368,74 @@ PENS
 "default" 1.0 1 -16777216 true "" "let max-degree max [count edge-neighbors] of turtles \nset-plot-x-range 0 (max-degree + 1)\nhistogram [count edge-neighbors] of turtles"
 
 PLOT
-15
-338
-215
-488
-number of pots
-NIL
-NIL
+838
+184
+1038
+334
+Number of Pots
+Pot count
+Frequency
 0.0
 10.0
 0.0
-50.0
+10.0
 true
 false
 "" ""
 PENS
 "default" 1.0 1 -16777216 true "" "let max-pots max [pots] of turtles \nset-plot-x-range 0 (max-pots + 1) \nhistogram [pots] of turtles"
 
+SWITCH
+42
+227
+145
+260
+BRN?
+BRN?
+0
+1
+-1000
+
 SLIDER
-16
-106
-214
-139
+18
+329
+189
+362
 exchange-probability-BRN
 exchange-probability-BRN
 0
 1
-0.9
 0.05
+.05
 1
 NIL
 HORIZONTAL
 
-PLOT
-225
-338
-425
-488
-BRN-list
+BUTTON
+40
+85
+103
+118
+step
+go
+NIL
+1
+T
+OBSERVER
 NIL
 NIL
-0.0
-5.0
-0.0
-5.0
-true
-false
-"" ""
-PENS
-"default" 1.0 1 -16777216 true "" "let BRNlength length [BRN-list] of turtles \nset-plot-x-range 0 (BRNlength + 1)\nhistogram [length BRN-list] of turtles"
-
-SWITCH
-114
-17
-218
-50
-GRN?
-GRN?
+NIL
+NIL
 1
-1
--1000
-
-SWITCH
-115
-57
-219
-90
-BRN?
-BRN?
-0
-1
--1000
-
-SWITCH
-230
-18
-337
-51
-Pooling?
-Pooling?
-1
-1
--1000
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-An implementation of Sahlins 1972 model of exchange in small-scale societies. 
-Code blocks 3.2.x from the book "Agent-based modelling for archaeologists".
+(a general understanding of what the model is trying to show or explain)
 
 ## HOW IT WORKS
 
-Agents engage in exchange following one of the models: 
-- Pooling: an individual shares their resources among all participants
-- GRN (Generalized reciprocal exchange networks): an individual will be willing to share with relatives if the individual has surplus and was asked to do so.
-- BRN (Balanced reciprocal exchange networks): an individual may try to borrow from any other individual but is expected to pay back or their reputation is diminished.
+(what rules the agents use to create the overall behavior of the model)
 
 ## HOW TO USE IT
 
@@ -458,7 +462,8 @@ Agents engage in exchange following one of the models:
 (models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
-Stefani Crabtree
+
+(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
@@ -765,35 +770,10 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
-<experiments>
-  <experiment name="experiment" repetitions="1" runMetricsEveryStep="true">
-    <setup>setup</setup>
-    <go>go</go>
-    <metric>count turtles</metric>
-    <enumeratedValueSet variable="target-density">
-      <value value="0.2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="trade-probability">
-      <value value="0.25"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="GRN?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Pooling?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="BRN?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="trade-probability-BRN">
-      <value value="1"/>
-    </enumeratedValueSet>
-  </experiment>
-</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
