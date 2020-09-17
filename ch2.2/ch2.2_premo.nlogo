@@ -4,7 +4,7 @@
 
 ;;premo_CA_2014.nlogo (Version 1)
 
-;;Programmer: 
+;;Programmer:
 ;;L.S. Premo (luke.premo@wsu.edu)
 
 ;;Department of Anthropology
@@ -178,7 +178,7 @@ while [numberNeeded > 0]
 [
 ask one-of patches   ;;seed patches randomly with individuals, this is a non-spatial model
   [
-  sprout 1 
+  sprout 1
   [   ;;set the state variable values for each newly created individual
    set t1 nextNovelVariant  ;;every individual gets a unique value for its cultural variant
    set nextNovelVariant nextNovelVariant + 1  ;;increment this so the next variant will be novel
@@ -187,7 +187,7 @@ ask one-of patches   ;;seed patches randomly with individuals, this is a non-spa
    set age 0
    ]
   ]
-set numberNeeded numberNeeded - 1 
+set numberNeeded numberNeeded - 1
 ]
 
 reset-ticks  ;;reset time steps to 0
@@ -207,8 +207,8 @@ end  ;;end of "setup"
 ;;"go" is the step function. It provides the schedule for what the observer does over the course of each time step.
 ;;go is executed recursively until the simulation is stopped.
 
-to go  
-  
+to go
+
 ;;reset these variables to 0 at the start of each step, they are used as an independent check on unbiased transmission.
 set kbar 0
 set Vk 0
@@ -217,7 +217,7 @@ set Vk 0
 tick
 
 ;;if an earlier population already hit drift-copying error equilibrium
-if timeSinceEquilibrium >= 0  
+if timeSinceEquilibrium >= 0
  [
  set timeSinceEquilibrium timeSinceEquilibrium + 1  ;;then, increment the number of time steps since equilibrium by 1
  ]
@@ -238,7 +238,7 @@ ask one-of patches  ;;seed patches randomly with individuals, it doesn't really 
   [
   sprout 1 [set age 0]  ;;set the new individual's age to 0
   ]
-set numberNeeded numberNeeded - 1 
+set numberNeeded numberNeeded - 1
 ]
 
 
@@ -261,20 +261,20 @@ ask turtles with [age = 1]
 
 
 ;;create list of unique variants and calculate F (homogeneity) for the total population, this must be done BEFORE checking for equilibrium in the population.
-calculateDiversityFromTotalPopulation   
- 
+calculateDiversityFromTotalPopulation
+
 
 ;;check to see if cultural diversity is at equilibrium using F calculated above
 checkForEquilibrium
- 
- 
+
+
 ;;Collect data and allow individuals to deposit cultural variants for d time steps after the first time that a population reaches equilibrium
-if timeSinceEquilibrium > 0  
+if timeSinceEquilibrium > 0
  [
  durationOfAssemblageFormation
  ]
-  
- 
+
+
  ;;update plots on the interface
 updatePlots  ;;None of these plots is absolutely necessary, they just provide an idea of what is going on in the populations in the model.  See textfiles for data used in the analysis.
 
@@ -339,8 +339,8 @@ ask n-of round(count turtles * 0.01) turtles
   ;;show sampleFrequencyList1  ;;for testing
   ]
  ]
- 
- set sampleFrequencyList1 sort-by [?1 > ?2] sampleFrequencyList1  ;;sort in descending order
+
+ set sampleFrequencyList1 sort-by [ [?1 ?2] -> ?1 > ?2 ] sampleFrequencyList1  ;;sort in descending order
 
 set sampleDiversity1 length sampleDiversityList1
 ;;show length sampleDiversityList1  ;;for testing
@@ -396,8 +396,8 @@ to calculateFHtF  ;;calculate F, H, and tF for the entire population. observer m
 let sumOfSquares 0
 
 foreach totalFrequencyList
- [
- set sumOfSquares sumOfSquares + ((? / count turtles) ^ 2)
+ [ ?1 ->
+ set sumOfSquares sumOfSquares + ((?1 / count turtles) ^ 2)
  ]
 
 set F sumOfSquares
@@ -419,13 +419,13 @@ end ;;ends calculateFHtF
 
 
 to calculateShannonsIndex  ;;observer method, called within "collectEquilibriumPopulationData"
-;;calculate shannon's index for the entire population  
-  
+;;calculate shannon's index for the entire population
+
 let summation 0
 
 foreach totalFrequencyList
- [
- set summation (summation + ((? / count turtles) * (ln (? / count turtles))))
+ [ ?1 ->
+ set summation (summation + ((?1 / count turtles) * (ln (?1 / count turtles))))
  ]
 
 set ShannonsIndex (-1 * summation)
@@ -444,8 +444,8 @@ to calculatetFFrom1%SampleOfPopulation  ;;calculate H and tF from a sample of 1%
 let sumOfSquares 0
 
 foreach sampleFrequencyList1
- [
- set sumOfSquares sumOfSquares + ((? / round(count turtles * 0.01)) ^ 2)
+ [ ?1 ->
+ set sumOfSquares sumOfSquares + ((?1 / round(count turtles * 0.01)) ^ 2)
  ]
 
 set F_1%Sample sumOfSquares
@@ -476,7 +476,7 @@ if (F <= ( EF + 0.005)) and (F >= ( EF - 0.005)) ;;if the observed F (homogeneit
    ]
    [
    set numberTimesAtEquilibrium (numberTimesAtEquilibrium + 1)  ;;else just increment the numberOfTimesAtEquilibrium
-   ]  
+   ]
   ]
 end  ;;ends checkForEquilibrium
 
@@ -486,7 +486,7 @@ end  ;;ends checkForEquilibrium
 
 
 to collectCTData   ;;observer method, called within "go"
-;;The variables set here can be used in an independent check that cultural transmission is actually unbiased. 
+;;The variables set here can be used in an independent check that cultural transmission is actually unbiased.
  set teachersPerGeneration (count turtles with [taughtThisGeneration > 0])
 
  set kbar mean [taughtThisGeneration] of turtles with [age = 1]  ;;mean taughtThisGeneration, this should approximate 1 with unbiased cultural transmission
@@ -504,8 +504,8 @@ end  ;;ends collectCTData
 
 
 to collectEquilibriumPopulationData     ;;observer method, called within "go"
- 
- set totalFrequencyList sort-by [?1 > ?2] totalFrequencyList  ;;sort in descending order, to collect data for exact test from entire population
+
+ set totalFrequencyList sort-by [ [?1 ?2] -> ?1 > ?2 ] totalFrequencyList  ;;sort in descending order, to collect data for exact test from entire population
 
  if N >= 50  ;;the population must have at least 50 individuals or else round(N * 0.01) equals 0 and this will cause a runtime error (cannot divide by zero).
  [
@@ -513,7 +513,7 @@ to collectEquilibriumPopulationData     ;;observer method, called within "go"
 
  calculatetFFrom1%SampleOfPopulation  ;;calculate H and tF from the relative frequencies collected in a 1% sample of the population, N must be at least 50
  ]
- 
+
  calculateShannonsIndex
   ;;show totalFrequencyList  ;;for testing
 
@@ -531,10 +531,10 @@ end   ;;ends collectEquilibriumPopulationData
 
 
 to collectSamplesFromAssemblage  ;;observer method, called within "go" only at the very end of the simulation run
-;;this procedure does 3 things 
+;;this procedure does 3 things
 ;;1. collects the data needed to conduct Slatkin's Exact test, Ewens-Watterson homozygosity test, and estimate t_E on samples collected from the *assemblage* (not the population)
 ;;2. calculates tF for samples of various size collected from the *assemblage* (not the population)
-;;3. collects the logged frequency distribitions for samples of various size collected from the *assemblage* (not the population). These data are needed to apply the variants frequency approach. 
+;;3. collects the logged frequency distribitions for samples of various size collected from the *assemblage* (not the population). These data are needed to apply the variants frequency approach.
 
 let tempList (list)
 let tempVariantsList (list)
@@ -574,38 +574,38 @@ ifelse member? tempVariant tempVariantsList = false
   set tempFreqList replace-item (position tempVariant tempVariantsList) tempFreqList (oldFrequency + 1)
   ]
 
-set tempList remove-item 0 tempList 
+set tempList remove-item 0 tempList
 ]
 
- set tempFreqList sort-by [?1 > ?2] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
+ set tempFreqList sort-by [ [?1 ?2] -> ?1 > ?2 ] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
  ;;show tempFreqList ;;for testing
- set totalNumberVariants length(tempFreqList)  
+ set totalNumberVariants length(tempFreqList)
  ;;show totalNumberVariants ;;for testing
- 
+
  ;;;;;;;;;;;;;;;;;;;;;;;;;;  ;;extract the data needed to run the exact test, the homozygosity test, and calculate tE on a 1% sample of the *assemblage* not the population of social learners
    file-open "exactTestData_assemblage.txt"
-   file-print ticks 
+   file-print ticks
    file-print "s=0.01"
-   foreach tempFreqList [file-write ? file-write ","] file-print " "
-   
+   foreach tempFreqList [ ?1 -> file-write ?1 file-write "," ] file-print " "
+
    let variantsNeededforETD 1
    while [variantsNeededforETD <= length (tempFreqList)]
    [
    file-write variantsNeededforETD
-   set variantsNeededforETD (variantsNeededforETD + 1) 
-   ]   
+   set variantsNeededforETD (variantsNeededforETD + 1)
+   ]
    file-print" "
    file-close
  ;;;;;;;;;;;;;;;;;;;;;;;;;;
- 
- 
- set loggedList01 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList01  
+
+
+ set loggedList01 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList01
  set loggedList01 lput ((occurrences 2 tempFreqList) / totalNumberVariants) loggedList01
- 
+
  let i 3
  let k 1
  let l floor(log max(tempFreqList) 2)
- 
+
  while [l > 0]
  [
  set k (k * 2)
@@ -620,38 +620,38 @@ set tempList remove-item 0 tempList
  set loggedList01 lput (sumPos / k) loggedList01
  set l l - 1
  ]
- 
+
 ;;print out sampled data
    file-open "sampledLoggedData.txt"
-   file-print ticks 
+   file-print ticks
    file-print " "
    file-print "1% sample"
-   foreach loggedList01 [file-write ?] file-print " "
-   
+   foreach loggedList01 [ ?1 -> file-write ?1 ] file-print " "
+
    let variantsNeeded length(loggedList01)
    let variant 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write variant
    set variant (variant * 2)
-   set variantsNeeded variantsNeeded - 1 
+   set variantsNeeded variantsNeeded - 1
    ]
    file-print" "
-   
+
    ;;
    set variantsNeeded length(loggedList01)
-   
+
    file-write 0.5
    set variantsNeeded variantsNeeded - 1
-   
+
    let topBin 2
    let bottomBin 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write bottomBin + ((topBin - bottomBin) / 2)
-   
+
    set bottomBin topBin  ;;do this first
    set topBin (topBin * 2) ;;do this second
    set variantsNeeded variantsNeeded - 1
@@ -665,8 +665,8 @@ set tempList remove-item 0 tempList
 let sumOfSquares 0
 
 foreach tempFreqList
- [
- set sumOfSquares sumOfSquares + ((? / (sum tempFreqList)) ^ 2)
+ [ ?1 ->
+ set sumOfSquares sumOfSquares + ((?1 / (sum tempFreqList)) ^ 2)
  ]
 
 set F_assemblage_01 sumOfSquares
@@ -715,39 +715,39 @@ ifelse member? tempVariant tempVariantsList = false
   set tempFreqList replace-item (position tempVariant tempVariantsList) tempFreqList (oldFrequency + 1)
   ]
 
-set tempList remove-item 0 tempList 
+set tempList remove-item 0 tempList
 ]
 
- set tempFreqList sort-by [?1 > ?2] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
+ set tempFreqList sort-by [ [?1 ?2] -> ?1 > ?2 ] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
  ;;show tempFreqList ;;for testing
- set totalNumberVariants length(tempFreqList)  
+ set totalNumberVariants length(tempFreqList)
  ;;show totalNumberVariants ;;for testing
- 
+
  ;;;;;;;;;;;;;;;;;;;;;;;;;;  ;;extract the data needed to run the exact test, the homozygosity test, and calculate tE on a 5% sample of the *assemblage* not the population of social learners
    file-open "exactTestData_assemblage.txt"
-   file-print ticks 
+   file-print ticks
    file-print "s=0.05"
-   foreach tempFreqList [file-write ? file-write ","] file-print " "
-   
+   foreach tempFreqList [ ?1 -> file-write ?1 file-write "," ] file-print " "
+
    set variantsNeededforETD 1
    while [variantsNeededforETD <= length (tempFreqList)]
    [
    file-write variantsNeededforETD
-   set variantsNeededforETD (variantsNeededforETD + 1) 
-   ]   
+   set variantsNeededforETD (variantsNeededforETD + 1)
+   ]
    file-print" "
    file-close
  ;;;;;;;;;;;;;;;;;;;;;;;;;;
- 
- 
- 
- set loggedList05 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList05 
+
+
+
+ set loggedList05 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList05
  set loggedList05 lput ((occurrences 2 tempFreqList) / totalNumberVariants) loggedList05
- 
+
  set i 3
  set k 1
  set l floor(log max(tempFreqList) 2)
- 
+
  while [l > 0]
  [
  set k (k * 2)
@@ -762,37 +762,37 @@ set tempList remove-item 0 tempList
  set loggedList05 lput (sumPos / k) loggedList05
  set l l - 1
  ]
- 
+
 ;;print out sampled data
    file-open "sampledLoggedData.txt"
    file-print "5% sample"
-   foreach loggedList05 [file-write ?] file-print " "
-   
+   foreach loggedList05 [ ?1 -> file-write ?1 ] file-print " "
+
    set variantsNeeded length(loggedList05)
    set variant 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write variant
    set variant (variant * 2)
-   set variantsNeeded variantsNeeded - 1 
+   set variantsNeeded variantsNeeded - 1
    ]
    file-print" "
-   
-   
+
+
    ;;
    set variantsNeeded length(loggedList05)
-   
+
    file-write 0.5
    set variantsNeeded variantsNeeded - 1
-   
+
    set topBin 2
    set bottomBin 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write bottomBin + ((topBin - bottomBin) / 2)
-   
+
    set bottomBin topBin  ;;do this first
    set topBin (topBin * 2) ;;do this second
    set variantsNeeded variantsNeeded - 1
@@ -800,15 +800,15 @@ set tempList remove-item 0 tempList
 
    file-print" "
    file-close
-   
+
 
 
 ;;now use tempFreqList to calculate tF
 set sumOfSquares 0
 
 foreach tempFreqList
- [
- set sumOfSquares sumOfSquares + ((? / (sum tempFreqList)) ^ 2)
+ [ ?1 ->
+ set sumOfSquares sumOfSquares + ((?1 / (sum tempFreqList)) ^ 2)
  ]
 
 set F_assemblage_05 sumOfSquares
@@ -856,39 +856,39 @@ ifelse member? tempVariant tempVariantsList = false
   set tempFreqList replace-item (position tempVariant tempVariantsList) tempFreqList (oldFrequency + 1)
   ]
 
-set tempList remove-item 0 tempList 
+set tempList remove-item 0 tempList
 ]
 
- set tempFreqList sort-by [?1 > ?2] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
+ set tempFreqList sort-by [ [?1 ?2] -> ?1 > ?2 ] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
  ;;show tempFreqList ;;for testing
- set totalNumberVariants length(tempFreqList)  
+ set totalNumberVariants length(tempFreqList)
  ;;show totalNumberVariants ;;for testing
- 
+
  ;;;;;;;;;;;;;;;;;;;;;;;;;;  ;;extract the data needed to run the exact test, the homozygosity test, and calculate tE on a 10% sample of the *assemblage* not the population of social learners
    file-open "exactTestData_assemblage.txt"
-   file-print ticks 
+   file-print ticks
    file-print "s=0.1"
-   foreach tempFreqList [file-write ? file-write ","] file-print " "
-   
+   foreach tempFreqList [ ?1 -> file-write ?1 file-write "," ] file-print " "
+
    set variantsNeededforETD 1
    while [variantsNeededforETD <= length (tempFreqList)]
    [
    file-write variantsNeededforETD
-   set variantsNeededforETD (variantsNeededforETD + 1) 
-   ]   
+   set variantsNeededforETD (variantsNeededforETD + 1)
+   ]
    file-print" "
    file-close
  ;;;;;;;;;;;;;;;;;;;;;;;;;;
- 
- 
- 
- set loggedList10 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList10 
+
+
+
+ set loggedList10 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList10
  set loggedList10 lput ((occurrences 2 tempFreqList) / totalNumberVariants) loggedList10
- 
+
  set i 3
  set k 1
  set l floor(log max(tempFreqList) 2)
- 
+
  while [l > 0]
  [
  set k (k * 2)
@@ -903,37 +903,37 @@ set tempList remove-item 0 tempList
  set loggedList10 lput (sumPos / k) loggedList10
  set l l - 1
  ]
- 
+
 ;;print out sampled data
    file-open "sampledLoggedData.txt"
    file-print "10% sample"
-   foreach loggedList10 [file-write ?] file-print " "
-   
+   foreach loggedList10 [ ?1 -> file-write ?1 ] file-print " "
+
    set variantsNeeded length(loggedList10)
    set variant 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write variant
    set variant (variant * 2)
-   set variantsNeeded variantsNeeded - 1 
+   set variantsNeeded variantsNeeded - 1
    ]
    file-print" "
-   
-   
+
+
    ;;
    set variantsNeeded length(loggedList10)
-   
+
    file-write 0.5
    set variantsNeeded variantsNeeded - 1
-   
+
    set topBin 2
    set bottomBin 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write bottomBin + ((topBin - bottomBin) / 2)
-   
+
    set bottomBin topBin  ;;do this first
    set topBin (topBin * 2) ;;do this second
    set variantsNeeded variantsNeeded - 1
@@ -946,8 +946,8 @@ set tempList remove-item 0 tempList
 set sumOfSquares 0
 
 foreach tempFreqList
- [
- set sumOfSquares sumOfSquares + ((? / (sum tempFreqList)) ^ 2)
+ [ ?1 ->
+ set sumOfSquares sumOfSquares + ((?1 / (sum tempFreqList)) ^ 2)
  ]
 
 set F_assemblage_10 sumOfSquares
@@ -997,20 +997,20 @@ ifelse member? tempVariant tempVariantsList = false
   set tempFreqList replace-item (position tempVariant tempVariantsList) tempFreqList (oldFrequency + 1)
   ]
 
-set tempList remove-item 0 tempList 
+set tempList remove-item 0 tempList
 ]
 
- set tempFreqList sort-by [?1 > ?2] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
+ set tempFreqList sort-by [ [?1 ?2] -> ?1 > ?2 ] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
  ;;show tempFreqList ;;for testing
- set totalNumberVariants length(tempFreqList)  
+ set totalNumberVariants length(tempFreqList)
  ;;show totalNumberVariants ;;for testing
- set loggedList25 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList25 
+ set loggedList25 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList25
  set loggedList25 lput ((occurrences 2 tempFreqList) / totalNumberVariants) loggedList25
- 
+
  set i 3
  set k 1
  set l floor(log max(tempFreqList) 2)
- 
+
  while [l > 0]
  [
  set k (k * 2)
@@ -1025,37 +1025,37 @@ set tempList remove-item 0 tempList
  set loggedList25 lput (sumPos / k) loggedList25
  set l l - 1
  ]
- 
+
 ;;print out sampled data
    file-open "sampledLoggedData.txt"
    file-print "25% sample"
-   foreach loggedList25 [file-write ?] file-print " "
-   
+   foreach loggedList25 [ ?1 -> file-write ?1 ] file-print " "
+
    set variantsNeeded length(loggedList25)
    set variant 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write variant
    set variant (variant * 2)
-   set variantsNeeded variantsNeeded - 1 
+   set variantsNeeded variantsNeeded - 1
    ]
    file-print" "
-   
-   
+
+
    ;;
    set variantsNeeded length(loggedList25)
-   
+
    file-write 0.5
    set variantsNeeded variantsNeeded - 1
-   
+
    set topBin 2
    set bottomBin 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write bottomBin + ((topBin - bottomBin) / 2)
-   
+
    set bottomBin topBin  ;;do this first
    set topBin (topBin * 2) ;;do this second
    set variantsNeeded variantsNeeded - 1
@@ -1068,8 +1068,8 @@ set tempList remove-item 0 tempList
 set sumOfSquares 0
 
 foreach tempFreqList
- [
- set sumOfSquares sumOfSquares + ((? / (sum tempFreqList)) ^ 2)
+ [ ?1 ->
+ set sumOfSquares sumOfSquares + ((?1 / (sum tempFreqList)) ^ 2)
  ]
 
 set F_assemblage_25 sumOfSquares
@@ -1118,37 +1118,37 @@ ifelse member? tempVariant tempVariantsList = false
   set tempFreqList replace-item (position tempVariant tempVariantsList) tempFreqList (oldFrequency + 1)
   ]
 
-set tempList remove-item 0 tempList 
+set tempList remove-item 0 tempList
 ]
 
- set tempFreqList sort-by [?1 > ?2] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
+ set tempFreqList sort-by [ [?1 ?2] -> ?1 > ?2 ] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
  ;;show tempFreqList ;;for testing
- set totalNumberVariants length(tempFreqList)  
+ set totalNumberVariants length(tempFreqList)
  ;;show totalNumberVariants ;;for testing
- 
+
  ;;;;;;;;;;;;;;;;;;;;;;;;;;  ;;extract the data needed to run the exact test, the homozygosity test, and calculate tE on a 50% sample of the *assemblage* not the population of social learners
    file-open "exactTestData_assemblage.txt"
-   file-print ticks 
+   file-print ticks
    file-print "s=0.5"
-   foreach tempFreqList [file-write ? file-write ","] file-print " "
-   
+   foreach tempFreqList [ ?1 -> file-write ?1 file-write "," ] file-print " "
+
    set variantsNeededforETD 1
    while [variantsNeededforETD <= length (tempFreqList)]
    [
    file-write variantsNeededforETD
-   set variantsNeededforETD (variantsNeededforETD + 1) 
-   ]   
+   set variantsNeededforETD (variantsNeededforETD + 1)
+   ]
    file-print" "
    file-close
  ;;;;;;;;;;;;;;;;;;;;;;;;;;
- 
- set loggedList50 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList50 
+
+ set loggedList50 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList50
  set loggedList50 lput ((occurrences 2 tempFreqList) / totalNumberVariants) loggedList50
- 
+
  set i 3
  set k 1
  set l floor(log max(tempFreqList) 2)
- 
+
  while [l > 0]
  [
  set k (k * 2)
@@ -1163,37 +1163,37 @@ set tempList remove-item 0 tempList
  set loggedList50 lput (sumPos / k) loggedList50
  set l l - 1
  ]
- 
+
 ;;print out sampled data
    file-open "sampledLoggedData.txt"
    file-print "50% sample"
-   foreach loggedList50 [file-write ?] file-print " "
-   
+   foreach loggedList50 [ ?1 -> file-write ?1 ] file-print " "
+
    set variantsNeeded length(loggedList50)
    set variant 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write variant
    set variant (variant * 2)
-   set variantsNeeded variantsNeeded - 1 
+   set variantsNeeded variantsNeeded - 1
    ]
    file-print" "
-   
-   
+
+
    ;;
    set variantsNeeded length(loggedList50)
-   
+
    file-write 0.5
    set variantsNeeded variantsNeeded - 1
-   
+
    set topBin 2
    set bottomBin 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write bottomBin + ((topBin - bottomBin) / 2)
-   
+
    set bottomBin topBin  ;;do this first
    set topBin (topBin * 2) ;;do this second
    set variantsNeeded variantsNeeded - 1
@@ -1206,8 +1206,8 @@ set tempList remove-item 0 tempList
 set sumOfSquares 0
 
 foreach tempFreqList
- [
- set sumOfSquares sumOfSquares + ((? / (sum tempFreqList)) ^ 2)
+ [ ?1 ->
+ set sumOfSquares sumOfSquares + ((?1 / (sum tempFreqList)) ^ 2)
  ]
 
 set F_assemblage_50 sumOfSquares
@@ -1257,20 +1257,20 @@ ifelse member? tempVariant tempVariantsList = false
   set tempFreqList replace-item (position tempVariant tempVariantsList) tempFreqList (oldFrequency + 1)
   ]
 
-set tempList remove-item 0 tempList 
+set tempList remove-item 0 tempList
 ]
 
- set tempFreqList sort-by [?1 > ?2] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
+ set tempFreqList sort-by [ [?1 ?2] -> ?1 > ?2 ] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
  ;;show tempFreqList ;;for testing
- set totalNumberVariants length(tempFreqList)  
+ set totalNumberVariants length(tempFreqList)
  ;;show totalNumberVariants ;;for testing
- set loggedList75 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList75 
+ set loggedList75 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList75
  set loggedList75 lput ((occurrences 2 tempFreqList) / totalNumberVariants) loggedList75
- 
+
  set i 3
  set k 1
  set l floor(log max(tempFreqList) 2)
- 
+
  while [l > 0]
  [
  set k (k * 2)
@@ -1285,37 +1285,37 @@ set tempList remove-item 0 tempList
  set loggedList75 lput (sumPos / k) loggedList75
  set l l - 1
  ]
- 
+
 ;;print out sampled data
    file-open "sampledLoggedData.txt"
    file-print "75% sample"
-   foreach loggedList75 [file-write ?] file-print " "
-   
+   foreach loggedList75 [ ?1 -> file-write ?1 ] file-print " "
+
    set variantsNeeded length(loggedList75)
    set variant 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write variant
    set variant (variant * 2)
-   set variantsNeeded variantsNeeded - 1 
+   set variantsNeeded variantsNeeded - 1
    ]
    file-print" "
-   
-   
+
+
    ;;
    set variantsNeeded length(loggedList75)
-   
+
    file-write 0.5
    set variantsNeeded variantsNeeded - 1
-   
+
    set topBin 2
    set bottomBin 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write bottomBin + ((topBin - bottomBin) / 2)
-   
+
    set bottomBin topBin  ;;do this first
    set topBin (topBin * 2) ;;do this second
    set variantsNeeded variantsNeeded - 1
@@ -1328,8 +1328,8 @@ set tempList remove-item 0 tempList
 set sumOfSquares 0
 
 foreach tempFreqList
- [
- set sumOfSquares sumOfSquares + ((? / (sum tempFreqList)) ^ 2)
+ [ ?1 ->
+ set sumOfSquares sumOfSquares + ((?1 / (sum tempFreqList)) ^ 2)
  ]
 
 set F_assemblage_75 sumOfSquares
@@ -1378,20 +1378,20 @@ ifelse member? tempVariant tempVariantsList = false
   set tempFreqList replace-item (position tempVariant tempVariantsList) tempFreqList (oldFrequency + 1)
   ]
 
-set tempList remove-item 0 tempList 
+set tempList remove-item 0 tempList
 ]
 
- set tempFreqList sort-by [?1 > ?2] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
+ set tempFreqList sort-by [ [?1 ?2] -> ?1 > ?2 ] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
  ;;show tempFreqList ;;for testing
- set totalNumberVariants length(tempFreqList)  
+ set totalNumberVariants length(tempFreqList)
  ;;show totalNumberVariants ;;for testing
- set loggedList90 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList90 
+ set loggedList90 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList90
  set loggedList90 lput ((occurrences 2 tempFreqList) / totalNumberVariants) loggedList90
- 
+
  set i 3
  set k 1
  set l floor(log max(tempFreqList) 2)
- 
+
  while [l > 0]
  [
  set k (k * 2)
@@ -1406,36 +1406,36 @@ set tempList remove-item 0 tempList
  set loggedList90 lput (sumPos / k) loggedList90
  set l l - 1
  ]
- 
+
 ;;print out sampled data
    file-open "sampledLoggedData.txt"
    file-print "90% sample"
-   foreach loggedList90 [file-write ?] file-print " "
-   
+   foreach loggedList90 [ ?1 -> file-write ?1 ] file-print " "
+
    set variantsNeeded length(loggedList90)
    set variant 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write variant
    set variant (variant * 2)
-   set variantsNeeded variantsNeeded - 1 
+   set variantsNeeded variantsNeeded - 1
    ]
    file-print" "
-   
+
    ;;
    set variantsNeeded length(loggedList90)
-   
+
    file-write 0.5
    set variantsNeeded variantsNeeded - 1
-   
+
    set topBin 2
    set bottomBin 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write bottomBin + ((topBin - bottomBin) / 2)
-   
+
    set bottomBin topBin  ;;do this first
    set topBin (topBin * 2) ;;do this second
    set variantsNeeded variantsNeeded - 1
@@ -1443,14 +1443,14 @@ set tempList remove-item 0 tempList
 
    file-print" "
    file-close
-   
+
 
 ;;now use tempFreqList to calculate tF
 set sumOfSquares 0
 
 foreach tempFreqList
- [
- set sumOfSquares sumOfSquares + ((? / (sum tempFreqList)) ^ 2)
+ [ ?1 ->
+ set sumOfSquares sumOfSquares + ((?1 / (sum tempFreqList)) ^ 2)
  ]
 
 set F_assemblage_90 sumOfSquares
@@ -1499,20 +1499,20 @@ ifelse member? tempVariant tempVariantsList = false
   set tempFreqList replace-item (position tempVariant tempVariantsList) tempFreqList (oldFrequency + 1)
   ]
 
-set tempList remove-item 0 tempList 
+set tempList remove-item 0 tempList
 ]
 
- set tempFreqList sort-by [?1 > ?2] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
+ set tempFreqList sort-by [ [?1 ?2] -> ?1 > ?2 ] tempFreqList  ;;sort in descending order...this doesn't matter for the log-log stuff
  ;;show tempFreqList ;;for testing
- set totalNumberVariants length(tempFreqList)  
+ set totalNumberVariants length(tempFreqList)
  ;;show totalNumberVariants ;;for testing
- set loggedList100 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList100 
+ set loggedList100 lput ((occurrences 1 tempFreqList) / totalNumberVariants) loggedList100
  set loggedList100 lput ((occurrences 2 tempFreqList) / totalNumberVariants) loggedList100
- 
+
  set i 3
  set k 1
  set l floor(log max(tempFreqList) 2)
- 
+
  while [l > 0]
  [
  set k (k * 2)
@@ -1527,37 +1527,37 @@ set tempList remove-item 0 tempList
  set loggedList100 lput (sumPos / k) loggedList100
  set l l - 1
  ]
- 
+
 ;;print out sampled data
    file-open "sampledLoggedData.txt"
    file-print "population"
-   foreach loggedList100 [file-write ?] file-print " "
-   
+   foreach loggedList100 [ ?1 -> file-write ?1 ] file-print " "
+
    set variantsNeeded length(loggedList100)
    set variant 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write variant
    set variant (variant * 2)
-   set variantsNeeded variantsNeeded - 1 
+   set variantsNeeded variantsNeeded - 1
    ]
    file-print" "
-   
-   
+
+
    ;;
    set variantsNeeded length(loggedList100)
-   
+
    file-write 0.5
    set variantsNeeded variantsNeeded - 1
-   
+
    set topBin 2
    set bottomBin 1
-   
+
    while [variantsNeeded > 0]
    [
    file-write bottomBin + ((topBin - bottomBin) / 2)
-   
+
    set bottomBin topBin  ;;do this first
    set topBin (topBin * 2) ;;do this second
    set variantsNeeded variantsNeeded - 1
@@ -1565,13 +1565,13 @@ set tempList remove-item 0 tempList
 
    file-print" "
    file-close
-   
+
 ;;now use this to caluclate tF
 set sumOfSquares 0
 
 foreach tempFreqList
- [
- set sumOfSquares sumOfSquares + ((? / (sum tempFreqList)) ^ 2)
+ [ ?1 ->
+ set sumOfSquares sumOfSquares + ((?1 / (sum tempFreqList)) ^ 2)
  ]
 
 set F_assemblage_100 sumOfSquares
@@ -1601,37 +1601,37 @@ end ;;ends collectSamplesFromAssemblage
 
 
 to durationOfAssemblageFormation
-   ;;First, collect data on whether the population is below or above equilibrium.   
+   ;;First, collect data on whether the population is below or above equilibrium.
    if (F < (EF - 0.005) )     ;;below, more diverse
    [
    set numberTimesBelowEquilibrium (numberTimesBelowEquilibrium + 1)
    ]
-  
+
    if (F > (EF + 0.005) )     ;;above, less diverse
-   [   
+   [
    set numberTimesAboveEquilibrium (numberTimesAboveEquilibrium + 1)
    ]
-   
+
    if (tF < theta )     ;;below
    [
    set numberTimesBelowEquilibriumtF (numberTimesBelowEquilibriumtF + 1)
    ]
-  
+
    if (tF > theta )     ;;above
-   [   
+   [
    set numberTimesAboveEquilibriumtF (numberTimesAboveEquilibriumtF + 1)
    ]
-   
+
    if (tF_1%Sample < theta )     ;;below
    [
    set numberTimesBelowEquilibriumtF_1%Sample (numberTimesBelowEquilibriumtF_1%Sample + 1)
    ]
-  
+
    if (tF_1%Sample > theta )     ;;above
-   [   
+   [
    set numberTimesAboveEquilibriumtF_1%Sample (numberTimesAboveEquilibriumtF_1%Sample + 1)
    ]
-  
+
   ;;Next, address various measures of diversity.
   set meanF (meanF + (F / d))  ;;mean F calculated from the entire population over the duration of assemblage formation
   set meantF (meantF + (tF / d))  ;;mean t_F calculated from the entire population over the duration of assemblage formation
@@ -1644,9 +1644,9 @@ to durationOfAssemblageFormation
   if tF < mintF [set mintF tF]  ;;keep track of the minimum value of t_F as calculated for the entire population recorded over the duration of assemblage formation
   if tF_1%Sample > maxtF_1%Sample [set maxtF_1%Sample tF_1%Sample]  ;;keep track of the maximum value of t_F as calculated for 1% of the population recorded over the duration of assemblage formation
   if tF_1%Sample < mintF_1%Sample [set mintF_1%Sample tF_1%Sample]  ;;keep track of the maximum value of t_F as calculated for 1% of the population recorded over the duration of assemblage formation
-  
 
- ;;Now allow for individuals to add variants to the archaeological assemblage 
+
+ ;;Now allow for individuals to add variants to the archaeological assemblage
  ;;ask n-of round (N * 0.1) turtles  ;;this line can be used *in place of the line below* to model the condition in which a random subset of the population (here set at 10%) rather than the entire population deposit their cultural variant to the assemblage
  ask turtles  ;;each turtle contributes its variant to the assemblage
  [
@@ -1665,21 +1665,21 @@ end  ;;ends durationOfAssemblageFormation
 
 to learn    ;;turtle method, called within "go"
 ;;This procedure operationalizes unbiased cultural transmission from the "experienced" generation (age=1) to the naive generation (age=0).
-  
- let teacher one-of turtles with [age = 1]   ;;ego randomly chooses one of the agents from the "experienced" generation to serve as its teacher (note that teacher is a local variable) 
+
+ let teacher one-of turtles with [age = 1]   ;;ego randomly chooses one of the agents from the "experienced" generation to serve as its teacher (note that teacher is a local variable)
  ;;show teacher  ;;for testing
  ;;show [t1] of teacher  ;;for testing
  set t1 [t1] of teacher  ;;ego learns from teacher
  ;;show t1  ;;for testing
  ask teacher [set taughtThisGeneration (taughtThisGeneration + 1)]  ;;ask teacher to update the number of times that it served as a teacher during this time step
-    
+
  ;;after social learning, allow for an "copying error" to modify the neutral variant according to the inifinite alleles model (each innovation yields a novel variant that has never before been seen in the population)
  if random-float 1 < mu   ;;if a random uniform float is less than mu, then there was a mistake in social learning
   [
   set t1 nextNovelVariant   ;;ego adopts a novel cultural variant rather than the one it was trying to copy from teacher
   set nextNovelVariant nextNovelVariant + 1   ;;increment this so the next time it is used it provides a variant that has never before been seen
   ]
-  
+
   set color t1 ;;this resets the color of ego to reflect its new variant
   ;;show t1  ;;for testing
 end  ;;ends learn
@@ -1689,17 +1689,17 @@ end  ;;ends learn
 
 
 to printExactTestOutput  ;;observer method, called within "go".  this prints out data concerning the population, not the assemblage
- 
+
    ;;print totalFrequencyList to a text file in order to apply Slatkin's exact test code
    file-open "exactTestData.txt"
-   file-print ticks 
-   foreach totalFrequencyList [file-write ?] file-print " "
-   
+   file-print ticks
+   foreach totalFrequencyList [ ?1 -> file-write ?1 ] file-print " "
+
    let variantsNeeded 1
    while [variantsNeeded <= length totalFrequencyList]
    [
    file-write variantsNeeded
-   set variantsNeeded (variantsNeeded + 1) 
+   set variantsNeeded (variantsNeeded + 1)
    ]
    file-print" "
    file-close
@@ -1708,15 +1708,15 @@ to printExactTestOutput  ;;observer method, called within "go".  this prints out
    [
    ;;we need to print sampleFrequencyList to a text file in order to use Slatkin's exact test code
    file-open "exactTestData.txt"
-   file-print ticks 
-   foreach sampleFrequencyList1 [file-write ?] file-print " "
-   
+   file-print ticks
+   foreach sampleFrequencyList1 [ ?1 -> file-write ?1 ] file-print " "
+
    set variantsNeeded 1
    while [variantsNeeded <= length sampleFrequencyList1]
    [
    file-write variantsNeeded
-   set variantsNeeded (variantsNeeded + 1) 
-   ]   
+   set variantsNeeded (variantsNeeded + 1)
+   ]
    file-print" "
    file-close
    ]
@@ -1727,15 +1727,15 @@ end  ;;ends printExactTestOutput
 ;;___________________________________________________
 
 
-to printHeaders   ;;called within "setup"      
+to printHeaders   ;;called within "setup"
 ;;this creates new files they do not already exist and it prints out "heading" information pertaining to the current run of the simulation
- 
+
  file-open "sampledLoggedData.txt"
  file-print " "
  file-write "seed N d mu" file-print " "
  file-write seed file-write N file-write d file-write mu file-print " "
  file-write "Time Data" file-print " "
- file-close 
+ file-close
 
  file-open "exactTestData.txt"
  file-print " "
@@ -1743,20 +1743,20 @@ to printHeaders   ;;called within "setup"
  file-write seed file-write N file-write d file-write mu file-print " "
  file-write "Time Data" file-print " "
  file-close
- 
+
  file-open "exactTestData_assemblage.txt"
  file-print " "
  file-write "seed N d mu" file-print " "
  file-write seed file-write N file-write d file-write mu file-print " "
  file-write "Time Data" file-print " "
- file-close 
- 
+ file-close
+
  file-open "numberVariantsData.txt"
  file-print " "
  file-write "seed N d mu" file-print " "
  file-write seed file-write N file-write d file-write mu file-print " "
  file-write "Time N NumVariants F tF F_1% tF_1% EF theta minF meanF maxF mintF meantF maxtF mintF_1%Sample meantF_1%Sample maxtF_1%Sample atEquilibriumF belowEquilibriumF aboveEquilibriumF belowEquilibriumtF aboveEquilibriumtF belowEquilibriumtF_1%Sample aboveEquilibriumtF_1%Sample Ne meanKbar meanVk" file-print " "
- 
+
 end ;;ends printHeaders
 
 ;;___________________________________________________
@@ -1800,14 +1800,14 @@ end  ;;ends updatePlots
 ;; this is a reporter used to count and report the number of occurrences of an item (x) in a given list (the-list)
 to-report occurrences [x the-list]
   report reduce
-    [ifelse-value (?2 = x) [?1 + 1] [?1]] (fput 0 the-list)
+    [ [?1 ?2] -> ifelse-value (?2 = x) [?1 + 1] [?1] ] (fput 0 the-list)
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 276
 10
-536
-291
+534
+269
 -1
 -1
 5.0
@@ -1905,7 +1905,7 @@ seed
 seed
 0
 1000000
-20
+20.0
 1
 1
 NIL
@@ -1920,7 +1920,7 @@ N
 N
 0
 1000
-100
+100.0
 25
 1
 NIL
@@ -2065,7 +2065,7 @@ d
 d
 1
 1000
-10
+10.0
 1
 1
 NIL
@@ -2506,9 +2506,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 5.0.2
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -2522,7 +2521,7 @@ NetLogo 5.0.2
     </enumeratedValueSet>
     <enumeratedValueSet variable="mu">
       <value value="0.01"/>
-      <value value="0.0010"/>
+      <value value="0.001"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="N">
       <value value="25"/>
@@ -2541,7 +2540,7 @@ NetLogo 5.0.2
     </enumeratedValueSet>
     <enumeratedValueSet variable="mu">
       <value value="0.01"/>
-      <value value="0.0010"/>
+      <value value="0.001"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="N">
       <value value="25"/>
@@ -2560,7 +2559,7 @@ NetLogo 5.0.2
     </enumeratedValueSet>
     <enumeratedValueSet variable="mu">
       <value value="0.01"/>
-      <value value="0.0010"/>
+      <value value="0.001"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="N">
       <value value="25"/>
@@ -2583,7 +2582,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

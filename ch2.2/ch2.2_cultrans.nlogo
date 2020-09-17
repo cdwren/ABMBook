@@ -2,13 +2,14 @@ turtles-own [cult1 cult2 cultgen success]
 
 to setup
   ca
-  crt n-agents[
+  crt n-agents [
     set size 2
     setxy random-xcor random-ycor
     set cult1 0
     set cult2 0
     set success random 10
-    set cultgen n-values 5 [ i -> one-of [0 1] ]]
+    set cultgen n-values 5 [ i -> one-of [0 1] ]
+  ]
   ask n-of (floor n-agents * 0.5) turtles [set cult1 1]  ; initially 50% of agents will have trait2 == 1
   ask n-of (floor n-agents * 0.2) turtles [set cult2 1]  ; initially 20% of agents will have trait2 == 1
   reset-ticks
@@ -30,17 +31,17 @@ to go
 end
 
 to vertical-transmission
-  ; from parents to offsprings
+  ; from parents to offspring
   ;ask turtles [                            ; basic vertical transmission with one parent
-  ; hatch 1[set cult1 [cult1] of myself]] ; this is explicit notation, 'hatch' automatically copy variables of the parent
+  ; hatch 1 [set cult1 [cult1] of myself]] ; this is explicit notation, 'hatch' automatically copy variables of the parent
   ask n-of (floor n-agents * 0.1) turtles [ ; only 10% of turtles reproduce, otherwise there're too many of them
     if any? other turtles in-radius 3 [           ; transmission with two parents (the spatial contrain is optional)
       let parent1 self
       let parent2 one-of turtles in-radius 3
       hatch 1 [
         set cult1 [cult1] of one-of ( turtle-set parent1 parent2 )   ; discrete inheritance
-        set cult2 mean [cult2] of ( turtle-set parent1 parent2 )     ; continuous inheritance
-        setxy random-xcor random-ycor                                ; move turtles to make it visually better
+        ;set cult2 mean [cult2] of ( turtle-set parent1 parent2 )     ; continuous inheritance
+        setxy random-xcor random-ycor                                ; move turtles to improve visually
       ]
     ]
   ]
@@ -62,8 +63,8 @@ to content-transmission
 
   ask turtles [
     ifelse random-float 1 < first cult_traits
-    [ set cult1 [cult1] of one-of other turtles ]
-    [ set cult2 [cult2] of one-of other turtles ]
+      [ set cult1 [cult1] of one-of other turtles ]
+      [ set cult2 [cult2] of one-of other turtles ]
   ]
 end
 
@@ -72,19 +73,21 @@ to content-transmission-exclusive
   let cult_traits (list 0.7 0.3 )
 
   ask turtles [
-    ifelse random-float 1 < first cult_traits
-    [ set cult1 [cult1] of one-of other turtles
-      ifelse cult1 = 1[set cult2 0][set cult2 1]]
-    [ set cult2 [cult2] of one-of other turtles
-      ifelse cult2 = 1[set cult1 0][set cult1 1]]
+    ifelse random-float 1 < first cult_traits [
+      set cult1 [cult1] of one-of other turtles
+      ifelse cult1 = 1 [set cult2 0][set cult2 1]
+    ][
+      set cult2 [cult2] of one-of other turtles
+      ifelse cult2 = 1 [set cult1 0][set cult1 1]]
   ]
 end
 
 to frequency-transmission-conf
   ; when agents have a preference for more common traits
   ask turtles [
-    if random-float 1 < trait1_freq
-    [ set cult1 [cult1] of one-of other turtles ]
+    if random-float 1 < trait1_freq [
+      set cult1 [cult1] of one-of other turtles
+    ]
   ]
 
 end
@@ -92,10 +95,10 @@ end
 to frequency-transmission-anticonf
   ; when agents have a preference for less common traits
   ask turtles [
-    if random-float 1 < 1 - trait1_freq
-    [ set cult1 [cult1] of one-of other turtles ]
+    if random-float 1 < 1 - trait1_freq [
+      set cult1 [cult1] of one-of other turtles
+    ]
   ]
-
 end
 
 to success-transmission

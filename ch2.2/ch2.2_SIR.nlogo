@@ -1,29 +1,29 @@
-turtles-own [ susceptible? infectious? recovered? ]
+turtles-own [ susceptible? infectious-timer recovered? ]
 
 to setup
   ca
 
   crt 300 [
-  set susceptible? True
-  set infectious? 0
-  set recovered? False
-  set color blue
-  setxy random-xcor random-ycor
+    set susceptible? True
+    set infectious-timer 0
+    set recovered? False
+    set color blue
+    setxy random-xcor random-ycor
   ]
 
   ask n-of 3 turtles [                ; initial population of infected agents
     set susceptible? False
-    set infectious? 10
+    set infectious-timer 10
     set color red
   ]
   reset-ticks
 end
 
 to go
-    if all? turtles [infectious? = 0] [ stop ]
-    move
-    infect
-    recover
+  if all? turtles [infectious-timer = 0] [ stop ]
+  move
+  infect
+  recover
   tick
 end
 
@@ -35,7 +35,7 @@ to move
 end
 
 to infect
-  let carriers turtles with [ infectious? != 0 ]
+  let carriers turtles with [ infectious-timer != 0 ]
 
   ask carriers [
     let susceptible-neighbors turtles with [ susceptible? ] in-radius 2
@@ -43,7 +43,7 @@ to infect
     if any? susceptible-neighbors [
       ask one-of susceptible-neighbors [           ; infect one susceptible agent
         set susceptible? False
-        set infectious? 10                         ; length of infection
+        set infectious-timer 10                         ; length of infection
         set color red
       ]
     ]
@@ -51,14 +51,15 @@ to infect
 end
 
 to recover
-  ask turtles with [infectious? > 0][                             ; ill agents can
-    ifelse infectious? > 1 [ set infectious? infectious? - 1 ]    ; continue to be ill
-                           [ set infectious? 0                    ; or recover
-                             set recovered? True
-                             set color yellow]
+  ask turtles with [infectious-timer > 0][                             ; ill agents can
+    ifelse infectious-timer > 1 [
+      set infectious-timer infectious-timer - 1      ; continue to be ill
+    ][
+      set infectious-timer 0                    ; or recover
+      set recovered? True
+      set color yellow
+    ]
   ]
-
-
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -138,7 +139,7 @@ true
 true
 "" ""
 PENS
-"infected" 1.0 0 -2674135 true "" "plot count turtles with [ infectious? > 0 ]"
+"infected" 1.0 0 -2674135 true "" "plot count turtles with [ infectious-timer > 0 ]"
 "susceptible" 1.0 0 -13345367 true "" "plot count turtles with [ susceptible? ]"
 "recovered" 1.0 0 -1184463 true "" "plot count turtles with [ recovered? ]"
 
@@ -493,7 +494,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
