@@ -1,5 +1,5 @@
-globals [ need  ]
-turtles-own [ products known-traders demand price]
+globals [ need ]
+turtles-own [ products known-traders demand price ]
 
 to setup
   ca
@@ -23,7 +23,6 @@ to go
     price-setting
   ]
 
-
   tick
 end
 
@@ -42,9 +41,9 @@ to price-setting
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+99
 10
-647
+536
 448
 -1
 -1
@@ -69,10 +68,10 @@ ticks
 30.0
 
 BUTTON
-49
-54
-112
-87
+21
+14
+84
+47
 NIL
 setup\n
 NIL
@@ -86,10 +85,10 @@ NIL
 1
 
 BUTTON
-28
-113
-91
-146
+21
+52
+84
+85
 step
 go
 NIL
@@ -103,10 +102,10 @@ NIL
 1
 
 BUTTON
-66
-171
-129
-204
+21
+89
+84
+122
 NIL
 go
 T
@@ -120,13 +119,13 @@ NIL
 1
 
 PLOT
-806
-182
-1006
-332
-plot 1
+558
+10
+758
+160
+Average Supply
 NIL
-NIL
+Mean products
 0.0
 10.0
 0.0
@@ -138,13 +137,13 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [products] of turtles"
 
 PLOT
-791
-340
-991
-490
-plot 2
+559
+173
+759
+323
+Average Price of Goods
 NIL
-NIL
+Price
 0.0
 10.0
 0.0
@@ -497,7 +496,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.4
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

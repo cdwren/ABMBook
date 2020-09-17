@@ -1,26 +1,27 @@
 turtles-own [ goods goodsA goodsB]
 
-
 to setup
   ca
-  crt 500[
-
-  set goods 100                       ; goods in the simple scenario
-  set goodsA random 10                ; goods A & B in the barter scenario
-  set goodsB random 10]
+  crt 500 [
+    set goods 100                       ; goods in the simple scenario
+    set goodsA random 100               ; goods A & B in the barter scenario
+    set goodsB random 100
+  ]
   reset-ticks
 end
 
 to go
-  ifelse scenario = "simple"[         ; choose the scenario in the interface
-     simple ]
-   [ barter ]
+  ifelse scenario = "simple" [         ; choose the scenario in the interface
+    simple
+  ][
+    barter
+  ]
   tick
 end
 
 to simple
-; simple exchange - each turtle gives 1 to another turtle
-    ask turtles [
+  ; simple exchange - each turtle gives 1 to another turtle
+  ask turtles [
     set goods goods - 1                    ; update the seller
     ask one-of other turtles [
       set goods goods + 1                  ; update the buyer
@@ -29,29 +30,29 @@ to simple
 end
 
 to barter
-; simple barter - turtles exchange their more abundant good with other turtles
-
+  ; simple barter - turtles exchange their more abundant good with other turtles
   ask turtles [
-    ifelse goodsA > goodsB[  ; if you have more goods A than B then try to get good B
+    ifelse goodsA > goodsB [  ; if you have more goods A than B then try to get good B
       let sellers turtles with [ goodsB > goodsA and goodsB >= 0] ; exchange with a turtle in the opposite situation
       if any? sellers [
         ask one-of sellers [
-           set goodsB goodsB - 1           ; update the seller
-           set goodsA goodsA + 1]
+          set goodsB goodsB - 1           ; update the seller
+          set goodsA goodsA + 1]
         set goodsB goodsB + 1              ; update the buyer
         set goodsA goodsA - 1
       ]
     ][; if you have more goods B than A then try to get good A
-          let sellers turtles with [ goodsA > goodsB and goodsA >= 0]
+      let sellers turtles with [ goodsA > goodsB and goodsA >= 0]
       if any? sellers [
-       ask one-of sellers [
+        ask one-of sellers [
           set goodsA goodsA - 1            ; update the seller
           set goodsB goodsB + 1
-          ]
-          set goodsA goodsA + 1            ; update the buyer
-          set goodsB goodsB - 1
+        ]
+        set goodsA goodsA + 1            ; update the buyer
+        set goodsB goodsB - 1
       ]
     ]
+    set goods goodsA + goodsB
   ]
 end
 @#$#@#$#@
@@ -132,7 +133,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 1 -16777216 true "" "set-plot-y-range 0 40\nhistogram [ goods ] of turtles"
+"default" 10.0 1 -16777216 true "" "set-plot-y-range 0 40\nhistogram [ goods ] of turtles"
 
 PLOT
 5
@@ -143,7 +144,7 @@ Distribution of each good
 NIL
 NIL
 0.0
-10.0
+100.0
 0.0
 10.0
 true
@@ -504,7 +505,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

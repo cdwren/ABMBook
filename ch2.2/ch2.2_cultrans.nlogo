@@ -3,12 +3,12 @@ turtles-own [cult1 cult2 cultgen success]
 to setup
   ca
   crt n-agents[
-  set size 2
-  setxy random-xcor random-ycor
-  set cult1 0
-  set cult2 0
-  set success random 10
-  set cultgen n-values 5 [ i -> one-of [0 1] ]]
+    set size 2
+    setxy random-xcor random-ycor
+    set cult1 0
+    set cult2 0
+    set success random 10
+    set cultgen n-values 5 [ i -> one-of [0 1] ]]
   ask n-of (floor n-agents * 0.5) turtles [set cult1 1]  ; initially 50% of agents will have trait2 == 1
   ask n-of (floor n-agents * 0.2) turtles [set cult2 1]  ; initially 20% of agents will have trait2 == 1
   reset-ticks
@@ -16,14 +16,14 @@ end
 
 to go
   if ticks = 300 [stop]
-    if transmission = "vertical-tranmission" [ vertical-transmission ]
-    if transmission = "horizontal-transmission" [ horizontal-transmission ]
-    if transmission = "content-transmission" [ content-transmission ]
-    if transmission = "content-transmission" [ content-transmission-exclusive ]
-    if transmission = "frequency-transmission-conf" [frequency-transmission-conf]
-    if transmission = "frequency-transmission-anticonf" [frequency-transmission-anticonf]
-    if transmission = "success-transmission" [success-transmission]
-    if transmission = "copy-from-similar" [copy-from-similar]
+  if transmission = "vertical-tranmission" [ vertical-transmission ]
+  if transmission = "horizontal-transmission" [ horizontal-transmission ]
+  if transmission = "content-transmission" [ content-transmission ]
+  if transmission = "content-transmission" [ content-transmission-exclusive ]
+  if transmission = "frequency-transmission-conf" [frequency-transmission-conf]
+  if transmission = "frequency-transmission-anticonf" [frequency-transmission-anticonf]
+  if transmission = "success-transmission" [success-transmission]
+  if transmission = "copy-from-similar" [copy-from-similar]
   mutation
   ;mutation-continuous
   tick
@@ -31,8 +31,8 @@ end
 
 to vertical-transmission
   ; from parents to offsprings
-  ;ask turtles[                            ; basic vertical transmission with one parent
-   ; hatch 1[set cult1 [cult1] of myself]] ; this is explicit notation, 'hatch' automatically copy variables of the parent
+  ;ask turtles [                            ; basic vertical transmission with one parent
+  ; hatch 1[set cult1 [cult1] of myself]] ; this is explicit notation, 'hatch' automatically copy variables of the parent
   ask n-of (floor n-agents * 0.1) turtles [ ; only 10% of turtles reproduce, otherwise there're too many of them
     if any? other turtles in-radius 3 [           ; transmission with two parents (the spatial contrain is optional)
       let parent1 self
@@ -41,59 +41,59 @@ to vertical-transmission
         set cult1 [cult1] of one-of ( turtle-set parent1 parent2 )   ; discrete inheritance
         set cult2 mean [cult2] of ( turtle-set parent1 parent2 )     ; continuous inheritance
         setxy random-xcor random-ycor                                ; move turtles to make it visually better
-        ]
+      ]
     ]
   ]
 end
 
 to horizontal-transmission
   ; among peers
-  ask turtles[
-   ; set cult1 [cult1] of one-of other turtles               ; basic horizontal transmission
+  ask turtles [
+    ; set cult1 [cult1] of one-of other turtles               ; basic horizontal transmission
     if any? other turtles in-radius 3 [                            ; with spatial factor
-      set cult1 [cult1] of one-of other turtles in-radius 3]
+      set cult1 [cult1] of one-of other turtles in-radius 3
+    ]
   ]
 end
 
 to content-transmission
   ; when one cultural trait is superior to another
+  let cult_traits (list 0.7 0.3 )
 
-  let cult_traits (list  0.7 0.3 )
-
-  ask turtles[
-      ifelse random-float 1 < first cult_traits
-      [ set cult1 [cult1] of one-of other turtles ]
-      [ set cult2 [cult2] of one-of other turtles ]
+  ask turtles [
+    ifelse random-float 1 < first cult_traits
+    [ set cult1 [cult1] of one-of other turtles ]
+    [ set cult2 [cult2] of one-of other turtles ]
   ]
 end
 
 to content-transmission-exclusive
   ; when one cultural trait determines the state of the other
-  let cult_traits (list  0.7 0.3 )
+  let cult_traits (list 0.7 0.3 )
 
-  ask turtles[
-      ifelse random-float 1 < first cult_traits
-      [ set cult1 [cult1] of one-of other turtles
+  ask turtles [
+    ifelse random-float 1 < first cult_traits
+    [ set cult1 [cult1] of one-of other turtles
       ifelse cult1 = 1[set cult2 0][set cult2 1]]
-      [ set cult2 [cult2] of one-of other turtles
+    [ set cult2 [cult2] of one-of other turtles
       ifelse cult2 = 1[set cult1 0][set cult1 1]]
   ]
 end
 
 to frequency-transmission-conf
   ; when agents have a preference for more common traits
-  ask turtles[
-      if random-float 1 < trait1_freq
-      [ set cult1 [cult1] of one-of other turtles ]
+  ask turtles [
+    if random-float 1 < trait1_freq
+    [ set cult1 [cult1] of one-of other turtles ]
   ]
 
 end
 
 to frequency-transmission-anticonf
   ; when agents have a preference for less common traits
-  ask turtles[
-      if random-float 1 < 1 - trait1_freq
-      [ set cult1 [cult1] of one-of other turtles ]
+  ask turtles [
+    if random-float 1 < 1 - trait1_freq
+    [ set cult1 [cult1] of one-of other turtles ]
   ]
 
 end
@@ -101,14 +101,14 @@ end
 to success-transmission
   ; when agents have a preference for copying most successful agents
   ask turtles [
-	set cult1 [cult1] of one-of other turtles with-max [success]
+    	set cult1 [cult1] of one-of other turtles with-max [success]
   ]
 end
 
 
 to copy-from-similar
   ; when agents have a preference for copying most similar agents
-  ask turtles[
+  ask turtles [
     set cult1 [cult1] of one-of turtles with-max [ hamming-distance cultgen [cultgen] of self]
   ]
 end
@@ -122,10 +122,10 @@ end
 
 to mutation
   ; 1 in 1000 change that the trait changes
-  ask turtles[
-    if random-float 1 < 0.001[
+  ask turtles [
+    if random-float 1 < 0.001 [
       ifelse cult1 = 1 [ set cult1 0 ]
-                       [ set cult1 1 ]
+                        [ set cult1 1 ]
     ]
   ]
 end
@@ -239,7 +239,7 @@ CHOOSER
 transmission
 transmission
 "vertical-tranmission" "horizontal-transmission" "content-transmission" "content-transmission-exclusive" "frequency-transmission-conf" "frequency-transmission-anticonf" "success-transmission" "copy-from-similar"
-6
+2
 
 PLOT
 8
@@ -276,7 +276,7 @@ true
 "" ""
 PENS
 "cult1" 1.0 0 -2674135 true "" "plot mean [cult1] of turtles"
-"cult2" 1.0 0 -1184463 true "" "plot mean [cult2] of turtles"
+"cult2" 1.0 0 -13791810 true "" "plot mean [cult2] of turtles"
 
 BUTTON
 144
@@ -628,7 +628,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
