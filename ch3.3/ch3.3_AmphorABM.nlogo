@@ -5,6 +5,7 @@ globals [
   littoral-patches
   mine-patches
   total-harvest
+  total-amphora
 ]
 
 breed [
@@ -623,6 +624,7 @@ to harvestWineEtruscans
   if pcolor = red [
     set pcolor lime
     set EtruscanWine EtruscanWine + 10
+    set total-amphora total-amphora + 10
     if metal  >= 1 [
       set energy energy + 1
     ]
@@ -635,6 +637,7 @@ to harvestWineGreeks
   if pcolor = red [
     set pcolor lime
     set GreekWine GreekWine + 10
+    set total-amphora total-amphora + 10
     if metal  >= 1 [
       set energy energy + 1
     ]
@@ -1381,85 +1384,25 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment" repetitions="10" runMetricsEveryStep="true">
+  <experiment name="experiment" repetitions="3" sequentialRunOrder="false" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <metric>behaviorspace-run-number</metric>
+    <final>export-plot "Wine" (word "metals_ " metals? "_wtc" weighted-trade-choice "_" behaviorspace-run-number ".csv")</final>
     <metric>count turtles</metric>
-    <metric>count lineageA</metric>
-    <metric>count lineageB1</metric>
-    <enumeratedValueSet variable="random-seed">
-      <value value="197"/>
-      <value value="222"/>
-      <value value="14"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="reproduction">
-      <value value="3"/>
-    </enumeratedValueSet>
+    <metric>total-amphora</metric>
+    <steppedValueSet variable="weighted-trade-choice" first="0" step="10" last="100"/>
     <enumeratedValueSet variable="metals?">
+      <value value="true"/>
       <value value="false"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="GrainTradeRate">
-      <value value="20"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="harvest-calories">
-      <value value="4"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="buying-radius">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="life-expectancy">
-      <value value="33"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="harvest-amount">
-      <value value="20"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="number-Gauls">
-      <value value="150"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="weighted-trade-choice">
-      <value value="90"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="number-Colonists">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="planting-calories">
-      <value value="4"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="two-colonist-populations?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="number-mining-Gauls">
-      <value value="19"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Etruscan-arrival">
-      <value value="34"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Greek-arrival">
-      <value value="100"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="experiment" repetitions="3" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <final>export-plot "Wine" (word "metals_ " metals? "_repro" reproduction "_" behaviorspace-run-number ".csv")</final>
-    <metric>count turtles</metric>
-    <metric>count lineageA</metric>
-    <metric>count lineageB1</metric>
     <enumeratedValueSet variable="reproduction">
-      <value value="0"/>
-      <value value="1"/>
       <value value="2"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="metals?">
-      <value value="true"/>
-      <value value="false"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="GrainTradeRate">
       <value value="20"/>
     </enumeratedValueSet>
@@ -1477,9 +1420,6 @@ NetLogo 6.1.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="number-Gauls">
       <value value="150"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="weighted-trade-choice">
-      <value value="50"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="number-Colonists">
       <value value="100"/>
