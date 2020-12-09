@@ -3,18 +3,18 @@ patches-own [ carrying_capacity ]
 to setup
   ca
 
-  import-pcolors "ch1_map.bmp"
+  import-pcolors "ch1.1_map.png"
 
   ;Setup patches
-;  ask patches [
-;    ifelse pcolor = 9.9 [set carrying_capacity 0 ] [ set carrying_capacity 1 ]
-;  ]
-    ask patches [
-    ifelse pcolor = 9.9 [set carrying_capacity 0 ]
-    [
-      ifelse pycor > 42 [set carrying_capacity 1 ][set carrying_capacity 10]
-    ]
+  ask patches [
+    ifelse pcolor = 9.9 [set carrying_capacity 0 ] [ set carrying_capacity 1 ]
   ]
+;    ask patches [
+;    ifelse pcolor = 9.9 [set carrying_capacity 0 ]
+;    [
+;      ifelse pycor > 307 [set carrying_capacity 1 ][set carrying_capacity 10]
+;    ]
+;  ]
 
   crt 20
   [
@@ -22,7 +22,7 @@ to setup
     set size 1
     set shape "turtle"
     ;setxy random 5 random 5
-    setxy ( 15 + random 5 ) ( 32 + random 5 )
+    setxy ( 360 + random 5 ) ( 170 + random 5 )
   ]
   reset-ticks
 end
@@ -50,16 +50,15 @@ to reproduce
     ]
   ]
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-1298
-469
+818
+370
 -1
 -1
-6.0
+1.0
 1
 10
 1
@@ -70,9 +69,9 @@ GRAPHICS-WINDOW
 0
 1
 0
-179
+599
 0
-74
+350
 0
 0
 1
@@ -470,7 +469,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.4
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
