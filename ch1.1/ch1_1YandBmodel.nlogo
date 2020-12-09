@@ -1,61 +1,48 @@
-patches-own [ carrying_capacity ]
+;;; SETUP PROCEDURE
 
 to setup
-  ca
-
+  clear-all
   import-pcolors "ch1.1_map.png"
-
-  ;Setup patches
-  ask patches [
-    ifelse pcolor = 9.9 [set carrying_capacity 0 ] [ set carrying_capacity 1 ]
-  ]
-;    ask patches [
-;    ifelse pcolor = 9.9 [set carrying_capacity 0 ]
-;    [
-;      ifelse pycor > 307 [set carrying_capacity 1 ][set carrying_capacity 10]
-;    ]
-;  ]
-
-  crt 20
-  [
-    set color random 140
-    set size 1
-    set shape "turtle"
-    ;setxy random 5 random 5
+  create-turtles 20                        ; create 20 agents
+  [                                        ; with the following state variables:
+    set color random 140                   ; color
+    set size 2                             ; size
+    set shape "turtle"                     ; shape
+    ; setxy random 5 random 5              ; location
     setxy ( 360 + random 5 ) ( 170 + random 5 )
   ]
   reset-ticks
 end
 
 to go
-
+; at each time step turtles reproduce with a probability equal to the pop_growth (slider)
   ask turtles [
-    ;rt random 360
+    ;rt random 360                         ; this is previous code used to move turtles around
     ;fd 1
-    if random-float 1 <= pop_growth
-       [ reproduce ]
+    if random-float 1 <= pop_growth        ; this version is driven by population growth (slider)
+       [ reproduce ]                       ; the reproduction procedure is defined below
   ]
 
     tick
 end
 
 to reproduce
-;  if any? neighbors4 with [count turtles-here = 0 AND pcolor != white] [
-;    let empty-patch one-of neighbors4 with [count turtles-here = 0 AND pcolor != white]
-  if any? neighbors4 with [count turtles-here < carrying_capacity] [
-    let empty-patch one-of neighbors4 with [count turtles-here < carrying_capacity]
+  ; turtles reproduce only if there is an unoccupied patch in their surrounding that is not water
+
+  if any? neighbors4 with [count turtles-here = 0 AND pcolor != white] [
+    let empty-patch one-of neighbors4 with [count turtles-here = 0 AND pcolor != white]
     hatch 1 [
-      set color color + 0.1
-      move-to empty-patch
+      set color color + 0.1                 ; new turtles are clones of parents but we change the color a bit
+      move-to empty-patch                   ; move the newly hatched turtle to a new patch
     ]
   ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+208
 10
-818
-370
+814
+369
 -1
 -1
 1.0
@@ -79,10 +66,10 @@ ticks
 30.0
 
 BUTTON
-86
-108
-153
-141
+6
+15
+73
+48
 NIL
 setup
 NIL
@@ -96,10 +83,10 @@ NIL
 1
 
 BUTTON
-89
-165
-152
-198
+80
+15
+143
+48
 NIL
 go
 T
@@ -113,15 +100,15 @@ NIL
 1
 
 SLIDER
-25
-260
-197
-293
+0
+62
+172
+95
 pop_growth
 pop_growth
 0
 1
-1.0
+0.3
 0.05
 1
 NIL
@@ -130,39 +117,30 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+A reimplementation of the classical study by Young and Bettinger (1992) investigating the possible drivers behind the Out of Africa dispersal of modern humans. 
+
+Young, D. A., \& Bettinger, R. L. (1992). The Numic Spread: A Computer
+Simulation. \textit{American Antiquity}, 57 (1), 85--99.
+
+This is example model used in chapter 1.1 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press. 
+
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Agents reproduce with a probability equal to population-growth (user setting) and the availability of empty cells in their immediate neighbourhood that are not water cells. 
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
-
-## THINGS TO NOTICE
-
-(suggested things for the user to notice while running the model)
-
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+Use the pop-growth slider to explore the relationship between population growth and the rate of dispersal. Use the speed slider to see the dynamics.
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+The model extensions are available in the textbook library.
 
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+See website xxx
 @#$#@#$#@
 default
 true
