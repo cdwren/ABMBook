@@ -11,32 +11,29 @@ to setup
       set p_ext 0
     ]
     [
-      ; pcolor 64.1 = tropical forest
-      ; pcolor 54.9 = warm-temperate forest
-      ; pcolor 43.9 = temperate forest
+      ; 1) tropical forest = 64.1
+      ; 2) warm-temperate forest = 54.9
+      ; 3) temperate forest = 43.9
       ; 4) boreal forest = 44.7
       ; 5) savanna and dry woodland = 44.4
       ; 6) grassland and dry shrubland = 27
       ; 7) desert = 27.5
       ; 8) tundra = 18.6
       ; 9) land ice = 9.4
-      if pcolor = 44.7 or pcolor = 18.6 or
-      pcolor = 9.4 [
+      if pcolor = 44.7 or pcolor = 18.6 or  ; exclude agents from boreal, tundra, and
+      pcolor = 9.4 [                        ; land ice
         set p_ext 1
         set pcolor brown
       ]
-      ; exclude agents from boreal, tundra, and
-      ; land ice
 
-      if pcolor = 27.5 [
+      if pcolor = 27.5 [                    ; medium desert conditions
         set p_ext 0.07
         set pcolor yellow
       ]
-      ; medium desert conditions
 
-      if pcolor != brown and pcolor != yellow [
+
+      if pcolor != brown and pcolor != yellow [ ; default value for other veg types
         set p_ext 0.01
-        ; default value for most veg types
         set pcolor green
       ]
     ]
@@ -47,7 +44,6 @@ to setup
   [
     set color random 140
     set size 2
-    ;setxy random 5 random 5
     setxy ( 215 + random 5 ) ( 94 + random 5 )
   ]
   reset-ticks
@@ -56,11 +52,11 @@ end
 to go
 
   ask turtles [
-    ;rt random 360
-    ;fd 1
+    ; if random drawn number below the probability of extinction... die
     if random-float 1 <= p_ext
        [die]
-    if random-float 1 <= p_cr ;pop_growth
+    ; if random drawn number below the probability of reproduction... create new agent
+    if random-float 1 <= p_cr ; pop_growth
        [ reproduce ]
   ]
 
@@ -69,8 +65,11 @@ end
 
 to reproduce
   if any? neighbors with [count turtles-here = 0 AND pcolor != white] [
+    ; two options: uncomment as necessary
+    ; a) any empty patch of land in the immediate neighbourhood
     let empty-patch one-of neighbors with [count turtles-here = 0 AND pcolor != white]
-;    let empty-patch min-one-of neighbors with [count turtles-here = 0 AND pcolor != white] [p_ext]
+    ; b) the empty patch of land in the immediate neighbourhood with the lowest chance of going extinct
+ ;   let empty-patch min-one-of neighbors with [count turtles-here = 0 AND pcolor != white] [p_ext]
 
     hatch 1 [
       set color color + 0.05
