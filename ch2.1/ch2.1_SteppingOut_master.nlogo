@@ -157,39 +157,28 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This is an example model used in chapter 2.1 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
+To cite the full model use:
+
+Mithen, Steven J, and Melissa Reed. 2002. ‘Stepping out : A Computer Simulation of Hominid Dispersal from Africa’. Journal of Human Evolution 43: 433–62. https://doi.org/10.1006/jhev.2002.0584.
+
+Hughes, John K, Alan Haywood, Steven J Mithen, Bruce W Sellwood, and Paul J Valdes. 2007. ‘Investigating Early Hominin Dispersal Patterns: Developing a Framework for Climate Data Integration’. Journal of Human Evolution 53: 465–74. https://doi.org/10.1016/j.jhevol.2006.12.011.
+
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+The agents have a probability of extinction (p_ext) dependent on the environmental zone.  Dispersal happens through reproduction (where probibility of reproducing is set by a global slider p_cr). Newly hatched agents can only disperse on not-occupied cells which are not water. 
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Please ensure that the file "ch2.1_veg.png" is in the same folder. 
 
-## THINGS TO NOTICE
+Press the Setup button and then the Go button to run the model. The p_cr slider defines the probability of hatching a new agent. This probability is the same for all agents and independent of the environmental zones.
 
-(suggested things for the user to notice while running the model)
-
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
-
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
 
 ## RELATED MODELS
 
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+This is an ABM reformulation of the classical Fisher--Skellam model.
 @#$#@#$#@
 default
 true
