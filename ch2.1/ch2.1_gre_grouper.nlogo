@@ -1,20 +1,14 @@
-globals [ summer-patches winter-patches ]
-turtles-own [
-  energy
-  visited-patches
+;; This is a simplified version of Clark and Crabtree's Ger Grouper model only including the parts relevant to movement.
+;; A more complete version is described within chapter 2.3.
+
+globals [
+  summer-patches
+  winter-patches
+  current-season
 ]
-
-to go
-  move-season
-  tick
-end
-
-
 
 to setup
   ca
-  crt 10
-
   ; define summer and winter patches
   set summer-patches patches with
     [pxcor < (max-pxcor / 2)]
@@ -22,50 +16,36 @@ to setup
     [pxcor >= (max-pxcor / 2)]
   ask summer-patches [set pcolor green]
   ask winter-patches [set pcolor one-of [green brown brown grey grey grey]]
+  crt 10 [move-to one-of winter-patches]
 
   reset-ticks
 end
 
-to move-season
-  ; move from winter to summer
-  ; pastures and vice versa
-  ask turtles [
-    ifelse ticks mod 2 = 0 [
-      move-to one-of summer-patches
-      with [count turtles-here = 0]
-    ][
-      move-to one-of winter-patches with
-      [count turtles-here = 0]
-    ]
+to go
+  move-season
+  tick
+end
 
-    ; local movement - check the area for
-    ; productive patches
-    ; if you landed on a brown patch…
-    ifelse pcolor != green [
-      ifelse any? neighbors with
-          [ pcolor = green ]
-      ; if you find a patch in the neighborhood
-      ; that's green move there
-      [ move-to one-of neighbors with
-        [ pcolor = green ]
-        ; agents gain energy
-      ][
-        ; agents lose energy
-      ]
-    ][ ; if you landed on a green patch on first try
-      ; agents gain energy
+to move-season ;; ger procedure
+  ;; move to the winter or summer pastures, then move-local and graze
+  ifelse ticks mod 2 = 0 [set current-season "winter"][set current-season "summer"]
+
+  ask turtles [
+    ifelse current-season = "winter" [
+      move-to one-of summer-patches with [count turtles-here = 0]
+    ][
+      move-to one-of winter-patches with [count turtles-here = 0]
+      move-local
     ]
   ]
 end
 
-;; here the gers remember the last patches they went to that were green
-;; since update-history is only called in the winter
-;; the gers only remember the last winter camps that were productive
-
-to update-history
-  if pcolor = green [
-    set visited-patches (patch-set patch-here
-    visited-patches)
+to move-local    ;; ger procedure
+  ;; ger moves to a close productive patch if available
+  if pcolor != green [
+    if any? winter-patches in-radius 1.5 with [ pcolor = green ][
+      move-to one-of winter-patches in-radius 1.5 with [ pcolor = green ]
+    ]
   ]
 end
 @#$#@#$#@
