@@ -1,193 +1,94 @@
-patches-own [prob]
+patches-own [prob soil_quality]
 to setup
   ca
-  crt 1[
-    pen-down           ; to visualise the path taken
-    set size 2
+  crt 1000 [
+    set size 5
   ]
 
-  if walk = "target" or walk = "memory" [ ask n-of 100 patches [set pcolor white]] ; set up targets for targeted walk
-  if walk = "restricted" [ ask patches with [pxcor = 50] [set pcolor white]]
+  if walk = "IDD" [
+    ask patches [
+      set soil_quality 100
+      set pcolor scale-color green soil_quality 0 100
+    ]
+  ]
+  if walk = "spatial-foresight" [
+    ask patches [
+      set soil_quality 100 - distance patch 50 50
+      set pcolor scale-color green soil_quality 0 100
+    ]
+  ]
 
   reset-ticks
-
 end
 
 to go
-
-  if walk = "random"  [random-walk] ; change to [random-walk1] or [random-walk2] or [random-walk3] for alternative implementations
-  if walk = "random-walk-patches"  [random-walk-patches]
-  if walk = "correlated"  [random-correlated-walk]
-  if walk = "target"  [target-walk]
-  if walk = "levy"  [levy-walk]
-  if walk = "weighted"  [weighted-walk]
-  if walk = "restricted"  [restricted-walk]
-  if walk = "memory"  [memory-walk]
+  if walk = "leap-frog"  [leap-frog]
+  if walk = "IDD"  [idd]
+  if walk = "spatial-foresight" [spatial-foresight-walk]
   tick
 end
 
-to random-walk
-  ; Here the turtles have 50% probability of staying put
-  ; the movement length is always the same (1)
-  ask turtle 0 [
-    if random 2 = 1 [
-      set heading random 360
-      fd 1
-    ]
-  ]
-
-end
-
-to random-walk1
-  ; Here the turtles have 50% probability of staying put
-  ; the movement length is always the same (1)
-  ask turtle 0[
-  	; rt random-float 360           ; alternative implementation
-      set heading random-float 360
-  	fd random 2                     ; this is where we coded the 50% probability of staying put
-  ]
-end
-
-to random-walk2
-  ; Here the turtles have 1/9th probability of staying put
-  ; the movement length is always the same (1)
-  ask turtle 0 [
-    if random 9 > 0 [
-         set heading random-float 360
-         fd 1
-    ]
-  ]
-end
-
-to random-walk3
-  ask turtle 0 [
-    ; Here the turtles always move
-    ; the movement length is always the same (1)
-      rt 360
-      fd 1
-    ]
-end
-
-to random-walk-patches
-  ; Here the turtles have 1/9th probability of staying put
-  ; the movement length differs between the compass directions (1) and diagonals (1.41)
-  ask turtle 0 [
-    move-to one-of patches in-radius 1.5
-  ]
-end
-
-to random-correlated-walk
-    ; Here the turtles have 50% probability of staying put
-    ; the movement length is always the same (1)
-    ; the direction of movement is not random
-    ask turtle 0[
-  	
-    	rt random-normal 0 45
-    	fd random 2
-  ]
-end
-
-to target-walk
-  ;;; Turtles move straight to one of the target calls if it is in their sensing radius
-  ;;; otherwise they engage in random walk
-  ;;; turtles always move
-  ask turtle 0[
-    ; detect a target in the vision radius
-  	let target one-of patches with [pcolor = white] in-radius 10
-    ; if there is one move to it
-    ifelse target != nobody [
+to leap-frog
+  let leap-distance 10
+  ask turtles [
+    let dir random 360
+    let dist random leap-distance + 1
+    let target patch-at-heading-and-distance dir dist
+    ;check to make sure they're not leaping off the map
+    if target != nobody [
+      face target
       move-to target
-      ; remove the target (otherwise the turtle will get stuck here)
-      ask patch-here [set pcolor grey]
-    ]
-    ; if there is no target move at random
-    [
-      set heading random-float 360
-      fd 1
     ]
   ]
 end
 
-
-to levy-walk
-  ;;; this code has been adapted from Perry & O'Sullivan 2013
-  ;;; the agent always moves
-  ;;; the length of their step is modelled as cauchy distribution
-  ask turtle 0[
-  	set heading random-float 360
-  	let step-length r-cauchy 0 1 ; see the r-cauchy reporter below
-  	fd step-length
+to idd
+  let leap-distance 10
+  let occupied-cost 0.05    ; fixed 5% penalty on habitat_quality for each arrival of a farmer
+  ask turtles [
+    let target max-one-of patches in-radius leap-distance [soil_quality]
+    move-to target
+    set soil_quality (soil_quality * (1 - occupied-cost))
+    set pcolor scale-color green soil_quality 0 100
   ]
 end
 
-to-report r-cauchy [loc scl]
-  ;;; auxilary function to levy-walk
-  let X (pi * (random-float 1)) ;; Netlogo tan takes degrees not radians
-  report loc + scl * tan(X * (180 / pi))
-end
-
-
-
-; weighted walk here
-
-
-
-
-
-
-
-
-to restricted-walk
-  ;;; Turtles move forward until the come accross and obstacle
-  ask turtles
-  [
-    ifelse [pcolor] of patch-ahead 1 = white
-      [ lt random-float 360 ]   ;; We see a blue patch in front of us. Turn a random amount.
-      [ fd 1 ]                  ;; Otherwise, it is safe to move forward.
+to spatial-foresight-walk
+  ask turtles [
+    ifelse random-float 1 < spatial-foresight [
+      let p max-one-of patches in-radius
+        1.5 with [not any? turtles-here]
+        [soil_quality]
+      if p != nobody [move-to p]
+    ][
+      let p one-of patches in-radius
+        1.5 with [not any? turtles-here]
+      if p != nobody [move-to p]
+    ]
   ]
 end
-
-
-
-; memory walk here
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @#$#@#$#@
 GRAPHICS-WINDOW
-194
+210
 10
-998
-815
+666
+467
 -1
 -1
-4.0
+4.44
 1
 10
 1
 1
 1
 0
+0
+0
 1
-1
-1
--99
-99
--99
-99
+0
+100
+0
+100
 0
 0
 1
@@ -195,10 +96,10 @@ ticks
 30.0
 
 BUTTON
-94
-17
-157
-50
+126
+71
+189
+104
 NIL
 go
 T
@@ -212,10 +113,10 @@ NIL
 1
 
 BUTTON
-18
-17
-85
-50
+124
+31
+191
+64
 NIL
 setup
 NIL
@@ -229,31 +130,63 @@ NIL
 1
 
 CHOOSER
-18
-55
-185
-100
+58
+149
+204
+194
 walk
 walk
-"random" "random-walk-patches" "correlated" "target" "levy" "weighted" "restricted" "memory"
-3
+"leap-frog" "IDD" "spatial-foresight"
+2
+
+BUTTON
+127
+116
+190
+149
+step
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+59
+200
+205
+233
+spatial-foresight
+spatial-foresight
+0
+1
+0.95
+.05
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-Code for chapter 2.1 in the textbook "Agent-based modelling for archaeologists". 
+(a general understanding of what the model is trying to show or explain)
 
 ## HOW IT WORKS
 
-Selection of algorithms used to model individual movement. 
+(what rules the agents use to create the overall behavior of the model)
 
 ## HOW TO USE IT
 
-Choose from the dropdown menu the type of "walk", press the setup button, then the go button. 
+(how to use the model, including a description of each of the items in the Interface tab)
 
 ## THINGS TO NOTICE
 
-There are several implementations of the random walk. To try them out change the code by changing random-walk1(2, 3) to random-walk. Do not forget to change the name of the original function. 
+(suggested things for the user to notice while running the model)
 
 ## THINGS TO TRY
 

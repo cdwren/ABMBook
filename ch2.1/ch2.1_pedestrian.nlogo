@@ -2,11 +2,14 @@ extensions [ Rnd ]
 patches-own [prob habitat_quality]
 to setup
   ca
-  crt 1
-  [pen-down
-  set size 5]
+  crt 1 [
+    setxy max-pxcor / 2 max-pycor / 2
+    pen-down ; to visualize the path taken
+    set size 5
+  ]
 
   if walk = "target" [ ask n-of 30 patches [set pcolor white]]
+  if walk = "restricted" [ ask patches with [pxcor = 50] [set pcolor white]]
   if walk = "IDD" [
     ask patches [
       set habitat_quality 100
@@ -20,59 +23,86 @@ to setup
     ]
   ]
   reset-ticks
-
 end
 
 to go
-
-  if walk = "random"  [random-walk]
+  if walk = "random1"  [random-walk1]
+  if walk = "random2"  [random-walk2]
+  if walk = "random3"  [random-walk3]
+  if walk = "random4"  [random-walk4]
+  if walk = "random-patches"  [random-walk-patches]
   if walk = "correlated"  [random-correlated-walk]
   if walk = "target"  [target-walk]
   if walk = "levy"  [levy-walk]
-  if walk = "leap-frog"  [leap-frog]
-  if walk = "IDD"  [idd]
   if walk = "weighted-random" [weighted-random-walk]
+  if walk = "restricted"  [restricted-walk]
   tick
 end
 
 to random-walk1
-
+  ; Turtles have 50% probability of not moving
+  ; the movement length is always the same (1)
   ask turtle 0 [
-  	; rt random-float 360
-      set heading random-float 360
-  	fd random 2
-  ]
-
-end
-to random-walk2
-  ask turtle 0 [
-    let target-cells (patch-set neighbors patch-here )
-    move-to one-of target-cells
-; ask target-cells [print self] ;;; debugging line
-  ]
-
-end
-
-to random-walk
-  ask turtle 0 [
-    if random 9 > 0 [
-         set heading random-float 360
-         fd 1
+    if random 2 = 1 [ ;this results in nothing happening 50% of the time
+      ;right random 360 ; alternative but identical implementation
+      set heading random 360
+      fd 1
     ]
   ]
 end
 
+to random-walk2
+  ; Turtles also have 50% probability of not moving
+  ; the movement length is always the same (1)
+  ask turtle 0 [
+    set heading random 360
+    fd random 2 ; 50% of the time this is zero distance, so no move occurs
+  ]
+end
+
+to random-walk3
+  ; Turtles have 1/9th probability of not moving
+  ; the movement length is always the same (1)
+  ask turtle 0 [
+    if random 9 > 0 [
+      set heading random 360
+      fd 1
+    ]
+  ]
+end
+
+to random-walk4
+  ; Here the turtles always move
+  ; the movement length is always the same (1)
+  ask turtle 0 [
+    rt 360
+    fd 1
+  ]
+end
+
+to random-walk-patches
+  ; Here the turtles have 1/9th probability of not moving
+  ; the movement length differs between the compass directions (1) and diagonals (1.41)
+  ask turtle 0 [
+    move-to one-of patches in-radius 1.5
+    ;move-to one-of neighbors   ; turtles always move
+  ]
+end
+
 to random-correlated-walk
+    ; Here the turtles have 50% probability of staying put
+    ; the movement length is always the same (1)
+    ; the direction of movement is not fully random
     ask turtle 0 [
-  	
     	rt random-normal 0 45
     	fd random 2
   ]
-
 end
 
 to target-walk
-
+  ;;; Turtles move straight to one of the target calls if it is in their sensing radius
+  ;;; otherwise they engage in random walk
+  ;;; turtles always move
   ask turtle 0 [
     ; detect a target in the vision radius
   	let target one-of patches with [pcolor = white] in-radius 3
@@ -90,10 +120,9 @@ to target-walk
   ]
 end
 
-
-
-
 to weighted-random-walk
+  ;;; requires the Rnd extension included at the top of the code
+  ;;; Agent will always move unless all neighboring patches are taken
    ask turtle 0 [
       ; choose a target patch
       let target rnd:weighted-one-of patches in-radius 2 with [not any? turtles-here] [habitat_quality]
@@ -102,10 +131,10 @@ to weighted-random-walk
   ]
 end
 
-
-
 to levy-walk
-  ;;; this code has been picked up from Perry & O'Sullivan
+  ;;; this code has been adapted from Perry & O'Sullivan 2013
+  ;;; the agent always moves
+  ;;; the length of their step is modelled as cauchy distribution
   ask turtle 0 [
   	set heading random-float 360
   	let step-length r-cauchy 0 1
@@ -114,31 +143,18 @@ to levy-walk
 end
 
 to-report r-cauchy [loc scl]
+  ;;; auxilary function to levy-walk
   let X (pi * (random-float 1)) ;; Netlogo tan takes degrees not radians
   report loc + scl * tan(X * (180 / pi))
-
 end
 
-to leap-frog
-  let leap-distance 10
-  ask turtle 0 [
-    let dir random 360
-    let dist random leap-distance
-    let target patch-at-heading-and-distance dir dist
-    if target != nobody [    ;check to make sure they're not leaping into the ocean
-      move-to target
-    ]
-  ]
-end
-
-to idd
-  let leap-distance 10
-  let occupied-cost 0.05    ; fixed 5% penalty on habitat_quality for each arrival of a farmer
-  ask turtles [
-    let target max-one-of patches in-radius leap-distance [habitat_quality]
-    move-to target
-    set habitat_quality (habitat_quality * (1 - occupied-cost))
-    set pcolor scale-color green habitat_quality 0 100
+to restricted-walk
+  ;;; Turtles move forward until they come across an obstacle, then they turn randomly
+  ask turtles
+  [
+    ifelse [pcolor] of patch-ahead 1 = white
+      [ lt random-float 360 ]   ;; We see a white patch in front of us. Turn a random amount.
+      [ fd 1 ]                  ;; Otherwise, it is safe to move forward.
   ]
 end
 @#$#@#$#@
@@ -156,8 +172,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-0
-0
+1
+1
 1
 0
 100
@@ -187,10 +203,10 @@ NIL
 1
 
 BUTTON
-103
-199
-170
-232
+124
+31
+191
+64
 NIL
 setup
 NIL
@@ -210,8 +226,8 @@ CHOOSER
 194
 walk
 walk
-"random" "correlated" "target" "weighted-random" "levy" "leap-frog" "IDD"
-6
+"random1" "random2" "random3" "random4" "random-patches" "correlated" "target" "weighted-random" "levy" "restricted" "leap-frog" "IDD"
+10
 
 BUTTON
 127
@@ -572,7 +588,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.4
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
