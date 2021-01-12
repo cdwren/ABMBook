@@ -187,7 +187,10 @@ NIL
 ## WHAT IS IT?
 
 Model showcasing the basic dynamic of supply and demand.
-Code 2.2.3-2.2.8 of the book "Agent-based modelling for archaeologists". 
+
+This is an example model (Code 2.2.3-2.2.8) used in chapter 2.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
+
+For the original version of a simple supply and demand model see Hamill and Gilbert 2016, ch. 2. 
 
 ## HOW IT WORKS
 
@@ -215,7 +218,7 @@ Hamill, Lynne, and Nigel Gibert. 2016. Agent Based Modelling in Economics. Chich
 
 ## CREDITS AND REFERENCES
 
-This model uses a combination of code from Hamil and Gilbert 2016, chapter 2 "Starting Agent-based Modelling" and 'Where is my pot?' model developed by F. Scherjon, I. Romanowska and students of the "Simulation for Archaeologists" module run at Leiden University. All additional changes by I. Romanowska
+This model uses a combination of code from Hamill and Gilbert 2016, chapter 2 "Starting Agent-based Modelling" and 'Where is my pot?' model developed by F. Scherjon, I. Romanowska and students of the "Simulation for Archaeologists" module run at Leiden University. All additional changes by I. Romanowska
 @#$#@#$#@
 default
 true

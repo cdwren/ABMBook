@@ -4,11 +4,13 @@ turtles-own [ products known-traders demand price ]
 to setup
   ca
   crt 100
-  set need 10
+  set need 10            ; in other versions each trader may have a different overall demand, here we set it as a constant
 
   ask turtles [
     set products 5
     set known-traders n-of 3 other turtles
+ ;   set known-traders n-of 3 other turtles in-radius 10  ; use this line to increase or decrease information availability
+    setxy random-xcor random-ycor
   ]
 
   reset-ticks
@@ -18,8 +20,8 @@ end
 to go
   ask turtles [
     let change (1 - random 3)
-    if products > 1 [ set products products + change ]
-    set demand (need - products)
+    if products > 1 [ set products products + change ] ; we simplify production and trading to random fluctuations
+    set demand (need - products)                       ; agent's demand is the difference between how many products they want and how many they have
     price-setting
   ]
 
@@ -37,7 +39,7 @@ to-report average-supply
 end
 
 to price-setting
-  set price (average-demand / (average-supply + average-demand))
+  set price (average-demand / (average-supply + average-demand))   ; price is equal to the average demand dividied by the sum of the average supply and the average demand
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -157,39 +159,34 @@ PENS
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+Model showcasing the basic price setting mechanism.
+
+This is an example model (Code 2.2.9) used in chapter 2.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
+
+For the original version see Brughmans and Poblome 2016. 
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Agents assess their local supply and demand and reach to their wider network for information about global supply and demand. They set the brice using the average of these values.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Press on the Setup button, then on the Go button. 
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+See how the average supply and the average price correlate with each other. 
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+Uncomment the line "set known-traders n-of 3 other turtles in-radius 10". By changing the radius of known turtles and the number of contacts you modify the level of information a trader has. How does it impact on the price?
 
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+Brughmans, Tom, and Jeroen Poblome. 2016. ‘Roman Bazaar or Market Economy? Explaining Tableware Distributions in the Roman East through Computational Modelling’. Antiquity 90 (350): 393–408. https://doi.org/10.15184/aqy.2016.35.
+
+Changes to the original code: I.Romanowska.
 @#$#@#$#@
 default
 true
