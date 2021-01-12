@@ -22,10 +22,12 @@ end
 to simple
   ; simple exchange - each turtle gives 1 to another turtle
   ask turtles [
-    set goods goods - 1                    ; update the seller
-    ask one-of other turtles [
-      set goods goods + 1                  ; update the buyer
-    ]
+    if goods > 0 [                           ; comment out (and one bracket at the end) to allow for negative values
+      set goods goods - 1                    ; update the seller
+        ask one-of other turtles [
+          set goods goods + 1                  ; update the buyer
+        ]
+     ]
   ]
 end
 
@@ -57,9 +59,9 @@ to barter
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+388
 10
-647
+825
 448
 -1
 -1
@@ -120,12 +122,12 @@ NIL
 PLOT
 4
 140
-204
+367
 290
 Amount of goods
 NIL
 NIL
-0.0
+-100.0
 500.0
 0.0
 40.0
@@ -138,7 +140,7 @@ PENS
 PLOT
 5
 298
-205
+367
 448
 Distribution of each good
 NIL
@@ -146,13 +148,13 @@ NIL
 0.0
 100.0
 0.0
-10.0
+40.0
 true
 true
 "" ""
 PENS
-"goods A" 1.0 1 -5298144 true "" "set-plot-y-range 0 40\nhistogram [ goodsA ] of turtles"
-"goods B" 1.0 1 -13840069 true "" "set-plot-y-range 0 40\nhistogram [ goodsB ] of turtles"
+"goods A" 1.0 1 -5298144 true "" "histogram [ goodsA ] of turtles"
+"goods B" 1.0 1 -13840069 true "" "histogram [ goodsB ] of turtles"
 
 CHOOSER
 10
@@ -164,6 +166,17 @@ scenario
 "simple" "barter"
 1
 
+MONITOR
+219
+87
+367
+132
+Turtle with the most goods
+max [goods] of turtles
+17
+1
+11
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -171,7 +184,7 @@ Simple trade model consisting of two modes:
 - simple exchange (from Wilensky 2011 "Simple Economy")
 - simple barter echange.
 
-Code 2.2.1 and 2.2.2 of the book "Agent-based modelling for archaeologists". 
+This is an example model (Code 2.2.1 and 2.2.2 ) used in chapter 2.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
 
 ## HOW IT WORKS
 
@@ -179,7 +192,8 @@ Agents randomly choose a partner with whom they exchange items.
 
 ## HOW TO USE IT
 
-Choose between 'simple' and 'barter' in the interface. Press Setup, then press go. 
+Choose between 'simple' and 'barter' in the interface. Press Setup, then press Go. 
+You can allow the turtles to go into debt by commenting out  if goods > 0 [  and one of the brackets ] in the 'simple' procedure.
 
 ## THINGS TO NOTICE
 
@@ -192,13 +206,9 @@ For the barter model look at the "Distribution of each good" histogram. It shows
 - Try changing the value of goodsA versus goodsB (eg. one goodA for two goodsB)
 
 
-## RELATED MODELS
-
-The simple model is Wilensky 2011 "Simple Economy".
-
 ## CREDITS AND REFERENCES
 
-Iza Romanowska
+The simple model is adapted from Wilensky 2011 "Simple Economy" NetLogo library.
 @#$#@#$#@
 default
 true
