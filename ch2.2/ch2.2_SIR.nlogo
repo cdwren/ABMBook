@@ -20,21 +20,29 @@ to setup
 end
 
 to go
+  ; agents move, infect, then check the status of their recovery and if the deadly? option is switched on may die
   if all? turtles [infectious-timer = 0] [ stop ]
   move
   infect
   recover
+  if deadly?[
+    ask turtles with [ infectious-timer != 0 ][
+        if random-float 1 < 0.10 [die]           ; probability of dying, can be changed to a slider
+    ]
+  ]
   tick
 end
 
 to move
-  ask n-of mobility turtles [
+  ; proportion of agents set by the mobility slider will move at random
+  ask n-of floor (mobility * count turtles) turtles [
     rt random 360
     fd 1
   ]
 end
 
 to infect
+  ; all infected agents can pass the disease to susceptible agents within a radius
   let carriers turtles with [ infectious-timer != 0 ]
 
   ask carriers [
@@ -43,7 +51,7 @@ to infect
     if any? susceptible-neighbors [
       ask one-of susceptible-neighbors [           ; infect one susceptible agent
         set susceptible? False
-        set infectious-timer 10                         ; length of infection
+        set infectious-timer 10                    ; length of infection, can be changed into a slider
         set color red
       ]
     ]
@@ -51,6 +59,7 @@ to infect
 end
 
 to recover
+  ; agents take time to recover
   ask turtles with [infectious-timer > 0][                             ; ill agents can
     ifelse infectious-timer > 1 [
       set infectious-timer infectious-timer - 1      ; continue to be ill
@@ -127,7 +136,7 @@ PLOT
 7
 349
 487
-469
+584
 Evolution of the population
 NIL
 NIL
@@ -142,6 +151,7 @@ PENS
 "infected" 1.0 0 -2674135 true "" "plot count turtles with [ infectious-timer > 0 ]"
 "susceptible" 1.0 0 -13345367 true "" "plot count turtles with [ susceptible? ]"
 "recovered" 1.0 0 -1184463 true "" "plot count turtles with [ recovered? ]"
+"dead" 1.0 0 -11783835 true "" "plot 300 - count turtles"
 
 SLIDER
 2
@@ -151,18 +161,30 @@ SLIDER
 mobility
 mobility
 0
-count turtles
-150.0
 1
+0.75
+0.01
 1
 NIL
 HORIZONTAL
+
+SWITCH
+2
+94
+105
+127
+deadly?
+deadly?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
 
 Baseline SIR model. 
-Code blocks 2.2.22 of the book "Agent-based modelling for archaeologists".
+
+This is an example model (2.2.22) used in chapter 2.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
 
 ## HOW IT WORKS
 
@@ -172,6 +194,8 @@ After 9 time steps agents recover and cannot infect any more. Recovered agents c
 ## HOW TO USE IT
 
 Click on the setup, then on go. The simulation will stop when all agents recover. 
+You can change the number of agents that are mobile using the movement slider.
+You can add a probability of dying as a result of the disease using the deadly? switch.
 
 
 ## THINGS TO TRY
