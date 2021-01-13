@@ -154,7 +154,7 @@ end
 
 to-report hamming-distance [ list1 list2 ]
   ; reports hamming distance between two sequences
-  ; implementation by Nicolas Payette https://stackoverflow.com/questions/25125268/netlogo-remove-turtle-given-hamming-distance
+
   report length remove true (map [[?1 ?2] -> ?1 = ?2 ] list1 list2)
 end
 @#$#@#$#@
