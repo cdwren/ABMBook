@@ -168,9 +168,9 @@ to BRN-exchange
   if any? turtles with [pots < 2] [
     ask turtles with [pots < 2] [
       if random-float 1 < reputation and random-float 1 < exchange-probability-BRN [
-        set pots pots + 1
-        let lender one-of turtles with [pots > 2]
+        let lender one-of turtles with [pots >= 2]
         ask lender [ set pots pots - 1 ]
+        set pots pots + 1
         set BRN-list lput [who] of lender BRN-list
         create-edge-with lender
       ]
@@ -770,7 +770,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
