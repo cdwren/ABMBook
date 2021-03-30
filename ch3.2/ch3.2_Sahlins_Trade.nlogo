@@ -392,7 +392,7 @@ SWITCH
 260
 BRN?
 BRN?
-0
+1
 1
 -1000
 
@@ -431,39 +431,26 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This model implements several types of trade discussed by Sahlins's 1972 book, Stone Age Economics including: pooling, generalized reciprocal network, and balanced reciprocal network. Four groups, each with a single head of household are modelled with varying degrees of connectedness depending on the type of trade.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Agents produce goods, called pots, then trade them around according to specific rules which are controlled by the switches. Pooling means agents all give their pots to their head of household to be redistributed equally among the group members. GRN means reaching beyond the household group when they fall short of pots to specific individuals they have a connection with. BRN uses a reputation network to determine if people are reliably going to pay borrowed pots back later. 
+
+The network is built using a specified density of connections (target-density). 
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Choose a target density high enough to connect everyone (though it will still work without it), choose your trade types with the switches, and run. Agent sizes fluctuate with their personal wealth (pot count), so you probably want to slow the model way down to see the size changes a little better or use the "step" button to go one tick at a time.
+
+Control the probabilities of GRN and BRN exchange with the interface sliders (pooling is just on or off). 
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
-
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
-
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+Take a look at how the social network analysis monitors change with different connections. Are these values more or less variable with higher target-density?
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
