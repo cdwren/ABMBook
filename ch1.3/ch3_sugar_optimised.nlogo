@@ -1,125 +1,154 @@
-breed [ producers producer ]
-breed [ vendors vendor ]
-globals [ mean-goods ]
-vendors-own [ goods distance-level ]
-producers-own [ goods distance-level ]
+breed [foragers forager]
+
+globals [ ]
+patches-own [ resources max-resources occupation-frequency ]
+foragers-own [ storage ]
+
 
 to setup
   ca
-  ; create producer at the center of the screen (make sure the location of origin is set to 'center')
-  create-producers 1 [
-    set color red
+
+  ifelse hills? [make-hills][make-plain]
+
+  create-foragers number-foragers [
     set shape "house"
-    set goods 0            ;variables initialise as 0 if not specified otherwise but it is a good practice to initialise them explicitly
-    set distance-level 0
-
+    set storage 10
+    set color blue
+    ;setxy random max-pxcor + 1 random max-pycor + 1
+    move-to one-of patches with [not any? foragers-here]
   ]
-  ; create the first level of vendors around the producer
-  ask patches at-points [[0 -1][0 1][-1 0][1 0]] [
-    sprout-vendors 1 [
-      set color grey
-      set shape "person"
-      set goods 0
-      set distance-level 1 ; the distance level has to be higher than the distance level of the producer
-    ]
-  ]
-
-  repeat (level - 1) [ populate ]  ; create as many distance level as required. level - 1 because we create the first distance-level explicitly above
-  ask vendors  [ set label goods ] ; visualise the number of goods each vendor has
-  set mean-goods (list 0 0 0 0 0 0 ) ; initialise the list of mean number of goods at each distance-level
-
+  update-display
   reset-ticks
 end
 
-to populate
-  ; procedure used to populate the world with vendors in a concentric fashion
-  ask vendors [
-    let not-occupied-count count neighbors4 with [ not any? turtles-here ] ; only create new vendors on empty patches
-    hatch not-occupied-count [
-      set color color - 10                                                 ; here color refers to the color of parent
-      set distance-level [distance-level + 1] of myself                        ; distance-level equals distance-level of parent + 1
-      set size 1
-      set goods 0
-      move-to one-of neighbors4 with [ not any? turtles-here ]
-    ]
-  ]
-end
-
 to go
-  ; main loop of the simulation
+  ask foragers [
+    gather
+    eat
+    move
+    record-occupation
+  ]
 
-  ask turtles [ set label goods ]
-  ask producers [ set goods production-level ]              ; 1. producer produces goods
-  ask producers [ trade ]                                   ; 2. producer distributes goods to the closest markets
-  ask vendors with [goods > 0 ] [ trade ]                   ; 3. markets that have goods trade goods moving them further away from the production site
-  ask vendors with [ goods >= 1 ] [ set goods goods - 1 ]   ; 4. some percentage of goods is destroyed in the process
+  ask patches [
+    regrow-patches-slow
+  ]
 
-  iterate-list-of-mean-goods                                ; 5. we record the mean number of goods at each distance-level
+  ifelse viz-archrecord? [update-display-occupation][update-display]
   tick
 end
 
-to trade1
-  ; trade procedure, used by both the producers and vendors
-  let next-tier-neighbors (vendors-on neighbors4) with [ distance-level = [ distance-level + 1 ] of myself ] ; establish trading partners: turtles on neighbouring patches with a higher distance-level
-  while [goods > storage * storage-threshold] [                                                              ; only goods over threshold are traded
-    ifelse any? next-tier-neighbors with [ goods < storage ] [                                               ; if any trading partners
-      ask one-of next-tier-neighbors with [ goods < storage ] [                                              ; trade with one of the trading partners
-        set goods goods + 1
-      ]
-      set goods goods - 1
+to gather
+  let current-gather 0
+  ;type "[resources] of patch-here: " print [resources] of patch-here
+  ifelse max [resources] of patch-here < gather-rate
+  [
+    set current-gather max [resources] of patch-here
+    ;type "current-gather: "print current-gather
+    let i position current-gather [resources] of patch-here
+    ;type "i: " print i
+    ask patch-here [ set resources replace-item i resources 0 ]
+    ;type "[resources] of patch-here: " print [resources] of patch-here
+  ][
+    ;resources are in order of preference, but they only gather one resource type per month
+    let resources-available map [x -> x >= gather-rate] resources
+    ;type "resources-available: " print resources-available
+    let i position true resources-available
+    ;type "i: " print i
+    set current-gather gather-rate
+    ;type "current-gather: " print current-gather
+    ask patch-here [ set resources replace-item i resources (item i resources - current-gather) ]
+    ;type "[resources] of patch-here: " print [resources] of patch-here
+  ]
+  set storage storage + current-gather
+end
+
+to update-display
+  ;let max-color max [resources] of patches * 2      ; We add * 2 to the max, so that the color is scaled from black-green instead of black-green-white
+  let max-color max-plants * 2 * num-resources
+  ask patches [ set pcolor scale-color green sum resources 0 max-color ]
+  ask foragers [
+    ifelse storage > 0
+    [
+      set color blue
+    ][
+      if color = red [die]   ; we'll allow one hungry day, but if there is a second in a row, they die.
+      set color red
     ]
-    [stop]                                                                                                   ; if no more trading partners, stop
   ]
 end
 
-to trade
-  ; trade procedure, used by both the producers and vendors
-  let next-tier-neighbors (vendors-on neighbors4) with [ distance-level = [ distance-level + 1 ] of myself ] ; establish trading partners: turtles on neighbouring patches with a higher distance-level
-  while [goods > storage * storage-threshold and any? next-tier-neighbors with [ goods < storage ]] [
-      set goods goods - 1
-    ; if any trading partners
-      ask one-of next-tier-neighbors with [ goods < storage ] [                                              ; trade with one of the trading partners
-        set goods goods + 1
-      ]
-    ]
-end
-to-report calculate-volume [a]
-  ; reporter function used to calculate the mean number of goods at a given distance-level
-  let vendors-tier vendors with [ distance-level = a ]
-  report mean [ goods ] of vendors-tier
+to eat
+  ifelse storage >= consumption-rate [
+    set storage storage - consumption-rate
+  ][
+    set storage 0
+  ]
 end
 
-to iterate-list-of-mean-goods
-  ; auxilary procedure used to update the current mean number of goods at each distance-level
-  ; results are stored in the list "mean-goods"
-  let i 1
-  while [ i <= level ] [                                               ; for each distance-level
-    let goods-at-distance calculate-volume i                           ; calculate the mean number of goods
-    set mean-goods replace-item (i - 1) mean-goods goods-at-distance   ; store the result in the correct position in the list
-    set i i + 1
+to move
+  if max [resources] of patch-here < consumption-rate
+  [
+    let p one-of patches with [not any? foragers-here and max resources >= consumption-rate]
+    if p != nobody [move-to p]
   ]
+end
+
+to regrow-patches-instant
+  if min resources < max-resources [
+    set resources n-values num-resources [max-resources]
+  ]
+end
+
+to regrow-patches-slow
+  set resources map [x -> ifelse-value (x < max-resources) [x + growth-rate] [x] ] resources
+end
+
+to make-plain
+  ask patches [
+    set resources n-values num-resources [max-plants]
+    set max-resources max resources
+  ]
+end
+
+to make-hills
+  let hills (patch-set patch (max-pxcor * .33) (max-pycor * .33) patch (max-pxcor * .67) (max-pycor * .67))
+  ask patches [
+    let dist distance min-one-of hills [distance myself]
+    set resources n-values num-resources [round (max-plants - (distance min-one-of hills [distance myself] / (max-pxcor * .75) * max-plants))]
+    set max-resources max resources
+  ]
+end
+
+to record-occupation
+  set occupation-frequency occupation-frequency + 1
+end
+
+to update-display-occupation
+  let max-color max [occupation-frequency] of patches
+  ask patches [set pcolor scale-color red occupation-frequency 0 max-color]
+  ask foragers [set hidden? true]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-647
-448
+693
+494
 -1
 -1
-13.0
+27.9412
 1
 10
 1
 1
 1
 0
+0
+0
 1
-1
-1
--16
+0
 16
--16
+0
 16
 0
 0
@@ -128,10 +157,10 @@ ticks
 30.0
 
 BUTTON
-5
-15
-68
-48
+20
+19
+83
+52
 NIL
 setup
 NIL
@@ -145,10 +174,10 @@ NIL
 1
 
 BUTTON
-70
-15
-133
-48
+20
+85
+83
+118
 NIL
 go
 T
@@ -161,11 +190,56 @@ NIL
 NIL
 1
 
-BUTTON
-135
-15
+SLIDER
+17
+130
+189
+163
+number-foragers
+number-foragers
+0
+100
+10.0
+10
+1
+NIL
+HORIZONTAL
+
+SLIDER
+17
+165
+189
 198
-48
+gather-rate
+gather-rate
+0
+10
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+17
+199
+189
+232
+consumption-rate
+consumption-rate
+0
+10
+4.0
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+20
+52
+83
+85
 step
 go
 NIL
@@ -179,129 +253,162 @@ NIL
 1
 
 SLIDER
-10
-65
-182
-98
-level
-level
+17
+233
+189
+266
+growth-rate
+growth-rate
 0
-6
-6.0
+10
+3.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-10
-105
-182
-138
-production-level
-production-level
-4
-50
-44.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-145
-182
-178
-storage
-storage
+17
+268
+189
+301
+max-plants
+max-plants
 0
 100
-32.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
+10.0
 10
-185
-182
-218
-storage-threshold
-storage-threshold
-0
-0.5
-0.49
-.01
 1
 NIL
 HORIZONTAL
 
 PLOT
-666
-41
-1061
-395
-Frequency of goods at each distance level
+704
+13
+904
+163
+Mean storage of foragers
 NIL
 NIL
 0.0
 10.0
 0.0
-5.0
+10.0
 true
 false
 "" ""
 PENS
-"distance 1" 1.0 0 -955883 true "" "plot item 0 mean-goods"
-"distance 2" 1.0 0 -13840069 true "" "plot item 1 mean-goods"
-"distance 3" 1.0 0 -13345367 true "" "plot item 2 mean-goods"
-"distance 4" 1.0 0 -5825686 true "" "plot item 3 mean-goods"
-"distance 5" 1.0 0 -1184463 true "" "plot item 4 mean-goods"
-"distance 6" 1.0 0 -2674135 true "" "plot item 5 mean-goods"
+"default" 1.0 0 -16777216 true "" "plot mean [storage] of foragers"
+
+PLOT
+704
+173
+904
+323
+Number of agents
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count turtles"
+
+BUTTON
+98
+56
+183
+89
+NIL
+make-hills
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SWITCH
+98
+20
+201
+53
+hills?
+hills?
+0
+1
+-1000
+
+SLIDER
+17
+302
+189
+335
+num-resources
+num-resources
+1
+10
+2.0
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+17
+336
+158
+369
+viz-archrecord?
+viz-archrecord?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-A reimplementation of a model published here:
 
-Romanowska, Iza. 2018. ‘Using Agent-Based Modelling to Infer Economic Processes in the Past’. In Quantifying Ancient Economies. Problems and Methodologies, edited by Jose Remsal Rodriguez, Victor Revilla Calvo, and Juan Manuel Bermudez Lorenzo, 107–18. Instrumenta 60. Barcelona: University of Barcelona.
-
-
-
+This is example model used in chapter 3 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
 
 ## HOW IT WORKS
 
-The production centre (in the centre of the screen) produces and distributes goods to the four surounding markets. From there markets can sell their good further on (but not backwards, in the direction of the production centre) depending on their current stock and the demand of their neighbouring markets.
-
-The objective was to investigate what kind of economic processes could have given rise to different shapes of pottery frequency curves. Would that curve was steeper if the production centre produced more, or perhaps the distance to the production centre changes the shape of the initial frequency.  
+(what rules the agents use to create the overall behavior of the model)
 
 ## HOW TO USE IT
 
-Press setup, then press go. You can change three parameters:
-- production capacity: how many goods the production centre creates. Slider production-level 
-- storage capacity: how many goods can markets hold. Slider storage.
-- trade capacity: what percentage of goods are the markets willing to sell on (0-100%). Slider storage-threshold.
-In addition you can set up how many concentric "triers" of markets there are in the world (slider level). 
+(how to use the model, including a description of each of the items in the Interface tab)
 
 ## THINGS TO NOTICE
 
-The "Frequency of goods at each distance level" show how many goods on avarage the markets at distance 1, 2, 3, 4 from the production centre etc have. In some cases goods never arrive at markets most further away. You can observe it by looking at the lables next to markets. They show the number of good currently in storage.
-
-The most interesting part of the model is comparing the "artificial frequency curves" (plot) at the very beginning of the simulation. It is worth slowing the model down or going step by step to observe the differences for different markets. 
+(suggested things for the user to notice while running the model)
 
 ## THINGS TO TRY
 
-Try changing the storage and trading capacity of some of the markets to account for some cities being larger than others. Also, you can add another production centre and see what happens.
+(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+
+## EXTENDING THE MODEL
+
+(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+
+## NETLOGO FEATURES
+
+(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
 
 ## RELATED MODELS
 
-Most of the concepts deployed in this model are standard for macroeconomic modelling.
+(models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
 
-__Add url to the release__
+(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
@@ -625,5 +732,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-1
+0
 @#$#@#$#@

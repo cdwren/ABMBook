@@ -1,7 +1,7 @@
 breed [foragers forager]
 
 globals [ ]
-patches-own [ resources max-resources occupation-frequency ]
+patches-own [ resources max-resources ]
 foragers-own [ storage ]
 
 
@@ -26,15 +26,13 @@ to go
     gather
     eat
     move
-    record-occupation
   ]
 
   ask patches [
     regrow-patches-slow
   ]
 
-  ;update-display
-  update-display-occupation
+  update-display
   tick
 end
 
@@ -98,8 +96,7 @@ end
 to make-plain
   ask patches
   [
-    set resources max-plants
-    set max-resources resources
+    set max-resources max-plants
   ]
 end
 
@@ -110,16 +107,6 @@ to make-hills
     set resources max-plants - (distance min-one-of hills [distance myself] / (max-pxcor * .75) * max-plants)
     set max-resources resources
   ]
-end
-
-to record-occupation
-  set occupation-frequency occupation-frequency + 1
-end
-
-to update-display-occupation
-  let max-color max [occupation-frequency] of patches
-  ask patches [set pcolor scale-color red occupation-frequency 0 max-color]
-  ask foragers [set hidden? true]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -207,7 +194,7 @@ gather-rate
 gather-rate
 0
 10
-5.0
+3.0
 1
 1
 NIL
@@ -222,7 +209,7 @@ consumption-rate
 consumption-rate
 0
 10
-4.0
+2.0
 1
 1
 NIL
@@ -254,7 +241,7 @@ growth-rate
 growth-rate
 0
 10
-3.0
+1.0
 1
 1
 NIL
@@ -276,11 +263,11 @@ NIL
 HORIZONTAL
 
 PLOT
-824
-251
-1024
-401
-plot 1
+702
+11
+902
+161
+Mean storage of foragers
 NIL
 NIL
 0.0
@@ -291,14 +278,14 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot mean [storage] of farms"
+"default" 1.0 0 -16777216 true "" "plot mean [storage] of foragers"
 
 PLOT
-772
-79
-972
-229
-plot 2
+702
+168
+902
+318
+Number of agents
 NIL
 NIL
 0.0
@@ -312,10 +299,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot count turtles"
 
 BUTTON
-85
-510
-170
-543
+98
+61
+183
+94
 NIL
 make-hills
 NIL
@@ -342,7 +329,7 @@ hills?
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This is example model used in chapter 3 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
 
 ## HOW IT WORKS
 
@@ -681,7 +668,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.4
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
