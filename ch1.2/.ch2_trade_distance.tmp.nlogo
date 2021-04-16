@@ -269,7 +269,7 @@ A reimplementation of a model published here:
 Romanowska, Iza. 2018. ‘Using Agent-Based Modelling to Infer Economic Processes in the Past’. In Quantifying Ancient Economies. Problems and Methodologies, edited by Jose Remsal Rodriguez, Victor Revilla Calvo, and Juan Manuel Bermudez Lorenzo, 107–18. Instrumenta 60. Barcelona: University of Barcelona.
 
 
-This is example model used in chapter 1.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
+
 
 ## HOW IT WORKS
 
