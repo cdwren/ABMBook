@@ -1,20 +1,28 @@
 to setup
+
   clear-all
+
   ask patches [set pcolor scale-color green (pxcor + pycor) 0 25]
+
   crt 20 [
     setxy random 5 random 5
   ]
+
   reset-ticks
 end
 
 to setup-neighbours
+
   clear-all
+
   ask patches [set pcolor scale-color green (pxcor + pycor) 0 25]
+
   crt 1 [
     setxy max-pxcor / 2 max-pycor / 2
     set heading 45
     set color red
   ]
+
   ask turtle 0 [
     ask neighbors [set pcolor cyan]
     ask neighbors4 [set pcolor yellow]
@@ -101,42 +109,35 @@ NIL
 NIL
 1
 
+TEXTBOX
+858
+186
+1008
+340
+Click on \"setup\" to see a random distribution of agents. \n\nClick on \"coord_labels\" to see the coordiantes of patches.\n\nClick on \"setup-neighbours\" to see the Moore neighbourhood (teal and yellow cells) and the Van Neuman neighbourhood (yellow cells only). 
+11
+0.0
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This is example model used in chapter 1 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press. 
+
+Chapter 1. Figure 1.2, Figure 1.4.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+For explanation purposes: patches coordinates, random initial location and Moore and Von Neuman neighbourhoods. 
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
 
-## THINGS TO NOTICE
+Click on "setup" to see a random distribution of agents. 
 
-(suggested things for the user to notice while running the model)
+Click on "coord_labels" to see the coordiantes of patches.
 
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
-
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+Click on "setup-neighbours" to see the Moore neighbourhood (teal and yellow cells) and the Van Neuman neighbourhood (yellow cells only). 
 @#$#@#$#@
 default
 true

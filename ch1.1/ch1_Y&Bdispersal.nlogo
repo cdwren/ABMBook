@@ -2,7 +2,7 @@
 
 to setup
   clear-all
-  import-pcolors "ch1.1_map.png"
+  import-pcolors "ch1_map.png"
   create-turtles 20                        ; create 20 agents
   [                                        ; with the following state variables:
     set color random 140                   ; color
@@ -41,8 +41,8 @@ end
 GRAPHICS-WINDOW
 208
 10
-814
-369
+816
+370
 -1
 -1
 1.0
@@ -100,10 +100,10 @@ NIL
 1
 
 SLIDER
-0
-62
-172
-95
+6
+55
+178
+88
 pop_growth
 pop_growth
 0
@@ -120,10 +120,11 @@ HORIZONTAL
 A reimplementation of the classical study by Young and Bettinger (1992) investigating the possible drivers behind the Out of Africa dispersal of modern humans. 
 
 Young, D. A., \& Bettinger, R. L. (1992). The Numic Spread: A Computer
-Simulation. \textit{American Antiquity}, 57 (1), 85--99.
+Simulation. American Antiquity, 57 (1), 85--99.
 
-This is example model used in chapter 1.1 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press. 
+This is example model used in chapter 1 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press. 
 
+Chapter 1. Code Blocks: 1.0-1.11
 
 ## HOW IT WORKS
 
@@ -131,16 +132,11 @@ Agents reproduce with a probability equal to population-growth (user setting) an
 
 ## HOW TO USE IT
 
-Use the pop-growth slider to explore the relationship between population growth and the rate of dispersal. Use the speed slider to see the dynamics.
+Use the pop-growth slider to explore the relationship between population growth and the rate of dispersal. Use the speed slider at the top of the interface to slow down the model and see the dynamics.
 
 ## EXTENDING THE MODEL
 
-The model extensions are available in the textbook library.
-
-
-## CREDITS AND REFERENCES
-
-See website xxx
+See the exercise solutions.
 @#$#@#$#@
 default
 true
