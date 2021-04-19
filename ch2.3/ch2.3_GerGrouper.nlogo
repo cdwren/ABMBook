@@ -111,11 +111,12 @@ to go
   ;; write-spring
 
   move_autumn
-  ask turtles[
+  ask turtles [
     set energy energy - energy-loss-from-dead-patches  ;; deduct energy if they land on a bad patch
     eat-grass
 
-    update-history    ]
+    update-history
+  ]
 
   ask lineageA [
     if energy <= 10 [
@@ -176,7 +177,6 @@ to move_spring
 end
 
 to move_autumn
-
   ask turtles [
     if ticks >= 2 [
       move-to one-of visited-patches
