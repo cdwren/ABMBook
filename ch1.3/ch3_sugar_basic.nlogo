@@ -7,7 +7,7 @@ foragers-own [ storage ]
 
 to setup
   ca
-
+; resources clustered in two hills or uniformly distributed?
   ifelse hills? [make-hills][make-plain]
 
   create-foragers number-foragers [
@@ -37,44 +37,35 @@ to go
 end
 
 to gather
+  ; resource collection procedure
   let current-gather 0
-  ifelse [resources] of patch-here < gather-rate
+  ifelse [resources] of patch-here < gather-rate    ; if the patch has less than the max rate of gather...
   [
-    set current-gather [resources] of patch-here
+    set current-gather [resources] of patch-here    ; ... take only what is available
   ][
-    set current-gather gather-rate
+    set current-gather gather-rate                  ; if the patch has more, take the full gather-rate
   ]
-  ask patch-here [ set resources resources - current-gather ]
-  set storage storage + current-gather
+  ask patch-here [ set resources resources - current-gather ] ; update the amount of resources on the patch
+
+  set storage storage + current-gather              ; update the amount of resources in the gatherer's posession
 end
 
-to update-display
-  ;let max-color max [resources] of patches * 2      ; We add * 2 to the max, so that the color is scaled from black-green instead of black-green-white
-  let max-color max-plants * 2
-  ask patches [ set pcolor scale-color green resources 0 max-color ]
-  ask foragers [
-    ifelse storage > 0
-    [
-      set color blue
-    ][
-      if color = red [die]   ; we'll allow one hungry day, but if there is a second in a row, they die.
-      set color red
-    ]
-  ]
-end
+
 
 to eat
-  ifelse storage >= consumption-rate [
-    set storage storage - consumption-rate
+  ; consumption procedure
+  ifelse storage >= consumption-rate [              ; if the storage has more than the agent eats...
+    set storage storage - consumption-rate          ; reduce it by the consumption-rate
   ][
-    set storage 0
+    set storage 0                                   ; otherwise consume everything that is left
   ]
 end
 
 to move
-  if [resources] of patch-here < consumption-rate
+  ; mobility procedure
+  if [resources] of patch-here < consumption-rate   ; if the current patch is depleated
   [
-    let p one-of patches with [not any? foragers-here and resources >= consumption-rate]
+    let p one-of patches with [not any? foragers-here and resources >= consumption-rate] ; move to another one with resources still available
     if p != nobody [move-to p]
   ]
 end
@@ -93,7 +84,24 @@ to regrow-patches-slow
   ]
 end
 
+to update-display
+  ;let max-color max [resources] of patches * 2      ; We add * 2 to the max, so that the color is scaled from black-green instead of black-green-white
+  let max-color max-plants * 2
+  ask patches [ set pcolor scale-color green resources 0 max-color ]
+  ask foragers [
+    ifelse storage > 0
+    [
+      set color blue
+    ][
+      if color = red [die]   ; we'll allow one hungry day, but if there is a second in a row, they die.
+      set color red
+    ]
+  ]
+end
+
+
 to make-plain
+  ; sets the landscape to uniform distribution of resources
   ask patches
   [
     set max-resources max-plants
@@ -101,7 +109,12 @@ to make-plain
 end
 
 to make-hills
+  ; sets the landscape to non-uniform distribution of resources - two hills
+
+  ; choose the two tops of the hills
   let hills (patch-set patch (max-pxcor * .33) (max-pycor * .33) patch (max-pxcor * .67) (max-pycor * .67))
+
+  ; distribute max-resources so that they decrease from the top of a hill downwards
   ask patches [
     let dist distance min-one-of hills [distance myself]
     set resources max-plants - (distance min-one-of hills [distance myself] / (max-pxcor * .75) * max-plants)
@@ -329,39 +342,56 @@ hills?
 @#$#@#$#@
 ## WHAT IS IT?
 
+Replication of the Sugarscape model and Artificial Anasazi:
+Epstein, Joshua M., and Robert Axtell. 1996. Growing Artificial Societies: Social Science from the Bottom Up. Complex Adaptive Systems. Washington, D.C: Brookings Institution Press. 
+
+Axtell, Robert L., Joshua M. Epstein, Jeffrey S. Dean, George J. Gumerman, Alan C. Swedlund, Jason Harburger, Shubha Chakravarty, Ross Hammond, Jon Parker, and Miles Parker. 2002. “Population Growth and Collapse in a Multiagent Model of the Kayenta Anasazi in Long House Valley.” Proceedings of the National Academy of Sciences 99 (suppl 3): 7275–79. https://doi.org/10.1073/pnas.092080799.
+
+
 This is example model used in chapter 3 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 3.0-3.14
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Foragers move over the landscape consuming resources at a fixed rate. Whenever they deplete resources on the patch they're currently located on, they move to another patch with enough resources (not necessarily in the immediate surrounding). Resources regrow in a steady fashion. In this version of the model agents do not die if they run out of resources and they do not reproduce.
+
+Agents engage in three behaviours:
+
+- gather
+Agent decreases the amount of resources on a current patch by a predefined amount (gather-rate) and simultanously increases the resources in its storage by the same amount. If the patch's resources are less than the gather-rate the agent takes all resources available.
+
+- eat
+Agent decreases the amount of resources in its storage by a predefined amount (consumption-rate). If the storage has less than the consumption rate, the agent takes all still available resources.
+
+- move
+Agent moves only if the resources on the current patch are below its gather-rate. Agent chooses a new patch that is a) not occupied by another agent, b) has more resources than gather-rate. If these two conditions are not fulfilled in any patch, the agent stays put.
+
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Use the interface sliders to change parameter values. Press Setup then Go to initialise the simulation.
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+Resources regrowth rate can be modelled in two ways: 
+a) instant regrowth. The cell returns to the initial value at the beginning of a new time step;
+b) gradual regrowth. The cell's resource attribute increases by a predefined amount at every time step (growth-rate).
+
+The landscape is modelled in two ways 
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+Try finding ideal parameter set for:
+- resources in storage as high as possible
+- resources in storage as low as possible
 
-## EXTENDING THE MODEL
+The plot shows mean resources of foragers.
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+## EXTENDING THE MODEL & RELATED MODELS
 
-## NETLOGO FEATURES
+Multiple extension of SugarScape models can be found in the NetLogo library.
 
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
