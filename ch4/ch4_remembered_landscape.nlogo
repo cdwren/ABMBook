@@ -38,8 +38,10 @@ to memory-walk
 
     ;; cultural learning
     if any? other turtles-here  [
+
       set memory (patch-set memory [memory] of one-of other turtles-here)
-      ask one-of other turtles-here [set memory (patch-set memory [memory] of one-of other turtles-here)]
+    ;  ask one-of other turtles-here [set memory (patch-set memory [memory] of one-of other turtles-here)]
+      ask one-of other turtles-here [set memory (patch-set memory [memory] of myself)]
     ]
   ]
 
@@ -212,7 +214,6 @@ The way in which we mark the "remembered landscape" of each turtle is far from i
 ## THINGS TO TRY
 
 Try starting turtles from different locations so that each develops a "territory". 
-
 @#$#@#$#@
 default
 true

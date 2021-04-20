@@ -1,6 +1,3 @@
-;; This is a simplified version of Clark and Crabtree's Ger Grouper model only including the parts relevant to movement.
-;; A more complete version is described within chapter 2.3.
-
 globals [
   summer-patches
   winter-patches
@@ -77,10 +74,10 @@ ticks
 30.0
 
 BUTTON
-50
-64
-113
-97
+5
+10
+68
+43
 NIL
 setup
 NIL
@@ -94,11 +91,28 @@ NIL
 1
 
 BUTTON
-42
-124
-105
-157
+70
+10
+133
+43
 NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+135
+10
+198
+43
+step
 go
 NIL
 1
@@ -113,39 +127,28 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This is a simplified version of Clark and Crabtree's Ger Grouper model only including the parts relevant to movement.A more complete version is described within chapter 2.3.
+
+Clark, Julia K., and Stefani A. Crabtree. 2015. “Examining Social Adaptations in a Volatile Landscape in Northern Mongolia via the Agent-Based Model Ger Grouper.” Land 4 (1): 157–81. https://doi.org/10.3390/land4010157.
+
+
+This is example model used in chapter 3 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 4.11
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+With every time step agents move from winter to summer pasture (left and right halves of the screen) and vice versa. When moving to winter pastures 
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Press on setup, then press on step to see the change in each season.
 
-## THINGS TO NOTICE
-
-(suggested things for the user to notice while running the model)
-
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+For the full model see chapter 6 of the book.
 
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
@@ -469,5 +472,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
