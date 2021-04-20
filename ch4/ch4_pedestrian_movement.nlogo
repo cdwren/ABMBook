@@ -75,7 +75,7 @@ to random-walk4
   ; Here the turtles always move
   ; the movement length is always the same (1)
   ask turtle 0 [
-    rt 360
+    rt random 360
     fd 1
   ]
 end
@@ -186,10 +186,10 @@ ticks
 30.0
 
 BUTTON
-126
-71
-189
-104
+78
+10
+141
+43
 NIL
 go
 T
@@ -203,10 +203,10 @@ NIL
 1
 
 BUTTON
-124
-31
-191
-64
+6
+10
+73
+43
 NIL
 setup
 NIL
@@ -220,20 +220,20 @@ NIL
 1
 
 CHOOSER
-58
-149
-204
-194
+7
+53
+153
+98
 walk
 walk
-"random1" "random2" "random3" "random4" "random-patches" "correlated" "target" "weighted-random" "levy" "restricted" "leap-frog" "IDD"
-10
+"random1" "random2" "random3" "random4" "random-patches" "correlated" "target" "weighted-random" "levy" "restricted"
+9
 
 BUTTON
-127
-116
-190
-149
+145
+10
+208
+43
 step
 go
 NIL
@@ -249,23 +249,43 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+A selection of pedestrian movement algorithms. 
+
+This is example model used in chapter 3 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 4.0-4.8
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+The agent walks over the space following the behavioural rules of a selected algorithm. 
+
+"random1", "random2", "random3", "random4" - different types of random walk. Agent always moves by one unit.
+
+"random-patches" - Agent "jumps" from the center of one patch to another. It means the length of the step differs between cardinal directions and the diagonals. 
+
+"correlated" - Agent has a better chance to follow the previous direction of movement. 
+
+"target" - Agent moves at random unless one of the target patches is within its sensing radius, in which case it goes towards it.
+
+"weighted-random" - agent has a higher chance of going along the gradient.
+
+"levy" - levy flights. The size of the step is taken from a Cauchy-Lorenz distribution (fat tailed).
+
+"restricted" - agent cannot cross through obstacles.
+
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Choose from the dropdown menu the type of "walk", press the setup button, then the go button. Use the speed slider to reduce the pace of the agent. For the "levy" type of walk it is worth increasing the size of the screen.
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+Included are several implementations of the random walk: random1 - random4. Each of them is a valid algorithm for random walk but the results are different. 
+
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+To assess how far one would get with each walk you can create a plot showing the average distance the agent moved away from the original position versus the time lapsed.
 
 ## EXTENDING THE MODEL
 
