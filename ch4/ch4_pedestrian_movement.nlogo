@@ -125,7 +125,7 @@ to weighted-random-walk
   ;;; Agent will always move unless all neighboring patches are taken
    ask turtle 0 [
       ; choose a target patch
-      let target rnd:weighted-one-of patches in-radius 2 with [not any? turtles-here] [habitat_quality]
+      let target rnd:weighted-one-of patches in-radius 5 with [not any? turtles-here] [habitat_quality]
       ; move to target patch if it exists
       if target != nobody [face target move-to target]
   ]
@@ -227,7 +227,7 @@ CHOOSER
 walk
 walk
 "random1" "random2" "random3" "random4" "random-patches" "correlated" "target" "weighted-random" "levy" "restricted"
-9
+0
 
 BUTTON
 145
