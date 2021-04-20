@@ -80,10 +80,10 @@ ticks
 30.0
 
 BUTTON
-61
-22
-124
-55
+3
+10
+66
+43
 NIL
 setup\n
 NIL
@@ -97,10 +97,10 @@ NIL
 1
 
 BUTTON
-57
-84
-120
-117
+68
+10
+131
+43
 NIL
 go
 T
@@ -114,25 +114,25 @@ NIL
 1
 
 SLIDER
-26
-171
-198
-204
+5
+55
+177
+88
 pop
 pop
 1
 10
-2.0
+5.0
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-64
-129
-127
-162
+133
+10
+196
+43
 step
 go
 NIL
@@ -146,25 +146,25 @@ NIL
 1
 
 SLIDER
-27
-225
-199
-258
+6
+94
+178
+127
 regrow-rate
 regrow-rate
 0
 .1
-0.01
+0.05
 .01
 1
 NIL
 HORIZONTAL
 
 SWITCH
-47
-315
-150
-348
+6
+174
+109
+207
 sharing?
 sharing?
 0
@@ -172,10 +172,10 @@ sharing?
 -1000
 
 SLIDER
-34
-270
-206
-303
+6
+134
+178
+167
 max-food
 max-food
 0
@@ -189,39 +189,30 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+Simplified reimplementation of The MAGICAL model of M. Lake. 
+
+Lake, M. W., 2000. “MAGICAL Computer Simulation of Mesolithic Foraging.” In _Dynamics in Human and Primate Societies: Agent-Based Modeling of Social and Spatial Processes_, edited by T. A. Kohler and G. J. Gumerman, 107–143. New York: Oxford University Press. 
+
+This is example model used in chapter 3 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 4.9-4.10
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Agents walk on the landscape discovering resources (white patches). They remember where they've been (memory) and can share that knowledge with other agents (cultural learning). 
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Choose the number of agents using the *pop* slider, click on setup then on go.
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+The way in which we mark the "remembered landscape" of each turtle is far from ideal since they overlap with the colours and one can only visualise one of them. However, if you step through a few time-steps you'll get a rough idea of the part of the landscape that each of the turtles remember. 
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+Try starting turtles from different locations so that each develops a "territory". 
 
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
@@ -545,5 +536,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
