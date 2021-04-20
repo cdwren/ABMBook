@@ -15,13 +15,13 @@ to setup
     set pcolor scale-color green vegetation_type 0 100
   ]
 
-  create-camps nrcampscreated [
+  create-camps ncamps [
     set shape "house"
     set size 2
     set color cyan
     move-to one-of patches with [vegetation_type > 0]
   ]
-  create-hunters nrhunterscreated [
+  create-hunters nhunters [
     set my_camp one-of camps
     move-to my_camp
     set color [color] of my_camp
@@ -72,7 +72,7 @@ to forage     ;runs once per tick, i.e. the go procedure
       ]
     ]
     ;...
-    if sum [done] of hunters = nrhunterscreated [ ;are we done?
+    if sum [done] of hunters = nhunters [ ;are we done?
       set allhuntersdone 1
     ]
   ] ;end of while loop
@@ -107,12 +107,12 @@ ticks
 30.0
 
 SLIDER
-38
-41
-210
-74
-nrhunterscreated
-nrhunterscreated
+10
+85
+182
+118
+nhunters
+nhunters
 0
 100
 4.0
@@ -122,10 +122,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-29
-114
-98
-147
+80
+10
+149
+43
 NIL
 forage
 NIL
@@ -139,10 +139,10 @@ NIL
 1
 
 BUTTON
-29
-77
-92
-110
+11
+10
+74
+43
 NIL
 setup
 NIL
@@ -156,12 +156,12 @@ NIL
 1
 
 SLIDER
-37
-8
-209
-41
-nrcampscreated
-nrcampscreated
+10
+50
+182
+83
+ncamps
+ncamps
 0
 5
 1.0
@@ -173,39 +173,25 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This is a simplified version of The Ache Hunting model by Janssen and Hill:
+Janssen, Marco A., and Kim Hill. 2014. “Benefits of Grouping and Cooperative Hunting Among Ache Hunter–Gatherers: Insights from an Agent-Based Foraging Model.” _Human Ecology_ 42 (6): 823–35. https://doi.org/10.1007/s10745-014-9693-1.
+
+
+This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 4.12
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Agents move across the landscape hunting and foraging. However, their time is limited so when the way back home equals the time left they go back towards the camp. 
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
-
-## THINGS TO NOTICE
-
-(suggested things for the user to notice while running the model)
-
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+Click on setup, then on forage.
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+The original model has numerous features not preserved here.
 @#$#@#$#@
 default
 true
@@ -512,7 +498,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.4
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -529,5 +515,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@

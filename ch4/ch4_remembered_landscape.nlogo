@@ -195,7 +195,7 @@ Simplified reimplementation of The MAGICAL model of M. Lake.
 
 Lake, M. W., 2000. “MAGICAL Computer Simulation of Mesolithic Foraging.” In _Dynamics in Human and Primate Societies: Agent-Based Modeling of Social and Spatial Processes_, edited by T. A. Kohler and G. J. Gumerman, 107–143. New York: Oxford University Press. 
 
-This is example model used in chapter 3 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
 
 Code blocks: 4.9-4.10
 

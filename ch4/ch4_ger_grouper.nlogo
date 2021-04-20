@@ -12,7 +12,7 @@ to setup
   set winter-patches patches with
     [pxcor >= (max-pxcor / 2)]
   ask summer-patches [set pcolor green]
-  ask winter-patches [set pcolor one-of [green brown brown grey grey grey]]
+  ask winter-patches [set pcolor one-of [green brown brown gray gray gray]]
   crt 10 [move-to one-of winter-patches]
 
   reset-ticks
@@ -132,7 +132,7 @@ This is a simplified version of Clark and Crabtree's Ger Grouper model only incl
 Clark, Julia K., and Stefani A. Crabtree. 2015. “Examining Social Adaptations in a Volatile Landscape in Northern Mongolia via the Agent-Based Model Ger Grouper.” Land 4 (1): 157–81. https://doi.org/10.3390/land4010157.
 
 
-This is example model used in chapter 3 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
 
 Code blocks: 4.11
 
@@ -144,11 +144,9 @@ With every time step agents move from winter to summer pasture (left and right h
 
 Press on setup, then press on step to see the change in each season.
 
-
 ## EXTENDING THE MODEL
 
 For the full model see chapter 6 of the book.
-
 @#$#@#$#@
 default
 true
