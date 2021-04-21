@@ -23,7 +23,7 @@ end
 
 to go
   if walk = "leap-frog"  [leap-frog]
-  if walk = "IDD"  [idd]
+  if walk = "IDD"  [ideal-despotic]
   if walk = "spatial-foresight" [spatial-foresight-walk]
   tick
 end
@@ -42,7 +42,7 @@ to leap-frog
   ]
 end
 
-to idd
+to ideal-despotic
   let leap-distance 10
   let occupied-cost 0.05    ; fixed 5% penalty on habitat_quality for each arrival of a farmer
   ask turtles [
@@ -96,10 +96,10 @@ ticks
 30.0
 
 BUTTON
-126
-71
-189
-104
+75
+10
+138
+43
 NIL
 go
 T
@@ -113,10 +113,10 @@ NIL
 1
 
 BUTTON
-124
-31
-191
-64
+5
+10
+72
+43
 NIL
 setup
 NIL
@@ -130,20 +130,20 @@ NIL
 1
 
 CHOOSER
-58
-149
-204
-194
+5
+50
+151
+95
 walk
 walk
 "leap-frog" "IDD" "spatial-foresight"
 2
 
 BUTTON
-127
-116
-190
-149
+140
+10
+203
+43
 step
 go
 NIL
@@ -157,10 +157,10 @@ NIL
 1
 
 SLIDER
-59
-200
-205
-233
+5
+100
+151
+133
 spatial-foresight
 spatial-foresight
 0
@@ -174,39 +174,32 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+
+This is a simplified version of the following models: 
+
+1. The spatial foresight by Wren et al.
+Wren, Colin D., Julian Z. Xue, Andre Costopoulos, and Ariane Burke. 2014. “The Role of Spatial Foresight in Models of Hominin Dispersal.” Journal of Human Evolution 69: 70–78. https://doi.org/10.1016/j.jhevol.2014.02.004.
+
+2. The MedLandD by Bergin et al.
+
+Bergin, Sean M. 2016. “Mechanisms and Models of Agropastoral Spread During the Neolithic in the West Mediterranean: The Cardial Spread Model.” Ph.D., United States -- Arizona: Arizona State University. https://search.proquest.com/docview/1845308964/abstract/D9BE13322D14FB5PQ/1.
+
+This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 4.15-4.17
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Population movement can be represented in a number of ways. Here you can compare three: 
+
+"leap-frog"- where the group moves to one of the cells within a maximum radius, i.e., not necessarity the immediate neighbours of the current location. 
+"IDD"- ideal-despotic - agents evaluate the possible target locations taking into account their potential value but also discounting by the number of farms already occupying the location.
+"spatial-foresight" - agents choose a location within a radius taking into account its quality. However, their ability to assess that quality depends on their spatial foresight (set with a slider).
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Choose the mode of population movement. Press setup then press go.
 
-## THINGS TO NOTICE
-
-(suggested things for the user to notice while running the model)
-
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
-
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
@@ -530,5 +523,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
