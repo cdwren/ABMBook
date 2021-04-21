@@ -174,7 +174,7 @@ HORIZONTAL
 ## WHAT IS IT?
 
 This is a simplified version of The Ache Hunting model by Janssen and Hill:
-Janssen, Marco A., and Kim Hill. 2014. “Benefits of Grouping and Cooperative Hunting Among Ache Hunter–Gatherers: Insights from an Agent-Based Foraging Model.” _Human Ecology_ 42 (6): 823–35. https://doi.org/10.1007/s10745-014-9693-1.
+Janssen, Marco A., and Kim Hill. 2016. “An Agent-Based Model of Resource Distribution on Hunter-Gatherer Foraging Strategies: Clumped Habitats Favor Lower Mobility, but Result in Higher Foraging Returns.” In Simulating Prehistoric and Ancient Worlds, edited by Juan A. Barceló and Florencia Del Castillo, 159–74. Computational Social Sciences. Switzerland: Springer International Publishing. https://doi.org/10.1007/978-3-319-31481-5_3.
 
 
 This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
