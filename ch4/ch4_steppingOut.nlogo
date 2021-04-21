@@ -4,7 +4,7 @@ to setup
   ca
 
   ;import-pcolors "ch1_map.bmp"
-  import-pcolors "ch2.1_veg.png"
+  import-pcolors "ch4_veg.png"
 
   ask patches [
     ifelse pcolor = white [
@@ -106,10 +106,10 @@ ticks
 30.0
 
 BUTTON
-86
-108
-153
-141
+5
+10
+72
+43
 NIL
 setup
 NIL
@@ -123,10 +123,10 @@ NIL
 1
 
 BUTTON
-89
-165
-152
-198
+75
+10
+138
+43
 NIL
 go
 T
@@ -140,10 +140,10 @@ NIL
 1
 
 SLIDER
-25
-260
-197
-293
+5
+50
+177
+83
 p_cr
 p_cr
 0
@@ -157,12 +157,16 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is an example model used in chapter 2.1 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
-To cite the full model use:
 
+This is a simplified version of The SteppingOut model by Mithen and Reed:
 Mithen, Steven J, and Melissa Reed. 2002. ‘Stepping out : A Computer Simulation of Hominid Dispersal from Africa’. Journal of Human Evolution 43: 433–62. https://doi.org/10.1006/jhev.2002.0584.
 
 Hughes, John K, Alan Haywood, Steven J Mithen, Bruce W Sellwood, and Paul J Valdes. 2007. ‘Investigating Early Hominin Dispersal Patterns: Developing a Framework for Climate Data Integration’. Journal of Human Evolution 53: 465–74. https://doi.org/10.1016/j.jhevol.2006.12.011.
+
+
+This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 4.13-4.14
 
 
 ## HOW IT WORKS
@@ -171,7 +175,7 @@ The agents have a probability of extinction (p_ext) dependent on the environment
 
 ## HOW TO USE IT
 
-Please ensure that the file "ch2.1_veg.png" is in the same folder. 
+Please ensure that the file "ch4_veg.png" is in the same folder. 
 
 Press the Setup button and then the Go button to run the model. The p_cr slider defines the probability of hatching a new agent. This probability is the same for all agents and independent of the environmental zones.
 
@@ -502,5 +506,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
