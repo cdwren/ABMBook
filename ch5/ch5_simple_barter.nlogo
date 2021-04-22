@@ -1,171 +1,71 @@
-turtles-own [cult1 cult2 cultgen success]
+turtles-own [ goods goodsA goodsB]
 
 to setup
   ca
-  crt n-agents [
-    set size 2
-    setxy random-xcor random-ycor
-    set cult1 0
-    set cult2 0
-    set success random 10
-    set cultgen n-values 5 [ i -> one-of [0 1] ]
+  crt 500 [
+    set goods 100                       ; goods in the simple scenario
+    set goodsA random 100               ; goods A & B in the barter scenario
+    set goodsB random 100
   ]
-  ask n-of (floor n-agents * 0.5) turtles [set cult1 1]  ; initially 50% of agents will have trait2 == 1
-  ask n-of (floor n-agents * 0.2) turtles [set cult2 1]  ; initially 20% of agents will have trait2 == 1
   reset-ticks
 end
 
 to go
-  if ticks = 300 [stop]
-  if transmission = "vertical-tranmission" [ vertical-transmission ]
-  if transmission = "horizontal-transmission" [ horizontal-transmission ]
-  if transmission = "content-transmission" [ content-transmission ]
-  if transmission = "content-transmission" [ content-transmission-exclusive ]
-  if transmission = "frequency-transmission-conf" [frequency-transmission-conf]
-  if transmission = "frequency-transmission-anticonf" [frequency-transmission-anticonf]
-  if transmission = "success-transmission" [success-transmission]
-  if transmission = "copy-from-similar" [copy-from-similar]
-  mutation-boolean
-  ;mutation-continuous
+  ifelse scenario = "simple" [         ; choose the scenario in the interface
+    simple
+  ][
+    barter
+  ]
   tick
 end
 
-to vertical-transmission
-  ; from parents to offspring
-  ;ask turtles [                            ; basic vertical transmission with one parent
-  ; hatch 1 [set cult1 [cult1] of myself]] ; this is explicit notation, 'hatch' automatically copy variables of the parent
-  ask n-of (floor n-agents * 0.1) turtles [ ; only 10% of turtles reproduce, otherwise there're too many of them
-    if any? other turtles in-radius 3 [           ; transmission with two parents (the spatial contrain is optional)
-      let parent1 self
-      let parent2 one-of turtles in-radius 3
-      hatch 1 [
-        set cult1 [cult1] of one-of ( turtle-set parent1 parent2 )   ; discrete inheritance
-        ;set cult2 mean [cult2] of ( turtle-set parent1 parent2 )     ; continuous inheritance
-        setxy random-xcor random-ycor                                ; move turtles to improve visually
+to simple
+  ; simple exchange - each turtle gives 1 to another turtle
+  ask turtles [
+    if goods > 0 [                           ; comment out (and one bracket at the end) to allow for negative values
+      set goods goods - 1                    ; update the seller
+        ask one-of other turtles [
+          set goods goods + 1                  ; update the buyer
+        ]
+     ]
+  ]
+end
+
+to barter
+  ; simple barter - turtles exchange their more abundant good with other turtles
+  ask turtles [
+    ifelse goodsA > goodsB [  ; if you have more goods A than B then try to get good B
+      let sellers turtles with [ goodsB > goodsA and goodsB >= 0] ; exchange with a turtle in the opposite situation
+      if any? sellers [
+        ask one-of sellers [
+          set goodsB goodsB - 1           ; update the seller
+          set goodsA goodsA + 1]
+        set goodsB goodsB + 1              ; update the buyer
+        set goodsA goodsA - 1
+      ]
+    ][; if you have more goods B than A then try to get good A
+      let sellers turtles with [ goodsA > goodsB and goodsA >= 0]
+      if any? sellers [
+        ask one-of sellers [
+          set goodsA goodsA - 1            ; update the seller
+          set goodsB goodsB + 1
+        ]
+        set goodsA goodsA + 1            ; update the buyer
+        set goodsB goodsB - 1
       ]
     ]
+    set goods goodsA + goodsB
   ]
-end
-
-to horizontal-transmission
-  ; among peers
-  ask turtles [
-    ; set cult1 [cult1] of one-of other turtles               ; basic horizontal transmission
-    if any? other turtles in-radius 3 [                            ; with spatial factor
-      set cult1 [cult1] of one-of other turtles in-radius 3
-    ]
-  ]
-end
-
-to content-transmission
-  ; when one cultural trait is superior to another, here with 7-3 odds
-  let cult_traits (list 0.7 0.3 )
-
-  ask turtles [
-    ifelse random-float 1 < first cult_traits
-      [ set cult1 [cult1] of one-of other turtles ]
-      [ set cult2 [cult2] of one-of other turtles ]
-  ]
-end
-
-to content-transmission-exclusive
-  ; when one cultural trait determines the state of the other
-  let cult_traits (list 0.7 0.3 )
-
-  ask turtles [
-    ifelse random-float 1 < first cult_traits [
-      set cult1 [cult1] of one-of other turtles
-      ifelse cult1 = 1 [set cult2 0][set cult2 1]
-    ][
-      set cult2 [cult2] of one-of other turtles
-      ifelse cult2 = 1 [set cult1 0][set cult1 1]]
-  ]
-end
-
-to frequency-transmission-conf
-  ; when agents have a preference for more common traits
-  ask turtles [
-    if random-float 1 < trait1_freq [
-      set cult1 [cult1] of one-of other turtles
-    ]
-  ]
-
-end
-
-to frequency-transmission-anticonf
-  ; when agents have a preference for less common traits
-  ask turtles [
-    if random-float 1 < 1 - trait1_freq [
-      set cult1 [cult1] of one-of other turtles
-    ]
-  ]
-end
-
-to success-transmission
-  ; when agents have a preference for copying most successful agents
-  ask turtles [
-    	set cult1 [cult1] of one-of other turtles with-max [success]
-  ]
-end
-
-
-to copy-from-similar
-  ; when agents have a preference for copying most similar agents
-  ask turtles [
-    set cult1 [cult1] of one-of turtles with-max [ hamming-distance cultgen [cultgen] of self]
-  ]
-end
-
-;;;;;;;;;;;;;;; Auxilary functions and reporters ;;;;;;;;;;;;;;;
-
-to-report trait1_freq
-  ; repors number of turtles with version 1 of trait1, only works for discrete traits with values 1-0
-  report mean [cult1] of turtles
-end
-
-to mutation-boolean
-  ; 1 in 1000 change that the trait changes to the opposite value
-  ask turtles [
-    if random-float 1 < 0.001 [
-      ifelse cult1 = 1 [ set cult1 0 ]
-                        [ set cult1 1 ]
-    ]
-  ]
-end
-
-to mutation-continuous
-  ; the size of the mutation is drawm from a normal distribution with the mean of the current value and standard dev of 0.1
-  ask turtles [
-    if random-float 1 < 0.001 [
-      set cult1 random-normal cult1 0.1
-    ]
-  ]
-end
-
-
-to calc-hamming
-  ; auxilary function to showcase the hamming distance
-  ; use Command Center to experiment with changing values in the lists
-  let list1 (list 1 1 1 0)
-  let list2 (list 0 1 0 1)
-  print hamming-distance list1 list2
-
-end
-
-to-report hamming-distance [ list1 list2 ]
-  ; reports hamming distance between two sequences
-  ; implementation by Nicolas Payette https://stackoverflow.com/questions/25125268/netlogo-remove-turtle-given-hamming-distance
-  report length remove true (map [[?1 ?2] -> ?1 = ?2 ] list1 list2)
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-270
+388
 10
-830
-571
+825
+448
 -1
 -1
-8.5
+13.0
 1
 10
 1
@@ -175,10 +75,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--32
-32
--32
-32
+-16
+16
+-16
+16
 0
 0
 1
@@ -186,10 +86,10 @@ ticks
 30.0
 
 BUTTON
-7
-10
-70
-43
+11
+23
+74
+56
 NIL
 setup
 NIL
@@ -203,10 +103,10 @@ NIL
 1
 
 BUTTON
-77
-10
-140
-43
+81
+24
+144
+57
 NIL
 go
 T
@@ -219,110 +119,98 @@ NIL
 NIL
 1
 
-SLIDER
-7
-100
-235
-133
-n-agents
-n-agents
-0
-100
-100.0
-1
-1
-NIL
-HORIZONTAL
-
-CHOOSER
-8
-48
-235
-93
-transmission
-transmission
-"vertical-tranmission" "horizontal-transmission" "content-transmission" "content-transmission-exclusive" "frequency-transmission-conf" "frequency-transmission-anticonf" "success-transmission" "copy-from-similar"
-6
-
 PLOT
-8
-142
-208
-292
-Distribution of cultural trait 1
+4
+140
+367
+290
+Amount of goods
 NIL
 NIL
+-100.0
+500.0
 0.0
-1.2
-0.0
-10.0
+40.0
 true
 false
 "" ""
 PENS
-"default" 0.1 1 -16777216 true "" "histogram [cult1] of turtles"
+"default" 10.0 1 -16777216 true "" "set-plot-y-range 0 40\nhistogram [ goods ] of turtles"
 
 PLOT
-8
-296
-267
-446
-Evolution of cultural traits 1 and 2
+5
+298
+367
+448
+Distribution of each good
 NIL
 NIL
 0.0
-350.0
+100.0
 0.0
-2.0
+40.0
 true
 true
 "" ""
 PENS
-"cult1" 1.0 0 -2674135 true "" "plot mean [cult1] of turtles"
-"cult2" 1.0 0 -13791810 true "" "plot mean [cult2] of turtles"
+"goods A" 1.0 1 -5298144 true "" "histogram [ goodsA ] of turtles"
+"goods B" 1.0 1 -13840069 true "" "histogram [ goodsB ] of turtles"
 
-BUTTON
-144
+CHOOSER
 10
-207
-43
-step
-go
-NIL
+61
+148
+106
+scenario
+scenario
+"simple" "barter"
+0
+
+MONITOR
+169
+62
+317
+107
+Turtle with the most goods
+max [goods] of turtles
+17
 1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-A set of baseline cultural transmission algorithms.
+Simple trade model consisting of two modes: 
+- simple exchange (from Wilensky 2011 "Simple Economy")
+- simple barter echange.
 
-This is an example model (Code 2.2.11-2.2.22) used in chapter 2.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
+This is example model used in chapter 5 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
 
+Code blocks: 5.0-5.1
 
 ## HOW IT WORKS
 
-Choose an algorithm and number of agents. Press setup, then press go. The plots show the distribution of the cultural trait 1 (cult1) and the evolution of cutl1 and cult2 over time. The simulation will finish after reaching 300 steps.
+Agents randomly choose a partner with whom they exchange items. 
 
 ## HOW TO USE IT
 
-Each algorithm is different so please read the description in chapter 2.2 of the book. Note that some of the algorithms only change cultural trait 1 (cult1) so trait 2 remains unchanged. 
+Choose between 'simple' and 'barter' in the interface. Press Setup, then press Go. 
+You can allow the turtles to go into debt by commenting out  if goods > 0 [  and one of the brackets ] in the 'simple' procedure.
+
+## THINGS TO NOTICE
+
+For the simple model look at the "Amount of goods" histogram and notice how despite the randomness of the process some agents begin to amass more items than others. 
+For the barter model look at the "Distribution of each good" histogram. It shows a constantly changing but tending towards normal distribution. 
 
 ## THINGS TO TRY
 
-- Change the values in the model, e.g., the initialisation values or preference values. 
-- You can also comment and uncomment a number of options in the code, e.g., discrete vs continuous mutation.
+- Try changing the number of agents.
+- Try changing the value of goodsA versus goodsB (eg. one goodA for two goodsB)
 
 
 ## CREDITS AND REFERENCES
 
-All code Iza Romanowska. 
+The simple model is adapted from Wilensky 2011 "Simple Economy" NetLogo library.
 @#$#@#$#@
 default
 true

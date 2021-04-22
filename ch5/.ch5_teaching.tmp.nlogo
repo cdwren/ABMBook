@@ -1,67 +1,69 @@
-turtles-own [ goods goodsA goodsB]
+globals [ nextNovelVariant ]
+
+turtles-own [age t1 ]
 
 to setup
-  ca
-  crt 500 [
-    set goods 100                       ; goods in the simple scenario
-    set goodsA random 100               ; goods A & B in the barter scenario
-    set goodsB random 100
+  clear-all
+
+  ; initialise unique cultural variants
+  set nextNovelVariant 1
+
+  ; create initial population of agents, give them a unique cult trait
+  let nAgents 100
+  while [nAgents > 0][
+    ask one-of patches [
+      sprout 1[
+        set t1 nextNovelVariant
+        set nextNovelVariant nextNovelVariant + 1
+        set color t1
+        set age 0
+      ]
+    ]
+    set nAgents nAgents - 1
   ]
   reset-ticks
 end
 
 to go
-  ifelse scenario = "simple" [         ; choose the scenario in the interface
-    simple
-  ][
-    barter
+  if ticks = 300 [stop]
+
+  ask turtles[ ;old generation gets old
+    set age 1
+  ]
+
+ let nAgents 100   ; new generation is born
+ while [nAgents > 0][
+    ask one-of patches [
+      sprout 1 [set age 0]
+    ]
+    set nAgents nAgents - 1
+  ]
+  ; new generation learns
+  ask turtles with [age = 0] [learn]
+
+  ; old generation dies
+  ask turtles [
+    if age = 1 [die]
   ]
   tick
 end
 
-to simple
-  ; simple exchange - each turtle gives 1 to another turtle
-  ask turtles [
-    if goods > 0 [                           ; comment out (and one bracket at the end) to allow for negative values
-      set goods goods - 1                    ; update the seller
-        ask one-of other turtles [
-          set goods goods + 1                  ; update the buyer
-        ]
-     ]
+to learn
+  ; new generation learns from a random turtle in old generation
+  let teacher one-of turtles with [age = 1]
+  set t1 [t1] of teacher
+  ; occassionally a mutation occurs and a new trait is born
+  if random-float 1 < mu [
+    set t1 nextNovelVariant
+    set nextNovelVariant nextNovelVariant + 1
   ]
-end
-
-to barter
-  ; simple barter - turtles exchange their more abundant good with other turtles
-  ask turtles [
-    ifelse goodsA > goodsB [  ; if you have more goods A than B then try to get good B
-      let sellers turtles with [ goodsB > goodsA and goodsB >= 0] ; exchange with a turtle in the opposite situation
-      if any? sellers [
-        ask one-of sellers [
-          set goodsB goodsB - 1           ; update the seller
-          set goodsA goodsA + 1]
-        set goodsB goodsB + 1              ; update the buyer
-        set goodsA goodsA - 1
-      ]
-    ][; if you have more goods B than A then try to get good A
-      let sellers turtles with [ goodsA > goodsB and goodsA >= 0]
-      if any? sellers [
-        ask one-of sellers [
-          set goodsA goodsA - 1            ; update the seller
-          set goodsB goodsB + 1
-        ]
-        set goodsA goodsA + 1            ; update the buyer
-        set goodsB goodsB - 1
-      ]
-    ]
-    set goods goodsA + goodsB
-  ]
+  set color t1
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-388
+210
 10
-825
+647
 448
 -1
 -1
@@ -86,10 +88,10 @@ ticks
 30.0
 
 BUTTON
+2
 11
-23
-74
-56
+65
+44
 NIL
 setup
 NIL
@@ -103,10 +105,10 @@ NIL
 1
 
 BUTTON
-81
-24
-144
-57
+134
+11
+197
+44
 NIL
 go
 T
@@ -119,96 +121,92 @@ NIL
 NIL
 1
 
+SLIDER
+3
+50
+175
+83
+mu
+mu
+0
+1
+0.06
+0.01
+1
+NIL
+HORIZONTAL
+
 PLOT
-4
-140
-367
-290
-Amount of goods
+3
+87
+203
+237
+# of Unique Variants
 NIL
 NIL
--100.0
-500.0
 0.0
-40.0
+10.0
+0.0
+10.0
 true
 false
 "" ""
 PENS
-"default" 10.0 1 -16777216 true "" "set-plot-y-range 0 40\nhistogram [ goods ] of turtles"
+"default" 1.0 0 -16777216 true "" "plot length remove-duplicates [t1] of turtles"
 
-PLOT
-5
-298
-367
-448
-Distribution of each good
-NIL
-NIL
-0.0
-100.0
-0.0
-40.0
-true
-true
-"" ""
-PENS
-"goods A" 1.0 1 -5298144 true "" "histogram [ goodsA ] of turtles"
-"goods B" 1.0 1 -13840069 true "" "histogram [ goodsB ] of turtles"
-
-CHOOSER
-10
-61
-148
-106
-scenario
-scenario
-"simple" "barter"
-1
-
-MONITOR
-219
-87
-367
-132
-Turtle with the most goods
-max [goods] of turtles
-17
-1
+BUTTON
+68
 11
+131
+44
+step
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-Simple trade model consisting of two modes: 
-- simple exchange (from Wilensky 2011 "Simple Economy")
-- simple barter echange.
+An example of a model of cultural tranmission.
 
-This is an example model (Code 2.2.1 and 2.2.2 ) used in chapter 2.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
+
+
+This is a shortened version of premo_CA_2014.nlogo (Version 1) Premo, L.S. 2014. Cultural transmission and diversity in time-avereaged assemblages. *Current Anthropology* 55:105-114.
+
 
 ## HOW IT WORKS
 
-Agents randomly choose a partner with whom they exchange items. 
+At each time step, a generation of agents is created and learns cultural traits from the previous generation. There is a chance, mu, that a new cultural trait appears. 
 
 ## HOW TO USE IT
 
-Choose between 'simple' and 'barter' in the interface. Press Setup, then press Go. 
-You can allow the turtles to go into debt by commenting out  if goods > 0 [  and one of the brackets ] in the 'simple' procedure.
+Press Setup, then Go. If you want to go slower press Step.
+mu is the mutation rate, i.e., how often a new cultural trait appears. 
 
 ## THINGS TO NOTICE
 
-For the simple model look at the "Amount of goods" histogram and notice how despite the randomness of the process some agents begin to amass more items than others. 
-For the barter model look at the "Distribution of each good" histogram. It shows a constantly changing but tending towards normal distribution. 
+See how the number of unique traits decreases in the population. For more analytics on the model see the original version (premo_CA_2014.nlogo) which reports a number of indices.
 
 ## THINGS TO TRY
 
-- Try changing the number of agents.
-- Try changing the value of goodsA versus goodsB (eg. one goodA for two goodsB)
+Try different values of mu and different numbers of agents.
+
+## EXTENDING THE MODEL
+
+Try giving agents a score denoting their "skill" so that more skilled teachers get more pupils. 
+Try giving different cultural traits different fitness so that their bearers have a better chance of reproducing and passing the trait onwards.
 
 
 ## CREDITS AND REFERENCES
 
-The simple model is adapted from Wilensky 2011 "Simple Economy" NetLogo library.
+premo_CA_2014.nlogo (Version 1) Premo, L.S. 2014. Cultural transmission and diversity in time-avereaged assemblages. *Current Anthropology* 55:105-114.
 @#$#@#$#@
 default
 true

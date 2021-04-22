@@ -1,51 +1,114 @@
-globals [ need ]
-turtles-own [ products known-traders demand price ]
+globals [ goods ]
+breed [ buyers buyer ]
+breed [ sellers seller ]
+buyers-own [ shopping-list my-home basket ]
+sellers-own [ stock ]
+patches-own [ cellar ]
+turtles-own [ ]
+
 
 to setup
   ca
-  crt 100
-  set need 10            ; in other versions each trader may have a different overall demand, here we set it as a constant
+  ; available goods
+  set goods ["potA" "potB" "potC" "potD" "potE" "potF" "potG"]
 
-  ask turtles [
-    set products 5
-    set known-traders n-of 3 other turtles
- ;   set known-traders n-of 3 other turtles in-radius 10  ; use this line to increase or decrease information availability
-    setxy random-xcor random-ycor
+  ; workshops/sellers
+  ask n-of 7 patches with [count turtles-here = 0][
+    sprout-sellers 1 [
+      set shape "house"
+      set stock n-of 3 goods    ; each seller has three goods out of the list of 7
+    ]
+  ]
+
+  ; buyers, their number = half of the remaining patches
+  ask n-of floor ( count patches * 0.5 )  patches with [count turtles-here = 0][
+    sprout-buyers 1 [
+      set shape "person"
+      set color green
+      setxy random-pxcor random-pycor
+      set shopping-list n-of 5 goods       ; each buyer has a list of 5 items to buy
+      set my-home patch-here             ; their home is where they were born
+      ask my-home [set cellar []]        ; setup for the 'artificial archaeological record'
+      set basket []                      ; list used to take a 'pot' back home
+    ]
   ]
 
   reset-ticks
 end
 
-
 to go
-  ask turtles [
-    let change (1 - random 3)
-    if products > 1 [ set products products + change ] ; we simplify production and trading to random fluctuations
-    set demand (need - products)                       ; agent's demand is the difference between how many products they want and how many they have
-    price-setting
+  ;ask turtles to shop until their shopping list is concluded
+  ask buyers with [not empty? shopping-list][
+    let target one-of sellers       ; agents choose a seller at random
+    move target                     ; they move to the seller
+    trade target                    ; trade with them
+    done-shopping?                  ; check whether they finished their list
   ]
 
   tick
 end
 
-to-report average-demand
-  let sum-demand sum [ demand ] of known-traders
-  report ((sum-demand + demand) / ((count known-traders) + 1))
+to move [target]
+  move-to target
+  ; depending on the model we may be interested to see how the agents find sellers
+  ; face target
+  ; while [ patch-here != [patch-here] of target][
+  ; rt random 360
+  ; fd 1]
 end
 
-to-report average-supply
-  let sum-prod sum [ products ] of known-traders
-  report ((sum-prod + products ) / ((count known-traders) + 1))
+to trade [target]
+  ; check whether any matches between the shoping list and the seller's items
+  let purchases filter [ i -> member? i first (list shopping-list) ] first (list [stock] of target)
+
+  ; for each match, update the shopping list and update the basket
+  foreach purchases [i -> set shopping-list remove i shopping-list]
+  foreach purchases [i -> set basket fput i basket]
+
 end
 
-to price-setting
-  set price (average-demand / (average-supply + average-demand))   ; price is equal to the average demand dividied by the sum of the average supply and the average demand
+to done-shopping?
+  ; if finished shopping or time has run out
+  if length shopping-list = 0 or remainder ticks  3 = 0 [
+    move-to my-home                 ; go home
+    deposit-pots                    ; deposit the pots for future archaeologists to find
+  ]
 end
+
+to deposit-pots
+  ; move purchased items from the basket to the 'cellar'
+  foreach basket [ i ->
+    ask my-home[
+      set cellar fput i cellar
+    ]
+  ]
+  ; setup a new shopping list and make sure the basket is empty
+  set shopping-list n-of 5 goods
+  set basket []
+end
+
+to show-distribution
+  let colors [ 14 24 44 64 84 104 124 ]
+
+  ask turtles [ hide-turtle ]
+  ask patches with [ cellar != 0 ][
+    let most-pottery one-of modes cellar         ; identify the most frequent item
+    let potcolor position most-pottery goods     ; get the index of that item type
+    set pcolor item potcolor colors             ; colour the patch accordingly
+  ]
+end
+
+
+; This model uses a combination of code from
+; Hamil and Gilbert 2016, chapter 2 "Starting Agent-based Modelling"
+; and 'Where is my pot?' model developed by F. Scherjon, I. Romanowska and students
+; of the "Simulation for Archaeologists" module run at Leiden University
+; all additional changes by I. Romanowska
 @#$#@#$#@
 GRAPHICS-WINDOW
-99
+210
 10
-536
+647
 448
 -1
 -1
@@ -71,11 +134,11 @@ ticks
 
 BUTTON
 21
-14
+20
 84
-47
+53
 NIL
-setup\n
+setup
 NIL
 1
 T
@@ -87,27 +150,10 @@ NIL
 1
 
 BUTTON
+88
 21
-52
-84
-85
-step
-go
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-21
-89
-84
-122
+151
+54
 NIL
 go
 T
@@ -120,73 +166,58 @@ NIL
 NIL
 1
 
-PLOT
-558
-10
-758
-160
-Average Supply
+BUTTON
+21
+58
+147
+91
 NIL
-Mean products
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot mean [products] of turtles"
-
-PLOT
-559
-173
-759
-323
-Average Price of Goods
+show-distribution
 NIL
-Price
-0.0
-10.0
-0.0
-1.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot mean [price] of turtles"
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-Model showcasing the basic price setting mechanism.
+Model showcasing the basic dynamic of supply and demand.
 
-This is an example model (Code 2.2.9) used in chapter 2.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
+For the original version of a simple supply and demand model see:
+ 
+Hamill, Lynne, and Nigel Gibert. 2016. Agent Based Modelling in Economics. Chichester: Wiley, chapter 2: "Starting Agent-based Modelling".
 
-For the original version see Brughmans and Poblome 2016. 
+This is example model used in chapter 5 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 5.2-5.10
 
 ## HOW IT WORKS
 
-Agents assess their local supply and demand and reach to their wider network for information about global supply and demand. They set the brice using the average of these values.
+Agents venture to buy items from their shopping list from sellers. They subsequently deposit the purchased items in their houses, thus creating an 'artificial archaeological record'
 
 ## HOW TO USE IT
 
-Press on the Setup button, then on the Go button. 
+Press Setup, then Go. Stop the simulation by pressing on Go and press on Show-distribution to visualise spatial distribution of goods. 
 
-## THINGS TO NOTICE
-
-See how the average supply and the average price correlate with each other. 
 
 ## THINGS TO TRY
 
-Uncomment the line "set known-traders n-of 3 other turtles in-radius 10". By changing the radius of known turtles and the number of contacts you modify the level of information a trader has. How does it impact on the price?
+- try changing the proportions between the stock of sellers and the number of items on the shopping list. 
+- try changing the number of sellers 
+
+## EXTENDING THE MODEL
+
+A small chunk of code in the Move procedure (commented out) can be used to model agents engaging in random walk (don't forget to comment out the 'move-to' line and modify the 'target' to the seller-here). If used the distribution of deposited pots will reflect the proximity of the sellers rather than the availability of different items. 
 
 
 ## CREDITS AND REFERENCES
 
-Brughmans, Tom, and Jeroen Poblome. 2016. ‘Roman Bazaar or Market Economy? Explaining Tableware Distributions in the Roman East through Computational Modelling’. Antiquity 90 (350): 393–408. https://doi.org/10.15184/aqy.2016.35.
-
-Changes to the original code: I.Romanowska.
+This model uses a combination of code from Hamill and Gilbert 2016, chapter 2 "Starting Agent-based Modelling" and 'Where is my pot?' model developed by F. Scherjon, I. Romanowska and students of the "Simulation for Archaeologists" module run at Leiden University. All additional changes by I. Romanowska
 @#$#@#$#@
 default
 true

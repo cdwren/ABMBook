@@ -1,118 +1,171 @@
-globals [ goods ]
-breed [ buyers buyer ]
-breed [ sellers seller ]
-buyers-own [ shopping-list my-home basket ]
-sellers-own [ stock ]
-patches-own [ cellar ]
-turtles-own [ ]
-
+turtles-own [cult1 cult2 cultgen success]
 
 to setup
   ca
-  ; available goods
-  set goods ["potA" "potB" "potC" "potD" "potE" "potF" "potG"]
-
-  ; workshops/sellers
-  ask n-of 7 patches with [count turtles-here = 0][
-    sprout-sellers 1 [
-      set shape "house"
-      set stock n-of 3 goods    ; each seller has three goods out of the list of 7
-    ]
+  crt n-agents [
+    set size 2
+    setxy random-xcor random-ycor
+    set cult1 0
+    set cult2 0
+    set success random 10
+    set cultgen n-values 5 [ i -> one-of [0 1] ]
   ]
-
-  ; buyers, their number = half of the remaining patches
-  ask n-of floor ( count patches * 0.5 )  patches with [count turtles-here = 0][
-    sprout-buyers 1 [
-      set shape "person"
-      set color green
-      setxy random-pxcor random-pycor
-      set shopping-list n-of 5 goods       ; each buyer has a list of 5 items to buy
-      set my-home patch-here             ; their home is where they were born
-      ask my-home [set cellar []]        ; setup for the 'artificial archaeological record'
-      set basket []                      ; list used to take a 'pot' back home
-    ]
-  ]
-
+  ask n-of (floor n-agents * 0.5) turtles [set cult1 1]  ; initially 50% of agents will have trait2 == 1
+  ask n-of (floor n-agents * 0.2) turtles [set cult2 1]  ; initially 20% of agents will have trait2 == 1
   reset-ticks
 end
 
 to go
-  ;ask turtles to shop until their shopping list is concluded
-  ask buyers with [not empty? shopping-list][
-    let target one-of sellers       ; agents choose a seller at random
-    move target                     ; they move to the seller
-    trade target                    ; trade with them
-    done-shopping?                  ; check whether they finished their list
-  ]
-
+  if ticks = 300 [stop]
+  if transmission = "vertical-tranmission" [ vertical-transmission ]
+  if transmission = "horizontal-transmission" [ horizontal-transmission ]
+  if transmission = "content-transmission" [ content-transmission ]
+  if transmission = "content-transmission" [ content-transmission-exclusive ]
+  if transmission = "frequency-transmission-conf" [frequency-transmission-conf]
+  if transmission = "frequency-transmission-anticonf" [frequency-transmission-anticonf]
+  if transmission = "success-transmission" [success-transmission]
+  if transmission = "copy-from-similar" [copy-from-similar]
+  mutation-boolean
+  ;mutation-continuous
   tick
 end
 
-to move [target]
-  move-to target
-  ; depending on the model we may be interested to see how the agents find sellers
-  ; face target
-  ; while [ patch-here != [patch-here] of target][
-  ; rt random 360
-  ; fd 1]
-end
-
-to trade [target]
-  ; check whether any matches between the shoping list and the seller's items
-  let purchases filter [ i -> member? i first (list shopping-list) ] first (list [stock] of target)
-
-  ; for each match, update the shopping list and update the basket
-  foreach purchases [i -> set shopping-list remove i shopping-list]
-  foreach purchases [i -> set basket fput i basket]
-
-end
-
-to done-shopping?
-  ; if finished shopping or time has run out
-  if length shopping-list = 0 or remainder ticks  3 = 0 [
-    move-to my-home                 ; go home
-    deposit-pots                    ; deposit the pots for future archaeologists to find
-  ]
-end
-
-to deposit-pots
-  ; move purchased items from the basket to the 'cellar'
-  foreach basket [ i ->
-    ask my-home[
-      set cellar fput i cellar
+to vertical-transmission
+  ; from parents to offspring
+  ;ask turtles [                            ; basic vertical transmission with one parent
+  ; hatch 1 [set cult1 [cult1] of myself]] ; this is explicit notation, 'hatch' automatically copy variables of the parent
+  ask n-of (floor n-agents * 0.1) turtles [ ; only 10% of turtles reproduce, otherwise there're too many of them
+    if any? other turtles in-radius 3 [           ; transmission with two parents (the spatial contrain is optional)
+      let parent1 self
+      let parent2 one-of turtles in-radius 3
+      hatch 1 [
+        set cult1 [cult1] of one-of ( turtle-set parent1 parent2 )   ; discrete inheritance
+        ;set cult2 mean [cult2] of ( turtle-set parent1 parent2 )     ; continuous inheritance
+        setxy random-xcor random-ycor                                ; move turtles to improve visually
+      ]
     ]
   ]
-  ; setup a new shopping list and make sure the basket is empty
-  set shopping-list n-of 5 goods
-  set basket []
 end
 
-to show-distribution
-  let colors [ 14 24 44 64 84 104 124 ]
+to horizontal-transmission
+  ; among peers
+  ask turtles [
+    ; set cult1 [cult1] of one-of other turtles               ; basic horizontal transmission
+    if any? other turtles in-radius 3 [                            ; with spatial factor
+      set cult1 [cult1] of one-of other turtles in-radius 3
+    ]
+  ]
+end
 
-  ask turtles [ hide-turtle ]
-  ask patches with [ cellar != 0 ][
-    let most-pottery one-of modes cellar         ; identify the most frequent item
-    let potcolor position most-pottery goods     ; get the index of that item type
-    set pcolor item potcolor colors             ; colour the patch accordingly
+to content-transmission
+  ; when one cultural trait is superior to another, here with 7-3 odds
+  let cult_traits (list 0.7 0.3 )
+
+  ask turtles [
+    ifelse random-float 1 < first cult_traits
+      [ set cult1 [cult1] of one-of other turtles ]
+      [ set cult2 [cult2] of one-of other turtles ]
+  ]
+end
+
+to content-transmission-exclusive
+  ; when one cultural trait determines the state of the other
+  let cult_traits (list 0.7 0.3 )
+
+  ask turtles [
+    ifelse random-float 1 < first cult_traits [
+      set cult1 [cult1] of one-of other turtles
+      ifelse cult1 = 1 [set cult2 0][set cult2 1]
+    ][
+      set cult2 [cult2] of one-of other turtles
+      ifelse cult2 = 1 [set cult1 0][set cult1 1]]
+  ]
+end
+
+to frequency-transmission-conf
+  ; when agents have a preference for more common traits
+  ask turtles [
+    if random-float 1 < trait1_freq [
+      set cult1 [cult1] of one-of other turtles
+    ]
+  ]
+
+end
+
+to frequency-transmission-anticonf
+  ; when agents have a preference for less common traits
+  ask turtles [
+    if random-float 1 < 1 - trait1_freq [
+      set cult1 [cult1] of one-of other turtles
+    ]
+  ]
+end
+
+to success-transmission
+  ; when agents have a preference for copying most successful agents
+  ask turtles [
+    	set cult1 [cult1] of one-of other turtles with-max [success]
   ]
 end
 
 
-; This model uses a combination of code from
-; Hamil and Gilbert 2016, chapter 2 "Starting Agent-based Modelling"
-; and 'Where is my pot?' model developed by F. Scherjon, I. Romanowska and students
-; of the "Simulation for Archaeologists" module run at Leiden University
-; all additional changes by I. Romanowska
+to copy-from-similar
+  ; when agents have a preference for copying most similar agents
+  ask turtles [
+    set cult1 [cult1] of one-of turtles with-max [ hamming-distance cultgen [cultgen] of self]
+  ]
+end
+
+;;;;;;;;;;;;;;; Auxilary functions and reporters ;;;;;;;;;;;;;;;
+
+to-report trait1_freq
+  ; repors number of turtles with version 1 of trait1, only works for discrete traits with values 1-0
+  report mean [cult1] of turtles
+end
+
+to mutation-boolean
+  ; 1 in 1000 change that the trait changes to the opposite value
+  ask turtles [
+    if random-float 1 < 0.001 [
+      ifelse cult1 = 1 [ set cult1 0 ]
+                        [ set cult1 1 ]
+    ]
+  ]
+end
+
+to mutation-continuous
+  ; the size of the mutation is drawm from a normal distribution with the mean of the current value and standard dev of 0.1
+  ask turtles [
+    if random-float 1 < 0.001 [
+      set cult1 random-normal cult1 0.1
+    ]
+  ]
+end
+
+
+to calc-hamming
+  ; auxilary function to showcase the hamming distance
+  ; use Command Center to experiment with changing values in the lists
+  let list1 (list 1 1 1 0)
+  let list2 (list 0 1 0 1)
+  print hamming-distance list1 list2
+
+end
+
+to-report hamming-distance [ list1 list2 ]
+  ; reports hamming distance between two sequences
+  ; implementation by Nicolas Payette https://stackoverflow.com/questions/25125268/netlogo-remove-turtle-given-hamming-distance
+  report length remove true (map [[?1 ?2] -> ?1 = ?2 ] list1 list2)
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+270
 10
-647
-448
+830
+571
 -1
 -1
-13.0
+8.5
 1
 10
 1
@@ -122,10 +175,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
+-32
+32
+-32
+32
 0
 0
 1
@@ -133,10 +186,10 @@ ticks
 30.0
 
 BUTTON
-21
-20
-84
-53
+7
+10
+70
+43
 NIL
 setup
 NIL
@@ -150,10 +203,10 @@ NIL
 1
 
 BUTTON
-115
-22
-178
-55
+75
+10
+138
+43
 NIL
 go
 T
@@ -166,13 +219,75 @@ NIL
 NIL
 1
 
-BUTTON
-18
-196
-144
-229
+SLIDER
+7
+100
+235
+133
+n-agents
+n-agents
+0
+100
+100.0
+1
+1
 NIL
-show-distribution
+HORIZONTAL
+
+CHOOSER
+8
+48
+235
+93
+transmission
+transmission
+"vertical-tranmission" "horizontal-transmission" "content-transmission" "content-transmission-exclusive" "frequency-transmission-conf" "frequency-transmission-anticonf" "success-transmission" "copy-from-similar"
+0
+
+PLOT
+8
+142
+208
+292
+Distribution of cultural trait 1
+NIL
+NIL
+0.0
+1.2
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 0.1 1 -16777216 true "" "histogram [cult1] of turtles"
+
+PLOT
+8
+296
+267
+446
+Evolution of cultural traits 1 and 2
+NIL
+NIL
+0.0
+350.0
+0.0
+2.0
+true
+true
+"" ""
+PENS
+"cult1" 1.0 0 -2674135 true "" "plot mean [cult1] of turtles"
+"cult2" 1.0 0 -13791810 true "" "plot mean [cult2] of turtles"
+
+BUTTON
+145
+10
+208
+43
+step
+go
 NIL
 1
 T
@@ -186,39 +301,30 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-Model showcasing the basic dynamic of supply and demand.
+A set of baseline cultural transmission algorithms.
 
-This is an example model (Code 2.2.3-2.2.8) used in chapter 2.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
+This is example model used in chapter 5 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
 
-For the original version of a simple supply and demand model see Hamill and Gilbert 2016, ch. 2. 
+Code blocks: 5.13 - 5.24
+
 
 ## HOW IT WORKS
 
-Agents venture to buy items from their shopping list from sellers. They subsequently deposit the purchased items in their houses, thus creating an 'artificial archaeological record'
+Choose an algorithm and number of agents. Press setup, then press go. The plots show the distribution of the cultural trait 1 (cult1) and the evolution of cutl1 and cult2 over time. The simulation will finish after reaching 300 steps.
 
 ## HOW TO USE IT
 
-Press Setup, then Go. Stop the simulation by pressing on Go and press on Show-distribution to visualise spatial distribution of goods. 
-
+Each algorithm is different so please read the description in chapter 5 of the book. Note that some of the algorithms only change cultural trait 1 (cult1) so trait 2 remains unchanged. 
 
 ## THINGS TO TRY
 
-- try changing the proportions between the stock of sellers and the number of items on the shopping list. 
-- try changing the number of sellers 
-
-## EXTENDING THE MODEL
-
-A small chunk of code in the Move procedure (commented out) can be used to model agents engaging in random walk (don't forget to comment out the 'move-to' line and modify the 'target' to the seller-here). If used the distribution of deposited pots will reflect the proximity of the sellers rather than the availability of different items. 
-
-
-## RELATED MODELS
-
-Hamill, Lynne, and Nigel Gibert. 2016. Agent Based Modelling in Economics. Chichester: Wiley, chapter 2: "Starting Agent-based Modelling".
+- Change the values in the model, e.g., the initialisation values or preference values. 
+- You can also comment and uncomment a number of options in the code, e.g., discrete vs continuous mutation.
 
 
 ## CREDITS AND REFERENCES
 
-This model uses a combination of code from Hamill and Gilbert 2016, chapter 2 "Starting Agent-based Modelling" and 'Where is my pot?' model developed by F. Scherjon, I. Romanowska and students of the "Simulation for Archaeologists" module run at Leiden University. All additional changes by I. Romanowska
+All code Iza Romanowska. 
 @#$#@#$#@
 default
 true
@@ -542,5 +648,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@

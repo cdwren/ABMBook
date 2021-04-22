@@ -184,7 +184,9 @@ deadly?
 
 Baseline SIR model. 
 
-This is an example model (2.2.22) used in chapter 2.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
+This is example model used in chapter 5 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 5.26 - 5.27
 
 ## HOW IT WORKS
 
