@@ -224,7 +224,7 @@ to variability
   ]
 end
 
-to reproduce-gers  ;; ger procedure
+to reproduce-gers1  ;; ger procedure
   if energy >= 20 [
     if random-float 100 < gerreproduce [  ;; throw "dice" to see if you will reproduce
       set energy (energy / 2)   ;; divide energy between parent and offspring
@@ -233,6 +233,21 @@ to reproduce-gers  ;; ger procedure
   ]
 end
 
+
+to reproduce-gers  ;; ger procedure
+  if energy >= 20 [
+    if random-float 100 < gerreproduce [  ;; throw "dice" to see if you will reproduce
+
+      let target-patch one-of neighbors with [count turtles-here = 0]
+      if target-patch != nobody [
+        set energy (energy / 2)           ;; divide energy between parent and offspring
+        hatch 1   [
+        move-to target-patch
+        ]
+    ]
+  ]
+  ]
+end
 
 to death  ;; turtle procedure
           ;  when energy dips below zero, die
@@ -529,17 +544,15 @@ gerreproduce
 HORIZONTAL
 
 @#$#@#$#@
-##HOW TO CITE THIS MODEL
-
-Clark, Julia K., Stefani A. Crabtree. 2015. “Examining Social Adaptations in a Volatile Landscape in Northern Mongolia Via the Agent-Based Model Ger Grouper.” Land 2015, 4(1), 157-181; doi:10.3390/land4010157.
-
-##ACCESSING THE PUBLICATION
-
-http://www.mdpi.com/2073-445X/4/1/157
-
 ## WHAT IS IT?
 
 This model was designed to explore fission/fusion dynamics among semi-nomadic pastoralists in Mongolia. Anecdotal information states that Mongolians cluster into groups of 4 to 6 nuclear families during wintertime. However, this has never been truly tested. This model makes an attempt at understanding what a very basic distribution of households would be on a patchy environment when these households are trying to maximize their own fitness.
+
+Clark, Julia K., Stefani A. Crabtree. 2015. “Examining Social Adaptations in a Volatile Landscape in Northern Mongolia Via the Agent-Based Model Ger Grouper.” Land 2015, 4(1), 157-181; doi:10.3390/land4010157. http://www.mdpi.com/2073-445X/4/1/157
+
+This is example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 6.13
 
 ## ENTITIES, STATE VARIABLES AND SCALES
 

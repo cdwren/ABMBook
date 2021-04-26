@@ -1,99 +1,99 @@
-extensions [Rnd]
-turtles-own [turtle_energy age]
-patches-own [energy]
-globals [Fitness-Threshold ]
+; patch choice model from optimal foraging theory
+; by Michael Barton, Arizona State University
 
-to setup
-  ca
-  ask patches [
-    set pcolor white
-    set energy K
-  ]
-  ;begin with just the current cell in memory
-  crt 50 [
-    set color 15 + (10 * random 12)   ;assign a vivid color
-    set age 0
-  ]
+breed [foragers forager]
+
+foragers-own [encounter-list avg-cost encounter-rate]
+patches-own [food]
+globals [global-return ]
+
+to Setup
+  clear-all
+  Setup_Patches
+  Setup_Foragers
   reset-ticks
 end
 
-to go
-  if not any? turtles [ stop ]
-  ask turtles [
-    eat
-    fission
-    determine-fitness
-    reproduce
-    grow-old
-  ]
+to Go
+  Forage
+  Leave-patch
+  Regrow
+  Do_Plots
   tick
+  if not any? foragers [stop]
 end
 
-
-to eat
-  set turtle_energy  energy / count turtles-here
-end
-
-to determine-fitness
-  if count turtles-here > energy - 1 [ fission ]
-end
-
-to fission
-  let items [ "fusion" "solo" "merge" ]
-  let weights [ 0.5 0.3 0.2 ]
-  let pairs (map list items weights)
-  let selection first rnd:weighted-one-of-list pairs [ [p] -> last p ]
-  if selection = "fusion" [ fusion]
-  if selection = "solo" [solo]
-  if selection = "merge" [merge]
-end
-
-to fusion
-  let target min-one-of patches with [  any? turtles-here ] in-radius 10 [distance myself]
-  if target != nobody [move-to target]
-end
-
-to solo
-  let target min-one-of patches with [ not any? turtles-here ] in-radius 10 [distance myself]
-  if target != nobody [move-to target]
-end
-
-to merge
-  let friend min-one-of other turtles in-radius 2 [distance myself]
-  let target min-one-of patches with [ not any? turtles-here ] in-radius 10 [distance myself]
-  if target != nobody and friend != nobody [
-    move-to target
-    ask friend [move-to [patch-here] of myself]
-  ]
-end
-
-to reproduce
-  ;; turtle procedure
-  if turtle_energy >= 20 [
-    if random 100 < reproduction [  ;; throw "dice" to see if you will reproduce
-                                    ;; divide energy between parent and offspring
-      set turtle_energy(turtle_energy / 2)
-      hatch 1 [
-        set turtle_energy turtle_energy
-        set age 0
-      ]
+to Setup_Patches
+  ask patches
+    [
+    set pcolor brown
+    if random 100 < resource-density [
+      set food food-value ; put a food item on patches according to resource density
+      set pcolor green
     ]
   ]
 end
 
-to grow-old
-  set age age + 1
-  if random 100 < death [die]
+to Setup_Foragers
+  create-foragers init-foragers
+  ask foragers
+    [
+    set shape "person"
+    set size 2
+    set color black
+    setxy random-xcor random-ycor ; place the foragers in the world
+    set encounter-list n-values 10 [food-value] ; rolling list encounters with cells that have food
+    ]
+end
+
+to Forage
+  ask foragers [
+    rt random 360
+    forward 1
+    ifelse food > 0 [
+      let current-harvest random food
+      set encounter-list fput current-harvest encounter-list ; if there is food, count it as a successful encounter in the rolling encounters list
+      ask patch-here [set food food - current-harvest set pcolor pcolor - current-harvest if food <= 0 [set pcolor brown]] ; harvest the food and turn the patch white
+    ]
+    [
+      set encounter-list fput 0 encounter-list    ; if no food, count it as an unsuccessful encounter
+    ]
+
+    set encounter-list but-last encounter-list ; take last list item off the rolling encounters list
+    set encounter-rate mean encounter-list
+  ]
+end
+
+to Leave-patch
+  ask foragers
+    [
+      if encounter-rate < (resource-density / 100) [ ; check whether encounter rate in ecopatch is less than average encounter rate (=resource density)
+        rt random 360
+        forward 10
+        set encounter-list n-values 10 [food-value] ;reset the encounter list to full
+      ]
+  ]
+end
+
+to Regrow
+  ask patches [ ; regrow food in harvested patches
+    if random 100 < regrow-rate [ set food food-value set pcolor green]
+  ]
+end
+
+to Do_Plots ; track simulation values
+  set-current-plot-pen "encounter rate"
+  if count foragers > 0 [plot sum [encounter-rate] of foragers / count foragers]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+419
 10
-647
-448
+892
+484
 -1
 -1
-13.0
+15.0
 1
 10
 1
@@ -103,53 +103,23 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
 0
+30
 0
+30
+1
+1
 1
 ticks
 30.0
 
-SLIDER
-18
-57
-190
-90
-reproduction
-reproduction
-0
-30
-20.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-17
-142
-189
-175
-K
-K
-0
-50
-20.0
+BUTTON
+5
 10
-1
-NIL
-HORIZONTAL
-
-BUTTON
-55
-23
-118
-56
-NIL
+71
+43
 setup
+Setup
 NIL
 1
 T
@@ -161,12 +131,12 @@ NIL
 1
 
 BUTTON
-128
-4
-191
-37
-NIL
-go
+75
+10
+138
+43
+run
+Go
 T
 1
 T
@@ -178,56 +148,158 @@ NIL
 1
 
 SLIDER
-18
-92
-190
-125
-death
-death
-0
-30
-10.0
+5
+50
+177
+83
+init-foragers
+init-foragers
+1
+20
+6.0
 1
 1
 NIL
 HORIZONTAL
+
+SLIDER
+190
+120
+362
+153
+regrow-rate
+regrow-rate
+0
+20
+0.0
+.1
+1
+%
+HORIZONTAL
+
+PLOT
+-4
+303
+401
+453
+Search costs & encounters per forager
+NIL
+NIL
+0.0
+10.0
+0.0
+5.0
+true
+true
+"" ""
+PENS
+"encounter rate" 1.0 0 -2674135 true "" ""
+
+SLIDER
+190
+85
+362
+118
+food-value
+food-value
+1
+50
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+145
+10
+208
+43
+step
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+190
+50
+362
+83
+resource-density
+resource-density
+0
+100
+74.0
+1
+1
+%
+HORIZONTAL
+
+MONITOR
+106
+217
+208
+262
+encounter rate
+sum [encounter-rate] of foragers / count foragers
+17
+1
+11
+
+MONITOR
+106
+171
+245
+216
+NIL
+[encounter-list] of turtle 0
+17
+1
+11
 
 @#$#@#$#@
-## WHAT IS IT?
+## OVERVIEW
 
-(a general understanding of what the model is trying to show or explain)
+This is an agent-based simulation of the classic "patch choice model" of optimal foraging theory.
 
-## HOW IT WORKS
+This has been used as an example in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
 
-(what rules the agents use to create the overall behavior of the model)
+Code blocks: 6.9-6.10
+
+## SIMULATION OPERATION
+
+SETUP: The world is divided into 9 eco-patches, each with their own ID number. Each cell in the eco-patch (i.e., a NetLogo "patch") has a food value (e.g., edible plants), set by the user (<food-value> in energy units or eu's). The density of patches with food also can be set (<resource-density> ranging fro 0-100%)
+
+FORAGERS: One or more foragers (<init-foragers> selected by the user) are placed randomly in the eco-patches and given 100 energy units (eu's) to start with. They begin to move in random directions a distance <move-dist> set by the user. Each cell moved costs the forager <search-cost> energy units (set by the user).
+
+FORAGING: The forager gains energy (<food-value>) by harvesting and consuming the food in each cell he/she encounters that has food. Processing the food can optionally also cost the forager <processing-cost> (set by the user).
+
+REGROWTH: When the food is harvested, the cell's food value goes to zero. Optionally, exhausted cells can regrow using a random function set by the user <regrow-rate>.
+
+MOVING: According to the patch choice model, a forager will continue to forage in a patch until the rate of encountering new food in a patch drops below the encounter rante for the entire region. The encounter rate for a forager is calculated as a rolling average of (successful encounters / total encounters) over some time interval. The time interval of the rolling average is set by the user <avg-interval> and varies from 2-100.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
-
-## THINGS TO NOTICE
-
-(suggested things for the user to notice while running the model)
+Set the options (see above). Press "setup". Then press "run".
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+The classic patch choice model considers only one forager. What happens if more than one forager are placed in the simulation? Try changing the food values in each cell or the distance moved by each forger each cycle.
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+Other OFT models could be simulated in this way.
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+C. Michael Barton, Arizona State University
 @#$#@#$#@
 default
 true
@@ -421,22 +493,6 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
-sheep
-false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
-
 square
 false
 0
@@ -521,20 +577,13 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
-
 x
 false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.4
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

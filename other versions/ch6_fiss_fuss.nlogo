@@ -1,36 +1,99 @@
 extensions [Rnd]
-turtles-own [fitness age]
+turtles-own [turtle_energy age]
+patches-own [energy]
+globals [Fitness-Threshold ]
 
 to setup
   ca
-  crt 100 [set fitness random-float 1 set age 1 setxy random-xcor random-ycor]
+  ask patches [
+    set pcolor white
+    set energy K
+  ]
+  ;begin with just the current cell in memory
+  crt 50 [
+    set color 15 + (10 * random 12)   ;assign a vivid color
+    set age 0
+  ]
   reset-ticks
 end
 
 to go
-  ask rnd:weighted-n-of 10 turtles [fitness] [reproduce]
-  ask n-of 10 turtles with [age > 0] [die]
-  ask turtles [set age age + 1 set heading heading + 15 fd 1]
+  if not any? turtles [ stop ]
+  ask turtles [
+    eat
+    fission
+    determine-fitness
+    reproduce
+    grow-old
+  ]
   tick
 end
 
-to reproduce
-  hatch 1 [
-    set age 0
-    let mutation_direction one-of [-1 1]
-    set color color + (1 * mutation_direction)
-    fd 1
+
+to eat
+  set turtle_energy  energy / count turtles-here
+end
+
+to determine-fitness
+  if count turtles-here > energy - 1 [ fission ]
+end
+
+to fission
+  let items [ "fusion" "solo" "merge" ]
+  let weights [ 0.5 0.3 0.2 ]
+  let pairs (map list items weights)
+  let selection first rnd:weighted-one-of-list pairs [ [p] -> last p ]
+  if selection = "fusion" [ fusion]
+  if selection = "solo" [solo]
+  if selection = "merge" [merge]
+end
+
+to fusion
+  let target min-one-of patches with [  any? turtles-here ] in-radius 10 [distance myself]
+  if target != nobody [move-to target]
+end
+
+to solo
+  let target min-one-of patches with [ not any? turtles-here ] in-radius 10 [distance myself]
+  if target != nobody [move-to target]
+end
+
+to merge
+  let friend min-one-of other turtles in-radius 2 [distance myself]
+  let target min-one-of patches with [ not any? turtles-here ] in-radius 10 [distance myself]
+  if target != nobody and friend != nobody [
+    move-to target
+    ask friend [move-to [patch-here] of myself]
   ]
+end
+
+to reproduce
+  ;; turtle procedure
+  if turtle_energy >= 20 [
+    if random 100 < reproduction [  ;; throw "dice" to see if you will reproduce
+                                    ;; divide energy between parent and offspring
+      set turtle_energy(turtle_energy / 2)
+      hatch 1 [
+        set turtle_energy turtle_energy
+        set age 0
+      ]
+    ]
+  ]
+end
+
+to grow-old
+  set age age + 1
+  if random 100 < death [die]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-835
-636
+647
+448
 -1
 -1
-18.7
+13.0
 1
 10
 1
@@ -50,13 +113,43 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
-BUTTON
-54
-42
-117
-75
+SLIDER
+5
+50
+177
+83
+reproduction
+reproduction
+0
+30
+20.0
+1
+1
 NIL
-setup\n
+HORIZONTAL
+
+SLIDER
+5
+120
+177
+153
+K
+K
+0
+50
+20.0
+10
+1
+NIL
+HORIZONTAL
+
+BUTTON
+4
+10
+67
+43
+NIL
+setup
 NIL
 1
 T
@@ -68,12 +161,12 @@ NIL
 1
 
 BUTTON
-32
-84
-116
-117
-go to...
-ifelse ticks < max-ticks [go][stop]
+70
+10
+133
+43
+NIL
+go
 T
 1
 T
@@ -84,11 +177,26 @@ NIL
 NIL
 1
 
+SLIDER
+5
+85
+177
+118
+death
+death
+0
+30
+10.0
+1
+1
+NIL
+HORIZONTAL
+
 BUTTON
-56
-170
-119
-203
+135
+10
+198
+43
 step
 go
 NIL
@@ -101,93 +209,14 @@ NIL
 NIL
 1
 
-PLOT
-6
-223
-206
-373
-Fitness
-NIL
-NIL
-0.0
-10.0
-0.0
-1.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot mean [fitness] of turtles"
-
-PLOT
-11
-387
-211
-537
-Age
-NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot mean [age] of turtles"
-
-PLOT
-9
-552
-209
-702
-Population size
-NIL
-NIL
-0.0
-10.0
-0.0
-120.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot count turtles"
-
-INPUTBOX
-131
-65
-194
-125
-max-ticks
-500.0
-1
-0
-Number
-
-PLOT
-234
-642
-434
-792
-Max Age
-NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot max [age] of turtles"
-
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This is a heavily simplified version of a Fission-Fussion dynamics by E. Crema: 
+Crema, Enrico R. 2014. “A Simulation Model of Fission-Fusion Dynamics and Long-Term Settlement Change.” Journal of Archaeological Method and Theory 21 (2): 385–404.
+
+This is example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+Code blocks: 6.14-6.17
 
 ## HOW IT WORKS
 
@@ -526,7 +555,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.4
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -543,5 +572,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@

@@ -176,10 +176,11 @@ NIL
 
 An example of a model of cultural tranmission.
 
-This is an example model (Code block 2.2.21) used in chapter 2.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
-
 This is a shortened version of premo_CA_2014.nlogo (Version 1) Premo, L.S. 2014. Cultural transmission and diversity in time-avereaged assemblages. *Current Anthropology* 55:105-114.
 
+This is example model used in chapter 5 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 5.25
 
 ## HOW IT WORKS
 

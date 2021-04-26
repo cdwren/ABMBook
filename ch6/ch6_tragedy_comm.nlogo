@@ -1,63 +1,85 @@
-globals [ nextNovelVariant ]
-
-turtles-own [age t1 ]
+breed [ cows cow ]
+breed [ herders herder ]
+cows-own [ owner forage ]
+herders-own [ now_cows past_cows ]
 
 to setup
   clear-all
+  ask patches [ set pcolor green ]
 
-  ; initialise unique cultural variants
-  set nextNovelVariant 1
+  create-herders 5 [
+    move-to one-of patches
+    set color white
+    set size 2
+    set shape "person"
+  ]
 
-  ; create initial population of agents, give them a unique cult trait
-  let nAgents 100
-  while [nAgents > 0][
-    ask one-of patches [
-      sprout 1[
-        set t1 nextNovelVariant
-        set nextNovelVariant nextNovelVariant + 1
-        set color t1
-        set age 0
-      ]
-    ]
-    set nAgents nAgents - 1
+  create-cows 10 [
+    move-to one-of patches
+    set color brown
+    set size 2
+    set shape "cow"
+  ]
+
+  ask cows with [ owner = 0 ] [
+    set owner one-of herders
+  ]
+  ask herders [
+    set now_cows count cows with [ owner = myself ]
   ]
   reset-ticks
 end
 
 to go
-  if ticks = 300 [stop]
-
-  ask turtles[ ;old generation gets old
-    set age 1
-  ]
-
- let nAgents 100   ; new generation is born
- while [nAgents > 0][
-    ask one-of patches [
-      sprout 1 [set age 0]
-    ]
-    set nAgents nAgents - 1
-  ]
-  ; new generation learns
-  ask turtles with [age = 0] [learn]
-
-  ; old generation dies
-  ask turtles [
-    if age = 1 [die]
-  ]
+  graze
+  evaluate-stock
+  grass-regrowth
+  if not any? cows [stop]
   tick
 end
 
-to learn
-  ; new generation learns from a random turtle in old generation
-  let teacher one-of turtles with [age = 1]
-  set t1 [t1] of teacher
-  ; occassionally a mutation occurs and a new trait is born
-  if random-float 1 < mu [
-    set t1 nextNovelVariant
-    set nextNovelVariant nextNovelVariant + 1
+to graze
+  ; cows move to available pasture to fulfill their energy requirement
+  ask cows [ set forage 0 ]
+  while [ max [forage] of cows < cow-forage-requirement and any? patches with [ pcolor = green ]] [
+    ask cows with [forage < cow-forage-requirement] [
+      if any? patches with [ pcolor = green ] [
+        move-to min-one-of patches with [ pcolor = green ] [ distance myself ]
+        set pcolor black
+        set forage forage + 1
+      ]
+    ]
   ]
-  set color t1
+  ; if not enough grass - die
+  ask cows [
+    if forage < cow-forage-requirement [ die ]
+  ]
+end
+
+to evaluate-stock
+  ; herders evaluate whether to expand the herd based on the current number of cows and the level of selfishness
+  ask herders [
+    set past_cows now_cows
+    set now_cows count cows with [ owner = myself ]
+
+    if now_cows = 0 [set color red]
+
+    if now_cows >= past_cows - selfishness [
+      let mycows cows with [owner = myself]
+      if any? mycows [
+        ask one-of mycows [hatch 1]
+      ]
+    ]
+  ]
+end
+
+to grass-regrowth
+  ; grass regrowths with a given probability
+  ask patches with [pcolor = black] [
+    if random-float 1 < grass-regrowth-rate [
+      set pcolor green
+    ]
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -88,10 +110,10 @@ ticks
 30.0
 
 BUTTON
-2
-11
-65
-44
+5
+10
+68
+43
 NIL
 setup
 NIL
@@ -105,11 +127,11 @@ NIL
 1
 
 BUTTON
-134
-11
-197
-44
-NIL
+72
+10
+135
+43
+go
 go
 T
 1
@@ -121,44 +143,11 @@ NIL
 NIL
 1
 
-SLIDER
-3
-50
-175
-83
-mu
-mu
-0
-1
-0.06
-0.01
-1
-NIL
-HORIZONTAL
-
-PLOT
-3
-87
-203
-237
-# of Unique Variants
-NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot length remove-duplicates [t1] of turtles"
-
 BUTTON
-68
-11
-131
-44
+137
+10
+200
+43
 step
 go
 NIL
@@ -171,42 +160,97 @@ NIL
 NIL
 1
 
+SLIDER
+5
+50
+190
+83
+cow-forage-requirement
+cow-forage-requirement
+0
+100
+30.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+130
+177
+163
+grass-regrowth-rate
+grass-regrowth-rate
+0
+1
+0.9
+.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+90
+177
+123
+selfishness
+selfishness
+0
+10
+3.0
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+681
+44
+881
+194
+plot 1
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count cows"
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-An example of a model of cultural tranmission.
+A simple implementation of the Tragedy of the Commons model. This is a simplified version of the MASTOC model by Schindler.
+Schindler, Julia. 2012. “A Simple Agent-Based Model Of The Tragedy Of The Commons.” In ECMS 2012 Proceedings Edited by: K. G. Troitzsch, M. Moehring, U. Lotzmann, 44–50. ECMS. https://doi.org/10.7148/2012-0044-0050.
 
-
-
-This is a shortened version of premo_CA_2014.nlogo (Version 1) Premo, L.S. 2014. Cultural transmission and diversity in time-avereaged assemblages. *Current Anthropology* 55:105-114.
-
+This is example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+Code blocks: 6.24-6.27
 
 ## HOW IT WORKS
 
-At each time step, a generation of agents is created and learns cultural traits from the previous generation. There is a chance, mu, that a new cultural trait appears. 
+Cows move around and consume grass. Grass regrows with a probability set by a slider. Herders may decide to expand their herd based on the current number compared to the previous size (the general premise is that if one's cows are not dying of hunger, the herd should be enlarged) and taking into account their level of selfishness.
 
 ## HOW TO USE IT
 
-Press Setup, then Go. If you want to go slower press Step.
-mu is the mutation rate, i.e., how often a new cultural trait appears. 
+Press setup, press go. 
+Use sliders:
+cow-forage-requirement - how much does a cow need to eat
+selfishness - the change to the difference between the past and the current state of the herd (i.e., how many cows would have to die of hunger for the herder to stop enlarging the herd)
+grass-regrowth-rate - probability of the grass to regrowth. 
 
 ## THINGS TO NOTICE
 
-See how the number of unique traits decreases in the population. For more analytics on the model see the original version (premo_CA_2014.nlogo) which reports a number of indices.
+The tragedy of the commons, always ends in a tragedy. But the time needed to reach it differs. 
 
-## THINGS TO TRY
+## RELATED MODELS
 
-Try different values of mu and different numbers of agents.
-
-## EXTENDING THE MODEL
-
-Try giving agents a score denoting their "skill" so that more skilled teachers get more pupils. 
-Try giving different cultural traits different fitness so that their bearers have a better chance of reproducing and passing the trait onwards.
-
-
-## CREDITS AND REFERENCES
-
-premo_CA_2014.nlogo (Version 1) Premo, L.S. 2014. Cultural transmission and diversity in time-avereaged assemblages. *Current Anthropology* 55:105-114.
+There's a HubNet version of the Tragedy of the Commons available in the NetLogo Models Library.
 @#$#@#$#@
 default
 true
@@ -530,5 +574,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@

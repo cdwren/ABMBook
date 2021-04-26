@@ -182,7 +182,7 @@ deadly?
 @#$#@#$#@
 ## WHAT IS IT?
 
-Baseline SIR model. 
+Basic SIR model.  
 
 This is example model used in chapter 5 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
 

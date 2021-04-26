@@ -1,89 +1,48 @@
-breed [ cows cow ]
-breed [ herders herder ]
-cows-own [ owner forage ]
-herders-own [ now_cows past_cows ]
+extensions [Rnd]
+turtles-own [fitness age]
 
 to setup
-  clear-all
-  ask patches [ set pcolor green ]
-
-  create-herders 5 [
-    move-to one-of patches
-    set color white
-    set size 2
-    set shape "person"
-  ]
-
-  create-cows 10 [
-    move-to one-of patches
-    set color brown
-    set size 2
-    set shape "cow"
-  ]
-
-  ask cows with [ owner = 0 ] [
-    set owner one-of herders
-  ]
-  ask herders [
-    set now_cows count cows with [ owner = myself ]
-  ]
+  ca
+  crt 100 [
+    set fitness random-float 1
+    set age 1
+    setxy random-xcor random-ycor]
   reset-ticks
 end
 
 to go
-  graze
-  evaluate-stock
-  grass-regrowth
-  if not any? cows [stop]
+  ; Choose who will reproduce (based on fitness)
+  ask rnd:weighted-n-of 10 turtles [fitness] [reproduce]
+  ; And who will die (random)
+  ask n-of 10 turtles with [age > 0] [die]
+  ; aging and "family units" are visualised by direction
+  ask turtles [
+    set age age + 1
+    set heading heading + 15
+    fd 1
+  ]
   tick
+  if ticks < max-ticks [stop]
 end
 
-to graze
-  ask cows [ set forage 0 ]
-  while [ max [forage] of cows < cow-forage-requirement and any? patches with [ pcolor = green ]] [
-    ask cows with [forage < cow-forage-requirement] [
-      if any? patches with [ pcolor = green ] [
-        move-to min-one-of patches with [ pcolor = green ] [ distance myself ]
-        set pcolor black
-        set forage forage + 1
-      ]
-    ]
-  ]
-  ask cows [
-    if forage < cow-forage-requirement [ die ]
-  ]
-end
-
-to evaluate-stock
-  ask herders [
-    set past_cows now_cows
-    set now_cows count cows with [ owner = myself ]
-    if now_cows = 0 [set color red]
-    if now_cows >= past_cows - selfishness [
-      let mycows cows with [owner = myself]
-      if any? mycows [
-        ask one-of mycows [hatch 1]
-      ]
-    ]
-  ]
-end
-
-to grass-regrowth
-  ask patches with [pcolor = black] [
-    if random-float 1 < grass-regrowth-rate [
-      set pcolor green
-    ]
+to reproduce
+  ; reprodution can involve a mutation, visualised using colour tone change
+  hatch 1 [
+    set age 0
+    let mutation_direction one-of [-1 1]
+    set color color + (1 * mutation_direction)
+    fd 1
   ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+216
 10
-647
-448
+841
+636
 -1
 -1
-13.0
+18.7
 1
 10
 1
@@ -104,12 +63,12 @@ ticks
 30.0
 
 BUTTON
-33
-20
-96
-53
+3
+10
+66
+43
 NIL
-setup
+setup\n
 NIL
 1
 T
@@ -121,10 +80,10 @@ NIL
 1
 
 BUTTON
-26
-73
-89
-106
+71
+10
+130
+43
 go
 go
 T
@@ -138,10 +97,10 @@ NIL
 1
 
 BUTTON
-33
-116
-96
-149
+133
+10
+196
+43
 step
 go
 NIL
@@ -154,57 +113,30 @@ NIL
 NIL
 1
 
-SLIDER
-13
-172
-198
-205
-cow-forage-requirement
-cow-forage-requirement
-0
-100
-10.0
-1
-1
+PLOT
+6
+223
+206
+373
+Fitness
 NIL
-HORIZONTAL
-
-SLIDER
-30
-252
-202
-285
-grass-regrowth-rate
-grass-regrowth-rate
-0
-1
-0.5
-.1
-1
 NIL
-HORIZONTAL
-
-SLIDER
-31
-214
-203
-247
-selfishness
-selfishness
-0
-10
 0.0
-1
-1
-NIL
-HORIZONTAL
+10.0
+0.0
+1.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean [fitness] of turtles"
 
 PLOT
-681
-44
-881
-194
-plot 1
+11
+387
+211
+537
+Age
 NIL
 NIL
 0.0
@@ -215,44 +147,77 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot count cows"
+"default" 1.0 0 -16777216 true "" "plot mean [age] of turtles"
+
+PLOT
+9
+552
+209
+702
+Population size
+NIL
+NIL
+0.0
+10.0
+0.0
+120.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count turtles"
+
+INPUTBOX
+131
+65
+194
+125
+max-ticks
+500.0
+1
+0
+Number
+
+PLOT
+234
+642
+434
+792
+Max Age
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot max [age] of turtles"
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+A simple model demonstrating the roulette wheel reprodution.
+
+This is example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 6.21-6.22
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Each agent has a probability of reproducing proportional to its fitness and a probability of death that is uniformly distributed. Newly hatched agents can mutate. Mutations are visualised as changes to the colour tone.
+Agents age, this is visualised by the direction they are facing.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
-
-## THINGS TO NOTICE
-
-(suggested things for the user to notice while running the model)
-
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
-
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+Press setup,then press go. 
+You can change the duration of the simulation by entering a different number in the max-ticks box. 
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+C. Wren
 @#$#@#$#@
 default
 true
@@ -559,7 +524,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
