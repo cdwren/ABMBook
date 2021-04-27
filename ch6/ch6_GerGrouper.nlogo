@@ -224,28 +224,12 @@ to variability
   ]
 end
 
-to reproduce-gers1  ;; ger procedure
+to reproduce-gers
   if energy >= 20 [
-    if random-float 100 < gerreproduce [  ;; throw "dice" to see if you will reproduce
-      set energy (energy / 2)   ;; divide energy between parent and offspring
-      hatch 1 [ rt random-float 360 fd 1 ]
+    if random 100 < gerreproduce [  ;; check probability of reproduction
+      set energy (energy / 2)       ;; divide energy between parent and offspring
+      hatch 1 [     ]               ;; if needed add movement commands to hatch to have offspring move immediately
     ]
-  ]
-end
-
-
-to reproduce-gers  ;; ger procedure
-  if energy >= 20 [
-    if random-float 100 < gerreproduce [  ;; throw "dice" to see if you will reproduce
-
-      let target-patch one-of neighbors with [count turtles-here = 0]
-      if target-patch != nobody [
-        set energy (energy / 2)           ;; divide energy between parent and offspring
-        hatch 1   [
-        move-to target-patch
-        ]
-    ]
-  ]
   ]
 end
 
@@ -937,7 +921,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
