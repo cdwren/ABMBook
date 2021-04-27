@@ -49,6 +49,7 @@ to setup
       set pcolor red
     ]
   ]
+
   ; this code accesses the exact location of each quarry
   let points gis:feature-list-of quarries-dataset
   foreach points [ quarry-point ->
@@ -100,6 +101,7 @@ to go
   ; if any tools in toolkit, discard
   ask foragers [
     if length toolkit > 0 [
+      ; pass-artefact
       discard-tools
     ]
   ]
@@ -199,7 +201,7 @@ end
 to pass-artefact
   ; example code to show how to enable agents to share raw materials among each other
   ask foragers [
-    let t min-one-of foragers in-radius 3 [distance myself]
+    let t min-one-of other foragers in-radius 3 [distance myself]
     let i random length toolkit
     let passed? false
 
@@ -289,9 +291,9 @@ NIL
 
 SLIDER
 5
-115
-183
-148
+45
+190
+78
 max-carry
 max-carry
 0
@@ -304,54 +306,24 @@ HORIZONTAL
 
 SLIDER
 5
-45
-184
-78
-elevation-threshold
-elevation-threshold
-10
-500
-300.0
-10
-1
-NIL
-HORIZONTAL
-
-SLIDER
-5
-150
-188
-183
+80
+190
+113
 time-limit
 time-limit
 1000
 100000
-100000.0
+45000.0
 1000
-1
-NIL
-HORIZONTAL
-
-SLIDER
-5
-80
-184
-113
-elevation-multiplier
-elevation-multiplier
-1
-5
-2.0
-1
 1
 NIL
 HORIZONTAL
 
 BUTTON
 5
-220
+150
 135
-253
+183
 write diversity
 write-diversity
 NIL
@@ -366,9 +338,9 @@ NIL
 
 SWITCH
 5
-185
+115
 137
-218
+148
 random-walk?
 random-walk?
 1
@@ -394,9 +366,9 @@ NIL
 
 BUTTON
 5
-255
+185
 135
-288
+218
 write assemblages
 write-assemblages
 NIL
