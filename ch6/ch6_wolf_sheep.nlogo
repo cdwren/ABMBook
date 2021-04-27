@@ -85,7 +85,8 @@ to eat-grass  ; sheep procedure
   ]
 end
 
-to eat-grass-cont
+to eat-grass-cont ; sheep procedure
+  ; note this is the main modification from the original model by Wilensky
   if pcolor = green [
     ask patch-here [
       set grass-amount grass-amount - sheep-gain-from-food ] ; grass is eaten

@@ -3,7 +3,7 @@
 ;; Combining Geographic Information Systems and Agent-Based Models in Archaeology: Part 2 of 3.
 ;; Advances in Archaeological Practice 7, 185–193. https://doi.org/10.1017/aap.2019.5
 
-;; Modified and extended by Wren
+;; Modified and extended by C. Wren
 
 extensions [ gis ]
 
@@ -41,13 +41,15 @@ to setup
     ]
   ]
 
+  ; mark the locations of quarries by finding the intersections between the vectors and patches.
+  ; this is problematic in cases where there are two quarries on a patch or if a quarry is on the border of two patches
   ask patches [
     if gis:intersects? quarries-dataset self [
       set patch-quarry true
       set pcolor red
     ]
   ]
-
+  ; this code accesses the exact location of each quarry
   let points gis:feature-list-of quarries-dataset
   foreach points [ quarry-point ->
     let location gis:location-of (first first gis:vertex-lists-of quarry-point)
@@ -82,11 +84,14 @@ end
 
 to go
   ask foragers [
+    ; use the chooser in the interface to do random or target walk
     ifelse random-walk? [
       random-walk
     ][
       target-walk
     ]
+
+    ; when the agent comes accross a quarry they should reprovision their toolkit
     if patch-quarry = true [
       reprovision-toolkit
     ]
@@ -98,36 +103,36 @@ to go
       discard-tools
     ]
   ]
-
+  ; at the end of the run colour the map so that we can see where did the agent go and dropped lithics
   if ticks = time-limit [
-    let mx  max [ length assemblage ] of patches
-    ask patches with [ length assemblage > 0 ] [
-      	set pcolor scale-color red (length assemblage) 0 mx
-    	]
+    display-assemblages
     stop
   ]
   tick
 end
 
 to random-walk
+  ; random walk, note the agent moves at different distances depending on whether the step was in a cardinal direction or on a diagonal
   move-to one-of neighbors with [ patch-elevation > 0 ]
 end
 
 to target-walk
+  ; target walk, is only triggered if the agent carries less than 10% of its capacity
   ifelse length toolkit < max-carry * 0.1 [
     let t min-one-of patches with [patch-quarry = true] [distance myself]
     face t
-    ifelse [patch-elevation] of patch-ahead 1 > 0 [
+    ifelse [patch-elevation] of patch-ahead 1 > 0 [ ; make sure not to walk into water, this will become problematic for convex shaped landmasses
       move-to patch-ahead 1
     ][
-      random-walk
+      random-walk ; so if the patch ahead is water, do some more random walk to get unstuck
     ]
   ][
-    random-walk
+    random-walk ; agent do random walk if their toolkit is not running low
   ]
 end
 
 to go-down-hill
+  ;  example code to show how the agent mobility can be shaped by topography
   ask foragers [
     let next min-one-of neighbors with [patch-elevation > 0] [patch-elevation]
     move-to next
@@ -136,6 +141,7 @@ to go-down-hill
 end
 
 to walk-quarry
+  ; example code to show how the agent can use use target walk to go the most straight way to a target
   ask foragers [
     let nearest-quarry min-one-of patches with [patch-quarry = true] [distance myself]
     face nearest-quarry
@@ -167,19 +173,31 @@ to discard-tools
 end
 
 to display-assemblages
-  let mx  max [ length assemblage ] of patches
+  ; end of the run visualisation
+  let mx  max [ length assemblage ] of patches ; mx is the max number of lithic pieces dropped anywhere on the map
   ask patches with [ length assemblage > 0 ] [
-    	set pcolor scale-color red (length assemblage) 0 mx
+    	set pcolor scale-color red (length assemblage) 0 mx ; the patch colour is scaled between zero and mx, the darker the more pieces
   	]
 end
 
 to write-assemblages
+  ; saves the list of lithics to an asc file
   ask patches [set assemblage-size length assemblage]
   let assemblage-dataset gis:patch-dataset assemblage-size
   gis:store-dataset assemblage-dataset "assemblages.asc"
 end
 
+to write-diversity
+;calculates diversity as the number of unique elements in
+;each patch's assemblage list, then exports this as
+;an ASCII raster
+ask patches [ set diversity length remove-duplicates assemblage ]
+  let raster gis:patch-dataset diversity
+  gis:store-dataset raster "diversity.asc"
+end
+
 to pass-artefact
+  ; example code to show how to enable agents to share raw materials among each other
   ask foragers [
     let t min-one-of foragers in-radius 3 [distance myself]
     let i random length toolkit
@@ -199,6 +217,7 @@ to pass-artefact
 end
 
 to calc-water-distance
+  ; example code to show how to store information to avoid costly recalculting it at each time step
   ask patches with [patch-elevation > 0] [
     let p min-one-of patches with [patch-elevation <= 0] [distance myself]
     set water-distance distance p
@@ -233,10 +252,10 @@ ticks
 30.0
 
 BUTTON
-21
-24
-88
-57
+5
+10
+72
+43
 NIL
 setup
 NIL
@@ -250,10 +269,10 @@ NIL
 1
 
 BUTTON
-101
-25
-164
-58
+75
+10
+138
+43
 NIL
 go
 T
@@ -267,10 +286,10 @@ NIL
 1
 
 SLIDER
-15
-205
-193
-238
+5
+115
+183
+148
 max-carry
 max-carry
 0
@@ -282,10 +301,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-18
-104
-197
-137
+5
+45
+184
+78
 elevation-threshold
 elevation-threshold
 10
@@ -297,10 +316,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-15
-258
-198
-291
+5
+150
+188
+183
 time-limit
 time-limit
 1000
@@ -312,10 +331,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-17
-149
-196
-182
+5
+80
+184
+113
 elevation-multiplier
 elevation-multiplier
 1
@@ -327,12 +346,12 @@ NIL
 HORIZONTAL
 
 BUTTON
-36
-400
-145
-433
-write raster
-;calculates diversity as the number of unique elements in \n;each patch's assemblage list, then exports this as\n;an ASCII raster\nask patches [ set diversity length remove-duplicates assemblage ]\n  let raster gis:patch-dataset diversity\n  gis:store-dataset raster \"diversity.asc\"\n  
+5
+220
+135
+253
+write diversity
+write-diversity
 NIL
 1
 T
@@ -344,20 +363,64 @@ NIL
 1
 
 SWITCH
-55
-332
-187
-365
+5
+185
+137
+218
 random-walk?
 random-walk?
-0
+1
 1
 -1000
+
+BUTTON
+140
+10
+203
+43
+step
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+5
+255
+135
+288
+write assemblages
+write-assemblages
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
 
 A model used in Davies et al. (2019) based on the work of This work draws on a neutral model of stone procurement by Brantingham (2003), and builds directly on work developed in Romanowska et al. (2019).
+
+Davies, Benjamin, Iza Romanowska, Kathryn Harris, and Stefani A. Crabtree. 2019. “Combining Geographic Information Systems and Agent-Based Models in Archaeology: Part 2 of 3.” Advances in Archaeological Practice 7 (2): 185–93. https://doi.org/10.1017/aap.2019.5.
+
+Romanowska, Iza, Stefani A. Crabtree, Kathryn Harris, and Benjamin Davies. 2019. “Agent-Based Modeling for Archaeologists: Part 1 of 3.” Advances in Archaeological Practice 7 (2): 178–84. https://doi.org/10.1017/aap.2019.6.
+
+Crabtree, Stefani A., Kathryn Harris, Benjamin Davies, and Iza Romanowska. 2019. “Outreach in Archaeology with Agent-Based Modeling: Part 3 of 3.” Advances in Archaeological Practice 7 (2): 194–202. https://doi.org/10.1017/aap.2019.4.
+
+This is an example model used in chapter 7 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 7.0-7.20
 
 ## HOW IT WORKS
 
@@ -713,5 +776,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
