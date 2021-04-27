@@ -203,10 +203,12 @@ to pass-artefact
     let i random length toolkit
     let passed? false
 
-    ask t [
-      if length toolkit < max-carry [
-        set toolkit lput (item i [ toolkit ] of myself) toolkit
-        set passed? true
+    if t != nobody[
+      ask t [
+        if length toolkit < max-carry [
+          set toolkit lput (item i [ toolkit ] of myself) toolkit
+          set passed? true
+        ]
       ]
     ]
 
@@ -444,6 +446,10 @@ quarries.prj
 quarries.qpj
 quarries.shp
 quarries.shx
+
+Press setup and go to run the model. After the run is finished you can export the data by pressing on 
+write-diversity  - calculates and saves the number of unique raw materials
+write-assembalges  - saves the composition of the patch assemblage
 
 
 ## CREDITS AND REFERENCES

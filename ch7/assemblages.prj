@@ -1,0 +1,1 @@
+GEOGCS["Geographic",DATUM["D_GRS_1980",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["org.ngs.ngunits.unit.TransformedUnit@3c8f4220",0.01745329252]]
