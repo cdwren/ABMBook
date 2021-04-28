@@ -85,7 +85,7 @@ to eat-grass  ; sheep procedure
   ]
 end
 
-to eat-grass-cont ; sheep procedure
+to eat-grass-cont   ; sheep procedure
   ; note this is the main modification from the original model by Wilensky
   if pcolor = green [
     ask patch-here [
@@ -97,14 +97,14 @@ to eat-grass-cont ; sheep procedure
 end
 
 to reproduce-sheep  ; sheep procedure
-  if random-float 100 < 4 [  ; throw "dice" to see if you will reproduce with probability 4%
+  if random 100 < 4 [                ; throw "dice" to see if you will reproduce with probability 4%
     set energy (energy / 2)                ; divide energy between parent and offspring
     hatch 1 [ rt random-float 360 fd 1 ]   ; hatch an offspring and move it forward 1 step
   ]
 end
 
 to reproduce-wolves  ; wolf procedure
-  if random-float 100 < 5 [  ; throw "dice" to see if you will reproduce with probability 5%
+  if random 100 < 5 [               ; throw "dice" to see if you will reproduce with probability 5%
     set energy (energy / 2)               ; divide energy between parent and offspring
     hatch 1 [ rt random-float 360 fd 1 ]  ; hatch an offspring and move it forward 1 step
   ]
@@ -815,7 +815,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 set model-version "sheep-wolves-grass"
 set show-energy? false
