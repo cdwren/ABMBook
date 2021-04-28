@@ -229,7 +229,7 @@ PENS
 A simple implementation of the Tragedy of the Commons model. This is a simplified version of the MASTOC model by Schindler.
 Schindler, Julia. 2012. “A Simple Agent-Based Model Of The Tragedy Of The Commons.” In ECMS 2012 Proceedings Edited by: K. G. Troitzsch, M. Moehring, U. Lotzmann, 44–50. ECMS. https://doi.org/10.7148/2012-0044-0050.
 
-This is example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
 
 Code blocks: 6.24-6.27
 

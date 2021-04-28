@@ -43,6 +43,7 @@ to Setup_Foragers
     set color black
     setxy random-xcor random-ycor ; place the foragers in the world
     set encounter-list n-values 10 [food-value] ; rolling list encounters with cells that have food
+    pen-down
     ]
 end
 

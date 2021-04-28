@@ -22,7 +22,7 @@ to go
     fd 1
   ]
   tick
-  if ticks < max-ticks [stop]
+  if ticks >= max-ticks [stop]
 end
 
 to reproduce
