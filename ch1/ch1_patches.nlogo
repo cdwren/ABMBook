@@ -1,5 +1,4 @@
 to setup
-
   clear-all
 
   ask patches [set pcolor scale-color green (pxcor + pycor) 0 25]
@@ -11,8 +10,7 @@ to setup
   reset-ticks
 end
 
-to setup-neighbours
-
+to setup-neighbors
   clear-all
 
   ask patches [set pcolor scale-color green (pxcor + pycor) 0 25]
@@ -95,10 +93,10 @@ NIL
 BUTTON
 831
 95
-939
+952
 128
 NIL
-setup-neighbours
+setup-neighbors
 NIL
 1
 T
@@ -114,7 +112,7 @@ TEXTBOX
 186
 1008
 340
-Click on \"setup\" to see a random distribution of agents. \n\nClick on \"coord_labels\" to see the coordiantes of patches.\n\nClick on \"setup-neighbours\" to see the Moore neighbourhood (teal and yellow cells) and the Van Neuman neighbourhood (yellow cells only). 
+Click on \"setup\" to see a random distribution of agents. \n\nClick on \"coord_labels\" to see the coordiantes of patches.\n\nClick on \"setup-neighbors\" to see the Moore neighbourhood (teal and yellow cells) and the Von Neuman neighborhood (yellow cells only). 
 11
 0.0
 1
@@ -444,7 +442,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
