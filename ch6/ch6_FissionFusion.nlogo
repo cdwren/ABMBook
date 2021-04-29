@@ -31,11 +31,11 @@ end
 
 to eat
   ; turtles determine available energy from the environment but need to share the resources
-  set turtle_energy  energy / count turtles-here
+  set turtle_energy energy / count turtles-here
 end
 
 to fission
-  if turtle_energy < 10 [  ; turtles with low energy can fission
+  if turtle_energy < 1 [  ; if turtles exceed carrying capacity (energy) they can fission
     let items [ "fusion" "solo" "merge" ]
     let weights (list fusion_weight solo_weight merge_weight)
     let pairs (map list items weights)
@@ -48,7 +48,7 @@ to fission
 end
 
 to fusion
-  ; agents join another existing group
+  ; agents join another nearby group
   let target min-one-of patches with [ any? turtles-here ] in-radius 10 [distance myself]
   if target != nobody [move-to target]
 end
@@ -71,12 +71,9 @@ end
 
 to reproduce
   ;; reproduction depends on energy and probability set by a slider
-  if turtle_energy >= 10 [
+  if turtle_energy >= 1 [
     if random 100 < reproduction [  ;; throw "dice" to see if you will reproduce
-                                    ;; divide energy between parent and offspring
-      set turtle_energy(turtle_energy / 2)
       hatch 1 [
-        set turtle_energy turtle_energy
         set age 0
         rt random 360
       ]
@@ -141,7 +138,7 @@ K
 K
 0
 50
-20.0
+10.0
 10
 1
 NIL
