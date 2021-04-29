@@ -5,6 +5,7 @@ breed [lineageBs lineageB]
 breed [lineageCs lineageC]
 breed [lineageDs lineageD]
 
+
 turtles-own [
   pots
   head
@@ -15,82 +16,31 @@ turtles-own [
 undirected-link-breed [edges edge]
 
 to setup
+
   clear-all
-  create-lineageAs 1  [
-    setxy random-xcor random-ycor
 
-    set head who
-    set label "head of household A"
-    set pots 1
-
-    set reputation 0.95
-    set brn-list (list)
-
-    let N random 15 + 1
-    hatch N [
-      rt random-float 360 fd 1
-      set label lineageAs
-    ]
-  ]
-    create-lineageBs 1  [
-    setxy random-xcor random-ycor
-
-    set head who
-    set label "head of household B"
-    set pots 1
-
-    set reputation 0.95
-    set brn-list (list)
-
-    let N random 15 + 1
-    hatch N [
-      rt random-float 360 fd 1
-      set label lineageBs
-    ]
-  ]
-    create-lineageCs 1  [
-    setxy random-xcor random-ycor
-
-    set head who
-    set label "head of household C"
-    set pots 1
-
-    set reputation 0.95
-    set brn-list (list)
-
-    let N random 15 + 1
-    hatch N [
-      rt random-float 360 fd 1
-      set label lineageCs
-    ]
-  ]
-    create-lineageDs 1  [
-    setxy random-xcor random-ycor
-
-    set head who
-    set label "head of household D"
-    set pots 1
-
-    set reputation 0.95
-    set brn-list (list)
-
-    let N random 15 + 1
-    hatch N [
-      rt random-float 360 fd 3
-      set label lineageDs
-    ]
-  ] ;repeat for other lineages
+  create-lineageAs 1 [create-households "A"]
+  create-lineageBs 1 [create-households "B"]
+  create-lineageCs 1 [create-households "C"]
+  create-lineageDs 1 [create-households "D"]
 
   GRN-setup
-  layout-circle sort turtles 17
   nw:set-context turtles edges
-
+  layout-circle sort turtles 10
   reset-ticks
 end
 
+
+
 to go
   produce-pots
+  ; commented out text is part of the testing
+  ;let sumPots sum [pots] of turtles
   repay-BRN
+  ;if sumPots != sum [pots] of turtles [
+  ;  print "We’ve lost some pots in exchange!"
+  ;  type sumPots type " " print sum [pots] of turtles
+  ;]
   reputation-update
   if pooling? [ pool-resources ]
   if GRN? [ GRN-exchange ]
@@ -98,73 +48,111 @@ to go
   consume
   ask turtles [set size pots]
   tick
+
 end
 
-to produce-pots
-  ask turtles [
-    let M random 3
-    set pots pots + M ]
-end
+;;; _____________________ SETUP PROCEDURES _____________________
+to create-households [name]
+    ; create the head of the family
+    set shape "person"
+    set label (word "head of household " name)
+    set head who
+    setxy random-xcor random-ycor
+    set pots 1
+    set color blue
+    set reputation 0.95
+    set brn-list (list)
 
-to consume
-  ask turtles [
-    let B random pots
-    set pots pots -  B ]
-end
-
-to pool-resources
-  ask turtles with [head != who] [
-    ask turtle head [set pots pots + [pots] of myself]
-    set pots 0
+   ; create the family between 1 and 15
+    let N random 15 + 1
+    hatch N [
+      rt random-float 360 fd 1
+      set label (word "lineage" name "s")
+      set pots random 5
   ]
 
-  ask turtles with [head = who] [
-    let my_turtles turtles with [head = [who] of myself]
-    let share floor (pots / count my_turtles)
-    while [pots > share] [
-      ask min-one-of my_turtles [pots] [
-        set pots pots + 1
-      ]
-      set pots pots - 1
-    ]
-  ]
 end
 
 to GRN-setup
+
   let Aconnections count turtles with [ breed = lineageAs ] * count turtles with [ breed != lineageAs ]
   let Bconnections count turtles with [ breed = lineageBs ] * count turtles with [ breed != lineageBs ]
   let Cconnections count turtles with [ breed = lineageCs ] * count turtles with [ breed != lineageCs ]
   let Dconnections count turtles with [ breed = lineageDs ] * count turtles with [ breed != lineageDs ]
+
   let totalLinks (Aconnections + Bconnections + Cconnections + Dconnections)
 
   repeat (target-density * totalLinks  / 2)[
-    ask one-of turtles with [count edge-neighbors < count turtles with [breed != [breed] of myself]] [
-      create-edge-with one-of other turtles with [breed != [breed] of myself and edge-with myself = nobody]
+    ask one-of turtles with [count edge-neighbors < count turtles with [breed != [breed] of myself]  ][
+        create-edge-with one-of other turtles with [breed != [breed] of myself and edge-with myself = nobody]
     ]
   ]
 end
 
+
+;;; _____________________ GO PROCEDURES _____________________
+
+to produce-pots
+  ; produce a 0, 1, or 2 pots
+  ask turtles [
+    let M random 3
+    set pots pots + M ]    ; add them to the pots you already have
+
+end
+
+
+to consume
+  ; remove some pots (due to breakage, use, as a proxy for the goods inside etc)
+  ask turtles [
+    let B random pots      ; any number between 0 and the number of pots in storage
+    set pots pots -  B ]
+
+end
+
+; _________ pooling-resources__________
+to pool-resources
+
+    ;non-heads give their pots to the head
+    ask turtles with [head != who] [
+      ask turtle head [set pots pots + [pots] of myself]
+      set pots 0
+    ]
+
+    ;heads divide the pots to their lineage evenly
+    ask turtles with [head = who] [
+      let my_turtles turtles with [head = [who] of myself] ; you could also do ask other lineageAs
+      let share floor (pots / count my_turtles)
+      while [pots > share] [
+        ask min-one-of my_turtles [pots] [
+          set pots pots + 1
+        ]
+        set pots pots - 1
+      ]
+    ]
+
+end
+
+; _________ GRN __________
+
 to GRN-exchange
-  if any? turtles with [pots < 2 and any? edge-neighbors with [pots > 0]] [
-    ask one-of turtles with [pots < 2 and any? edge-neighbors with [pots > 0]] [
-      if random-float 1 < exchange-probability [
+; turtles running out of pots exchange with one of their connections
+    if any? turtles with [ pots < 2 and count edge-neighbors > 0] [
+      ask one-of turtles with [ pots < 2 and count edge-neighbors > 0 ] [
+        if random-float 1 < exchange-probability [
+
         set pots pots + 1
-        ask one-of edge-neighbors with [pots > 0] [set pots pots - 1]
+          ask one-of edge-neighbors  with [pots > 0] [set pots pots - 1]
       ]
     ]
   ]
+
 end
 
-to-report report-av-degree
-  let av-degree sum([count edge-neighbors] of turtles) / (count turtles)
-  report av-degree
-end
-
-to-report average-shortest-path-length
-  report nw:mean-path-length
-end
+; _________ BRN __________
 
 to BRN-exchange
+; here the exchange depends on reputation
+
   if any? turtles with [pots < 2] [
     ask turtles with [pots < 2] [
       if random-float 1 < reputation and random-float 1 < exchange-probability-BRN [
@@ -178,41 +166,75 @@ to BRN-exchange
   ]
 end
 
+
 to reputation-update
+  ; reputation is calculated as the function of the current borrowing level
+
   ask turtles [
     ifelse length BRN-list > 0 [
       let R ( 0.05 * length BRN-list )
       if reputation - R > 0 [
         set reputation reputation - R
       ]
-    ][
-      set reputation 0.95
     ]
+    [ set reputation 0.95]  ; agents that are not in debt have a reputation of 95%
   ]
 end
 
 to repay-BRN
   ask turtles [
+    ;print count turtles
+    ;print count turtles with [length BRN-list = 0]
+    ;print brn-list
     if length BRN-list >= 1 [
-      while [length BRN-list >= 1 and pots > 1] [
+      ;print "Turtles with debts"
+      ;print "1!
+      while [length BRN-list >= 1 and pots > 1]
+      [
+        ;print "repaying is happening!"
+        ;print "-----------"
+        ;print pots
         set pots pots - 1
+        ;print pots
         let lender first BRN-list
+        ;print [pots] of turtle lender
         ask turtle lender [ set pots pots + 1 ]
+        ;print [pots] of turtle lender
       ]
     ]
   ]
 end
+
+
+
+
+;;;; _____________________ NETWORK REPORTERS _____________________
+
+to-report report-av-degree
+  ; reports the average degree of a node
+  let av-degree sum([count edge-neighbors] of turtles) / (count turtles)
+  report av-degree
+end
+
+to-report average-shortest-path-length
+  ; reports the average shortest path length of the network
+  report nw:mean-path-length
+end
+
+to-report betweenness
+  report nw:betweenness-centrality
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+453
+15
+1037
+600
+-1
+-1
+17.455
+1
 10
-825
-626
--1
--1
-11.902
-1
-14
 1
 1
 1
@@ -220,10 +242,10 @@ GRAPHICS-WINDOW
 0
 0
 1
-0
-50
-0
-50
+-16
+16
+-16
+16
 0
 0
 1
@@ -231,11 +253,11 @@ ticks
 30.0
 
 BUTTON
-41
-19
-104
-52
-NIL
+16
+15
+82
+48
+setup
 setup
 NIL
 1
@@ -248,11 +270,11 @@ NIL
 1
 
 BUTTON
-41
-52
-104
-85
-NIL
+88
+15
+151
+48
+go
 go
 T
 1
@@ -264,85 +286,63 @@ NIL
 NIL
 1
 
-SWITCH
-42
-162
-145
-195
-pooling?
-pooling?
-0
-1
--1000
-
-SWITCH
-42
-195
-145
-228
-GRN?
-GRN?
-1
-1
--1000
-
 SLIDER
-17
-263
-189
-296
+16
+147
+188
+180
 target-density
 target-density
 0
 1
-0.05
+0.2
 0.05
 1
 NIL
 HORIZONTAL
 
 SLIDER
-17
-296
+16
 189
-329
+188
+222
 exchange-probability
 exchange-probability
 0
 1
-0.1
-.05
+0.65
+0.05
 1
 NIL
 HORIZONTAL
 
 MONITOR
-21
-378
-131
-423
-NIL
+229
+234
+340
+279
+Average Degree
 report-av-degree
-3
+5
 1
 11
 
 MONITOR
-21
-422
-200
-467
+15
+233
+216
+278
 NIL
 average-shortest-path-length
-1
+17
 1
 11
 
 MONITOR
-23
-469
-110
-514
+14
+289
+298
+334
 betweenness
 mean [nw:betweenness-centrality] of turtles
 2
@@ -350,13 +350,13 @@ mean [nw:betweenness-centrality] of turtles
 11
 
 PLOT
-838
-25
-1038
-175
+16
+495
+216
+645
 Degree distribution
-Degree
-Node frequency
+NIL
+NIL
 0.0
 10.0
 0.0
@@ -365,57 +365,97 @@ true
 false
 "" ""
 PENS
-"default" 1.0 1 -16777216 true "" "let max-degree max [count edge-neighbors] of turtles \nset-plot-x-range 0 (max-degree + 1)\nhistogram [count edge-neighbors] of turtles"
+"default" 1.0 1 -16777216 true "" "let max-degree max [count edge-neighbors] of turtles \nset-plot-x-range 0 (max-degree + 1)\nhistogram [count edge-neighbors] of turtles\n"
 
 PLOT
-838
-184
-1038
-334
-Number of Pots
-Pot count
-Frequency
+15
+338
+215
+488
+number of pots
+NIL
+NIL
 0.0
 10.0
 0.0
-10.0
+50.0
 true
 false
 "" ""
 PENS
 "default" 1.0 1 -16777216 true "" "let max-pots max [pots] of turtles \nset-plot-x-range 0 (max-pots + 1) \nhistogram [pots] of turtles"
 
-SWITCH
-42
-227
-145
-260
-BRN?
-BRN?
-1
-1
--1000
-
 SLIDER
-18
-329
-189
-362
+16
+106
+214
+139
 exchange-probability-BRN
 exchange-probability-BRN
 0
 1
+0.9
 0.05
-.05
 1
 NIL
 HORIZONTAL
 
+PLOT
+225
+338
+425
+488
+BRN-list
+NIL
+NIL
+0.0
+5.0
+0.0
+5.0
+true
+false
+"" ""
+PENS
+"default" 1.0 1 -16777216 true "" "let BRNlength length [BRN-list] of turtles \nset-plot-x-range 0 (BRNlength + 1)\nhistogram [length BRN-list] of turtles"
+
+SWITCH
+131
+61
+235
+94
+GRN?
+GRN?
+0
+1
+-1000
+
+SWITCH
+241
+61
+345
+94
+BRN?
+BRN?
+0
+1
+-1000
+
+SWITCH
+16
+61
+123
+94
+Pooling?
+Pooling?
+1
+1
+-1000
+
 BUTTON
-40
-85
-103
-118
+156
+15
+219
+48
 step
 go
 NIL
@@ -433,9 +473,19 @@ NIL
 
 This model implements several types of trade discussed by Sahlins's 1972 book, Stone Age Economics including: pooling, generalized reciprocal network, and balanced reciprocal network. Four groups, each with a single head of household are modelled with varying degrees of connectedness depending on the type of trade.
 
+This is an example model used in chapter 8 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 8.0-8.20
+
 ## HOW IT WORKS
 
-Agents produce goods, called pots, then trade them around according to specific rules which are controlled by the switches. Pooling means agents all give their pots to their head of household to be redistributed equally among the group members. GRN means reaching beyond the household group when they fall short of pots to specific individuals they have a connection with. BRN uses a reputation network to determine if people are reliably going to pay borrowed pots back later. 
+Agents produce goods, called pots, then trade them around according to specific rules which are controlled by the switches. 
+
+Pooling means agents all give their pots to their head of household to be redistributed equally among the group members. 
+
+GRN means reaching beyond the household group when they fall short of pots to specific individuals they have a connection with. 
+
+BRN uses a reputation network to determine if people are reliably going to pay borrowed pots back later. 
 
 The network is built using a specified density of connections (target-density). 
 
@@ -451,6 +501,7 @@ Take a look at how the social network analysis monitors change with different co
 
 ## CREDITS AND REFERENCES
 
+S. Crabtree
 @#$#@#$#@
 default
 true
@@ -761,6 +812,31 @@ NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="experiment" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>count turtles</metric>
+    <enumeratedValueSet variable="target-density">
+      <value value="0.2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="trade-probability">
+      <value value="0.25"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="GRN?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Pooling?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="BRN?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="trade-probability-BRN">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
