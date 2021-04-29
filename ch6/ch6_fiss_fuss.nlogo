@@ -30,21 +30,18 @@ end
 
 
 to eat
-  ; turtles gain energy from the environment but need to share the resources
+  ; turtles determine available energy from the environment but need to share the resources
   set turtle_energy  energy / count turtles-here
- ; set turtle_energy turtle_energy + energy / count turtles-here ; we can also do this, so that they have a chance to not go extinct
 end
 
-; if count turtles-here > energy - 1 [ fission ] ; original version - never fission
-  ;  if count turtles-here > turtle_energy - 1 [ fission ] ; they almost never fission if
 to fission
-  if turtle_energy < 10 [ ; turtles that do not do very well can fission
+  if turtle_energy < 10 [  ; turtles with low energy can fission
     let items [ "fusion" "solo" "merge" ]
-    let weights [ 0.5 0.3 0.2 ]
+    let weights (list fusion_weight solo_weight merge_weight)
     let pairs (map list items weights)
     let selection first rnd:weighted-one-of-list pairs [ [p] -> last p ]
 
-    if selection = "fusion" [ fusion]
+    if selection = "fusion" [fusion]
     if selection = "solo" [solo]
     if selection = "merge" [merge]
   ]
@@ -52,7 +49,7 @@ end
 
 to fusion
   ; agents join another existing group
-  let target min-one-of patches with [  any? turtles-here ] in-radius 10 [distance myself]
+  let target min-one-of patches with [ any? turtles-here ] in-radius 10 [distance myself]
   if target != nobody [move-to target]
 end
 
@@ -81,6 +78,7 @@ to reproduce
       hatch 1 [
         set turtle_energy turtle_energy
         set age 0
+        rt random 360
       ]
     ]
   ]
@@ -200,23 +198,68 @@ NIL
 NIL
 1
 
+SLIDER
+5
+155
+177
+188
+fusion_weight
+fusion_weight
+0
+1
+0.5
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+190
+177
+223
+solo_weight
+solo_weight
+0
+1
+0.3
+.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+225
+177
+258
+merge_weight
+merge_weight
+0
+1
+0.2
+.1
+1
+NIL
+HORIZONTAL
+
 @#$#@#$#@
 ## WHAT IS IT?
 
 This is a heavily simplified version of Fission-Fussion dynamics model by E. Crema: 
 Crema, Enrico R. 2014. “A Simulation Model of Fission-Fusion Dynamics and Long-Term Settlement Change.” Journal of Archaeological Method and Theory 21 (2): 385–404.
 
-This is example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
 
 Code blocks: 6.14-6.17
 
 ## HOW IT WORKS
 
-Agents gain energy from the environment. The max amount of energy that can be derived from a patch is equally divided between all agents on the patch. When not enough energy is gained agents may decide to do one of three things (choice determined by a roulette wheel):
+Agents determine their energy from the environment. The max amount of energy that can be derived from a patch is equally divided between all agents on the patch. When not enough energy is gained agents may decide to do one of three things (choice determined by a roulette wheel):
 
 Go solo, where agents find an empty patch and forage on their own.
 Fusion, where they find another group and merge with them.
-Merge, where they find a nearby agent and set out to an empty patch together.
+Merge, where they find a nearby agent and move to an empty patch together.
 
 Agents that have enough energy have a probability (slider reporoduction) to reproduce. Parent and child share parent's energy equally. 
 Agents have a probability of dying proportional to their age.
@@ -224,11 +267,12 @@ Agents have a probability of dying proportional to their age.
 
 ## HOW TO USE IT
 
-Set the slider K - max energy avaiable on patches
+Set the slider K - max energy avaiable on patches (i.e. carrying capacity)
 Set the slider reproduction - probability of reproducing
+Set the sliders to manipulate the relative probability of these options. Ideally these will add to 1, but that isn't required.
 Press Setup
 Press Go
-You may like to slow down the simulation using the speed slider to see the dinamics.
+You may like to slow down the simulation using the speed slider to see the dynamics.
 
 
 ## EXTENDING THE MODEL
@@ -544,7 +588,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
