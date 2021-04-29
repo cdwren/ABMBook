@@ -1,12 +1,12 @@
-globals [ max-sheep ]  ; don't let the sheep population grow too large
+globals [ max-sheep climate-state ]  ; don't let the sheep population grow too large
 
 ; Sheep and wolves are both breeds of turtles
 breed [ sheep a-sheep ]  ; sheep is its own plural, so we use "a-sheep" as the singular
 breed [ wolves wolf ]
 
-turtles-own [ energy ]       ; both wolves and sheep have energy
+turtles-own [ energy ]                    ; both wolves and sheep have energy
 
-patches-own [ countdown grass-amount]    ; this is for the sheep-wolves-grass model version
+patches-own [ countdown grass-amount ]    ; this is for the sheep-wolves-grass model version
 
 to setup
   clear-all
@@ -42,6 +42,8 @@ to setup
 end
 
 to go
+  set climate-state random-normal 1 climate-variability    ; shift the overall climate state each tick, see grow-grass-climate
+
   ; stop the model if there are no wolves and no sheep
   if not any? turtles [ stop ]
   ; stop the model if there are no wolves and the number of sheep gets very large
@@ -50,8 +52,7 @@ to go
     move
     ; in this version, sheep eat grass, grass grows, and it costs sheep energy to move
     set energy energy - 1
-  ;  eat-grass
-    eat-grass-cont
+    ifelse continuous-grass? [eat-grass-cont][eat-grass]
     death ; sheep die from starvation only if running the sheep-wolves-grass model version
 
 
@@ -65,7 +66,9 @@ to go
     reproduce-wolves ; wolves reproduce at a random rate governed by a slider
   ]
 
-ask patches [ grow-grass ]
+  ask patches [
+    ifelse continuous-grass? [grow-grass-cont][grow-grass]   ;or swap in grow-grass-climate for grow-grass-cont
+  ]
 
   tick
 
@@ -85,26 +88,26 @@ to eat-grass  ; sheep procedure
   ]
 end
 
-to eat-grass-cont ; sheep procedure
+to eat-grass-cont   ; sheep procedure
   ; note this is the main modification from the original model by Wilensky
   if pcolor = green [
     ask patch-here [
       set grass-amount grass-amount - sheep-gain-from-food ] ; grass is eaten
-    set energy energy + sheep-gain-from-food] ; sheep eats
+    set energy energy + sheep-gain-from-food                 ; sheep eats
+  ]
 
   if grass-amount < sheep-gain-from-food [set pcolor brown] ; patch has been depleated
-
 end
 
 to reproduce-sheep  ; sheep procedure
-  if random-float 100 < 4 [  ; throw "dice" to see if you will reproduce with probability 4%
+  if random 100 < 4 [                ; throw "dice" to see if you will reproduce with probability 4%
     set energy (energy / 2)                ; divide energy between parent and offspring
     hatch 1 [ rt random-float 360 fd 1 ]   ; hatch an offspring and move it forward 1 step
   ]
 end
 
 to reproduce-wolves  ; wolf procedure
-  if random-float 100 < 5 [  ; throw "dice" to see if you will reproduce with probability 5%
+  if random 100 < 5 [               ; throw "dice" to see if you will reproduce with probability 5%
     set energy (energy / 2)               ; divide energy between parent and offspring
     hatch 1 [ rt random-float 360 fd 1 ]  ; hatch an offspring and move it forward 1 step
   ]
@@ -128,13 +131,28 @@ to grow-grass  ; patch procedure
   if pcolor = brown [
     ifelse countdown <= 0
       [ set pcolor green
-        set grass-amount random max-grass   ; in this implementation grass has a random value, but one could also preserve the initial grass-amount
+        set grass-amount random max-grass   ; in this implementation grass has a random value, but one could also set to the initial grass-amount
         set countdown grass-regrowth-time ]
       [ set countdown countdown - 1 ]
   ]
 end
 
+to grow-grass-cont
+  ifelse grass-amount < max-grass - grass-amount [     ; check if regrowth still needs to happen
+    set grass-amount grass-amount + regrowth-amount    ; add a fixed growth to grass
+  ]
+  [set grass-amount max-grass]
+  if grass-amount > 0 [set pcolor green]
+end
 
+to grow-grass-climate
+  let regrowth-climate regrowth-amount * climate-state     ; adjust regrowth-amount by climate-state which(changes per tick in go
+  ifelse grass-amount < max-grass - regrowth-climate [
+    set grass-amount grass-amount + regrowth-climate
+  ]
+  [set grass-amount max-grass]
+  if grass-amount > 0 [set pcolor green]
+end
 
 
 ; Copyright 1997 Uri Wilensky.
@@ -185,7 +203,7 @@ HORIZONTAL
 SLIDER
 5
 196
-179
+180
 229
 sheep-gain-from-food
 sheep-gain-from-food
@@ -213,9 +231,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-183
+185
 195
-348
+350
 228
 wolf-gain-from-food
 wolf-gain-from-food
@@ -230,7 +248,7 @@ HORIZONTAL
 SLIDER
 5
 100
-217
+180
 133
 grass-regrowth-time
 grass-regrowth-time
@@ -369,7 +387,7 @@ NIL
 SLIDER
 5
 140
-177
+180
 173
 max-grass
 max-grass
@@ -380,6 +398,57 @@ max-grass
 1
 NIL
 HORIZONTAL
+
+SLIDER
+185
+255
+350
+288
+climate-variability
+climate-variability
+0
+2
+2.0
+0.05
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+255
+180
+288
+regrowth-amount
+regrowth-amount
+0
+10
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+20
+235
+170
+253
+Patch settings
+11
+0.0
+1
+
+SWITCH
+185
+100
+337
+133
+continuous-grass?
+continuous-grass?
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -815,7 +884,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 set model-version "sheep-wolves-grass"
 set show-energy? false

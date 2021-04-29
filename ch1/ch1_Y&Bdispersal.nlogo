@@ -23,12 +23,11 @@ to go
        [ reproduce ]                       ; the reproduction procedure is defined below
   ]
 
-    tick
+  tick
 end
 
 to reproduce
   ; turtles reproduce only if there is an unoccupied patch in their surrounding that is not water
-
   if any? neighbors4 with [count turtles-here = 0 AND pcolor != white] [
     let empty-patch one-of neighbors4 with [count turtles-here = 0 AND pcolor != white]
     hatch 1 [
@@ -443,7 +442,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
