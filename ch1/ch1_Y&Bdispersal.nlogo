@@ -121,7 +121,7 @@ A reimplementation of the classical study by Young and Bettinger (1992) investig
 Young, D. A., \& Bettinger, R. L. (1992). The Numic Spread: A Computer
 Simulation. American Antiquity, 57 (1), 85--99.
 
-This is example model used in chapter 1 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press. 
+This is an example model used in chapter 1 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Chapter 1. Code Blocks: 1.0-1.11
 

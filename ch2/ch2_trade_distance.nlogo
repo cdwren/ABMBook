@@ -269,7 +269,7 @@ A reimplementation of a model published here:
 Romanowska, Iza. 2018. ‘Using Agent-Based Modelling to Infer Economic Processes in the Past’. In Quantifying Ancient Economies. Problems and Methodologies, edited by Jose Remsal Rodriguez, Victor Revilla Calvo, and Juan Manuel Bermudez Lorenzo, 107–18. Instrumenta 60. Barcelona: University of Barcelona.
 
 
-This is example model used in chapter 2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 2 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code Blocks 2.0-2.26.
 
@@ -610,7 +610,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -120,7 +120,7 @@ Click on \"setup\" to see a random distribution of agents. \n\nClick on \"coord_
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is example model used in chapter 1 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press. 
+This is an example model used in chapter 1 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press. 
 
 Chapter 1. Figure 1.2, Figure 1.4.
 

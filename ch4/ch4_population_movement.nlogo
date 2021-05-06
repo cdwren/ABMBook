@@ -183,7 +183,7 @@ Wren, Colin D., Julian Z. Xue, Andre Costopoulos, and Ariane Burke. 2014. “The
 2. The MedLandD by Bergin et al.
 Bergin, Sean M. 2016. “Mechanisms and Models of Agropastoral Spread During the Neolithic in the West Mediterranean: The Cardial Spread Model.” Ph.D., United States -- Arizona: Arizona State University. https://search.proquest.com/docview/1845308964/abstract/D9BE13322D14FB5PQ/1.
 
-This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 4.15-4.17
 
@@ -504,7 +504,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

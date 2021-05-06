@@ -1038,9 +1038,9 @@ It should be cited as follows:
 
 Crabtree, Stefani A. 2016. "Simulating Littoral Trade: Modeling the Trade of Wine in the Bronze to Iron Age Transition in Southern France." Land 2016, 5(1), 5; doi:10.3390/land5010005
 
-This is an example model used in chapter 9 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 9 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
-Code blocks: 9.5 and all examples using Behavior Space.
+Code blocks: 9.5 and all examples using BehaviorSpace.
 
 ## HOW IT WORKS
 

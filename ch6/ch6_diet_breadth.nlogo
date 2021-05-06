@@ -610,7 +610,7 @@ Diet Breadth Model (Optimal Foraging Theory)
 
 This is an agent-based simulation of the classic "diet breadth model" of optimal foraging theory (see Foley 1985).
 
-This has been used as an example in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This has been used as an example in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 6.11-6.12
 
@@ -1043,7 +1043,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -132,7 +132,7 @@ This is a simplified version of Clark and Crabtree's Ger Grouper model only incl
 Clark, Julia K., and Stefani A. Crabtree. 2015. “Examining Social Adaptations in a Volatile Landscape in Northern Mongolia via the Agent-Based Model Ger Grouper.” Land 4 (1): 157–81. https://doi.org/10.3390/land4010157.
 
 
-This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 4.11
 
@@ -453,7 +453,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

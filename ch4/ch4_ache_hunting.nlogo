@@ -115,7 +115,7 @@ nhunters
 nhunters
 0
 100
-4.0
+10.0
 1
 1
 NIL
@@ -164,7 +164,7 @@ ncamps
 ncamps
 0
 5
-1.0
+2.0
 1
 1
 NIL
@@ -173,25 +173,30 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a simplified version of The Ache Hunting model by Janssen and Hill:
+This is a simplified version of the Ache Hunting model by Janssen and Hill:
 Janssen, Marco A., and Kim Hill. 2016. “An Agent-Based Model of Resource Distribution on Hunter-Gatherer Foraging Strategies: Clumped Habitats Favor Lower Mobility, but Result in Higher Foraging Returns.” In Simulating Prehistoric and Ancient Worlds, edited by Juan A. Barceló and Florencia Del Castillo, 159–74. Computational Social Sciences. Switzerland: Springer International Publishing. https://doi.org/10.1007/978-3-319-31481-5_3.
 
-
-This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 4.12
 
 ## HOW IT WORKS
 
-Agents move across the landscape hunting and foraging. However, their time is limited so when the way back home equals the time left they go back towards the camp. 
+Camp agents represent the collective home base of a group of hunter agents. Their camp moves at the start of the day and acts as a target for their movement as their foraging time runs out. In this version, camps choose a random cell 20 patches away.
+ 
+Hunter agents then set out from yesterday's camp location and (in this version) randomly move across the landscape hunting. However, their time is limited so when their estimated travel time to get to their camp is less than their foraging time left for the day they move directly towards the camp. Since this brings them closer to camp and thereby decreases their remaining travel time, hunter agents tend to alternate between random walk and heading for camp. 
+
+Note that due to the hunters' while loop, hunters do all of their many movements within a single tick of the model. 
 
 ## HOW TO USE IT
 
-Click on setup, then on forage.
+Click on setup, then on forage. Adjust numbers of camps and numbers of hunters (hunters are divided roughly equally among the camps in setup). 
 
 ## EXTENDING THE MODEL
 
-The original model has numerous features not preserved here.
+The gradient landscape is unused in this example. Try replacing the random movement of camps and/or hunters with a weighted-random-walk based on the gradient pcolor value.
+
+The original model also has numerous features, including all of the actual hunting code (see chapter 6), not preserved here.
 @#$#@#$#@
 default
 true
@@ -498,7 +503,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -29,7 +29,7 @@ to go
   ]
 
   ask patches [
-    regrow-patches-slow
+    regrow-patches
   ]
 
   update-display
@@ -47,7 +47,7 @@ to gather
   ]
   ask patch-here [ set resources resources - current-gather ] ; update the amount of resources on the patch
 
-  set storage storage + current-gather              ; update the amount of resources in the gatherer's posession
+  set storage storage + current-gather              ; update the amount of resources in the gatherer's possession
 end
 
 
@@ -70,16 +70,10 @@ to move
   ]
 end
 
-to regrow-patches-instant
+to regrow-patches
   if resources < max-resources
   [
-    set resources 10
-  ]
-end
-
-to regrow-patches-slow
-  if resources < max-resources
-  [
+    ;set resources 10              ; this instant regrowth is too fast, the resource base will never decline and agents won't move
     set resources resources + growth-rate
   ]
 end
@@ -99,11 +93,11 @@ to update-display
   ]
 end
 
-
 to make-plain
   ; sets the landscape to uniform distribution of resources
   ask patches
   [
+    set resources max-plants
     set max-resources max-plants
   ]
 end
@@ -311,23 +305,6 @@ false
 PENS
 "default" 1.0 0 -16777216 true "" "plot count turtles"
 
-BUTTON
-98
-61
-183
-94
-NIL
-make-hills
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 SWITCH
 98
 20
@@ -335,7 +312,7 @@ SWITCH
 53
 hills?
 hills?
-0
+1
 1
 -1000
 
@@ -348,9 +325,9 @@ Epstein, Joshua M., and Robert Axtell. 1996. Growing Artificial Societies: Socia
 Axtell, Robert L., Joshua M. Epstein, Jeffrey S. Dean, George J. Gumerman, Alan C. Swedlund, Jason Harburger, Shubha Chakravarty, Ross Hammond, Jon Parker, and Miles Parker. 2002. “Population Growth and Collapse in a Multiagent Model of the Kayenta Anasazi in Long House Valley.” Proceedings of the National Academy of Sciences 99 (suppl 3): 7275–79. https://doi.org/10.1073/pnas.092080799.
 
 
-This is example model used in chapter 3 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 3 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
-Code blocks: 3.0-3.14
+Code blocks: 3.0-3.15
 
 ## HOW IT WORKS
 
@@ -374,11 +351,9 @@ Use the interface sliders to change parameter values. Press Setup then Go to ini
 
 ## THINGS TO NOTICE
 
-Resources regrowth rate can be modelled in two ways: 
-a) instant regrowth. The cell returns to the initial value at the beginning of a new time step;
-b) gradual regrowth. The cell's resource attribute increases by a predefined amount at every time step (growth-rate).
-
-The landscape is modelled in two ways 
+Resources can be modelled in two ways: 
+a) a flat plain where all patches have the same amount or,
+b) two "hills" with variable resources amounts declining away from the hill tops.
 
 ## THINGS TO TRY
 
@@ -391,7 +366,6 @@ The plot shows mean resources of foragers.
 ## EXTENDING THE MODEL & RELATED MODELS
 
 Multiple extension of SugarScape models can be found in the NetLogo library.
-
 @#$#@#$#@
 default
 true
@@ -698,7 +672,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

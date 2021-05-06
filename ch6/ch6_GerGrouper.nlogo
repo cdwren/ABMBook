@@ -534,7 +534,7 @@ This model was designed to explore fission/fusion dynamics among semi-nomadic pa
 
 Clark, Julia K., Stefani A. Crabtree. 2015. “Examining Social Adaptations in a Volatile Landscape in Northern Mongolia Via the Agent-Based Model Ger Grouper.” Land 2015, 4(1), 157-181; doi:10.3390/land4010157. http://www.mdpi.com/2073-445X/4/1/157
 
-This is example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This version is an example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 6.13
 

@@ -246,7 +246,7 @@ HORIZONTAL
 This is a heavily simplified version of Fission-Fussion dynamics model by E. Crema: 
 Crema, Enrico R. 2014. “A Simulation Model of Fission-Fusion Dynamics and Long-Term Settlement Change.” Journal of Archaeological Method and Theory 21 (2): 385–404.
 
-This is an example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 6.14-6.17
 

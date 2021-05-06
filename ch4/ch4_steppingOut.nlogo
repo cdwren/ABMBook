@@ -164,7 +164,7 @@ Mithen, Steven J, and Melissa Reed. 2002. ‘Stepping out : A Computer Simulat
 Hughes, John K, Alan Haywood, Steven J Mithen, Bruce W Sellwood, and Paul J Valdes. 2007. ‘Investigating Early Hominin Dispersal Patterns: Developing a Framework for Climate Data Integration’. Journal of Human Evolution 53: 465–74. https://doi.org/10.1016/j.jhevol.2006.12.011.
 
 
-This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 4.13-4.14
 
@@ -489,7 +489,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

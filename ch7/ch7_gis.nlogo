@@ -231,11 +231,11 @@ end
 GRAPHICS-WINDOW
 210
 10
-821
-622
+862
+433
 -1
 -1
-3.0
+2.0
 1
 10
 1
@@ -245,10 +245,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--100
-100
--100
-100
+0
+321
+0
+206
 0
 0
 1
@@ -384,7 +384,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-A model used in Davies et al. (2019) based on the work of This work draws on a neutral model of stone procurement by Brantingham (2003), and builds directly on work developed in Romanowska et al. (2019).
+A model used in Davies et al. (2019) which draws on a neutral model of stone procurement by Brantingham (2003), and builds directly on work developed in Romanowska et al. (2019).
 
 Davies, Benjamin, Iza Romanowska, Kathryn Harris, and Stefani A. Crabtree. 2019. “Combining Geographic Information Systems and Agent-Based Models in Archaeology: Part 2 of 3.” Advances in Archaeological Practice 7 (2): 185–93. https://doi.org/10.1017/aap.2019.5.
 
@@ -392,7 +392,7 @@ Romanowska, Iza, Stefani A. Crabtree, Kathryn Harris, and Benjamin Davies. 2019.
 
 Crabtree, Stefani A., Kathryn Harris, Benjamin Davies, and Iza Romanowska. 2019. “Outreach in Archaeology with Agent-Based Modeling: Part 3 of 3.” Advances in Archaeological Practice 7 (2): 194–202. https://doi.org/10.1017/aap.2019.4.
 
-This is an example model used in chapter 7 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This version is an example model used in chapter 7 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 7.0-7.20
 
@@ -737,7 +737,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

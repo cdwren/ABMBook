@@ -13,6 +13,8 @@ end
 
 to go
   memory-walk
+  regrow-patches
+  tick
 end
 
 to memory-walk
@@ -37,31 +39,30 @@ to memory-walk
     ]
 
     ;; cultural learning
-    if any? other turtles-here  [
-
-      set memory (patch-set memory [memory] of one-of other turtles-here)
-    ;  ask one-of other turtles-here [set memory (patch-set memory [memory] of one-of other turtles-here)]
-      ask one-of other turtles-here [set memory (patch-set memory [memory] of myself)]
+    if learning? and any? other turtles-here  [   ; turtle encounters another agent
+      set memory (patch-set memory [memory] of one-of other turtles-here) ;turtle A learns by adding turtle B's memory to their own
+      ask one-of other turtles-here [set memory (patch-set memory [memory] of myself)] ;turtle A asks turtle B to do the same
+      print "learn"
     ]
   ]
+end
 
-  ask patches with [pcolor = grey] [
+to regrow-patches
+  ask patches with [pcolor = grey] [ ;basic periodic regrowth of grey patches back to white
     if random-float 1 < regrow-rate [
       set pcolor white
     ]
   ]
-
-  tick
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-647
-448
+614
+415
 -1
 -1
-13.0
+12.0
 1
 10
 1
@@ -124,7 +125,7 @@ pop
 pop
 1
 10
-5.0
+7.0
 1
 1
 NIL
@@ -148,45 +149,30 @@ NIL
 1
 
 SLIDER
-6
-94
-178
-127
+5
+90
+177
+123
 regrow-rate
 regrow-rate
 0
 .1
-0.05
+0.0
 .01
 1
 NIL
 HORIZONTAL
 
 SWITCH
-6
-174
-109
-207
-sharing?
-sharing?
+5
+125
+107
+158
+learning?
+learning?
 0
 1
 -1000
-
-SLIDER
-6
-134
-178
-167
-max-food
-max-food
-0
-10
-10.0
-1
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -195,7 +181,7 @@ Simplified reimplementation of The MAGICAL model of M. Lake.
 
 Lake, M. W., 2000. “MAGICAL Computer Simulation of Mesolithic Foraging.” In _Dynamics in Human and Primate Societies: Agent-Based Modeling of Social and Spatial Processes_, edited by T. A. Kohler and G. J. Gumerman, 107–143. New York: Oxford University Press. 
 
-This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 4.9-4.10
 
@@ -520,7 +506,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

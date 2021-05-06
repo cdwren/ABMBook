@@ -473,7 +473,7 @@ NIL
 
 This model implements several types of trade discussed by Sahlins's 1972 book, Stone Age Economics including: pooling, generalized reciprocal network, and balanced reciprocal network. Four groups, each with a single head of household are modelled with varying degrees of connectedness depending on the type of trade.
 
-This is an example model used in chapter 8 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 8 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 8.0-8.20
 

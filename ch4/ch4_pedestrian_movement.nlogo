@@ -10,12 +10,6 @@ to setup
 
   if walk = "target" [ ask n-of 30 patches [set pcolor white]]
   if walk = "restricted" [ ask patches with [pxcor = 50] [set pcolor white]]
-  if walk = "IDD" [
-    ask patches [
-      set habitat_quality 100
-      set pcolor scale-color green habitat_quality 0 100
-    ]
-  ]
   if walk = "weighted-random" [
     ask patches [
       set habitat_quality pxcor
@@ -127,7 +121,7 @@ to weighted-random-walk
       ; choose a target patch
       let target rnd:weighted-one-of patches in-radius 5 with [not any? turtles-here] [habitat_quality]
       ; move to target patch if it exists
-      if target != nobody [face target move-to target]
+      if target != nobody [face target move-to target]   ;face target isn't necessary but helps to visualize the movement pattern
   ]
 end
 
@@ -251,7 +245,7 @@ NIL
 
 A selection of pedestrian movement algorithms. 
 
-This is example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This is an example model used in chapter 4 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 4.0-4.8
 
@@ -608,7 +602,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
