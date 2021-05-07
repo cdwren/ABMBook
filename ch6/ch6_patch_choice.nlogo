@@ -1,49 +1,104 @@
-extensions [Rnd]
-turtles-own [fitness age]
+; patch choice model from optimal foraging theory
+; by Michael Barton, Arizona State University
+; simplified by Colin Wren, UCCS
 
-to setup
-  ca
-  ask patches [set pcolor white]
-  crt 100 [
-    set fitness random-float 1
-    set age 1
-    setxy random-xcor random-ycor]
+breed [foragers forager]
+
+foragers-own [encounter-list avg-cost encounter-rate]
+patches-own [food]
+globals [global-return ]
+
+to Setup
+  clear-all
+  Setup_Patches
+  Setup_Foragers
   reset-ticks
 end
 
-to go
-  ; Choose who will reproduce (based on fitness)
-  ask rnd:weighted-n-of 10 turtles [fitness] [reproduce]
-  ; And who will die (random)
-  ask n-of 10 turtles with [age > 0] [die]
-  ; aging and "family units" are visualised by direction
-  ask turtles [
-    set age age + 1
-    set heading heading + 15
-    fd 1
-  ]
+to Go
+  Forage
+  Leave-patch
+  Regrow
+  Do_Plots
   tick
-  if ticks >= max-ticks [stop]
+  if not any? foragers [stop]
 end
 
-to reproduce
-  ; reprodution can involve a mutation, visualised using colour tone change
-  hatch 1 [
-    set age 0
-    let mutation_direction one-of [-1 1]
-    set color color + (1 * mutation_direction)
-    fd 1
+to Setup_Patches
+  ask patches
+    [
+    set pcolor brown
+    if random 100 < resource-density [
+      set food food-value ; put a food item on patches according to resource density
+      set pcolor green
+    ]
   ]
+end
+
+to Setup_Foragers
+  create-foragers init-foragers
+    [
+    set shape "person"
+    set size 2
+    set color black
+    setxy random-xcor random-ycor ; place the foragers in the world
+    set encounter-list n-values 10 [food-value] ; rolling list encounters with cells that have food
+    pen-down
+    ]
+end
+
+to Forage
+  ask foragers [
+    rt random 360
+    forward 1
+    ifelse food > 0 [
+      let current-harvest random food
+      set encounter-list fput current-harvest encounter-list ; if there is food, count it as a successful encounter in the rolling encounters list
+      ask patch-here [
+        set food food - current-harvest
+        set pcolor pcolor - current-harvest
+        if food <= 0 [set pcolor brown] ; harvest the food and mark the patch as depleted
+      ]
+    ]
+    [
+      set encounter-list fput 0 encounter-list    ; if no food, count it as an unsuccessful encounter
+    ]
+
+    set encounter-list but-last encounter-list ; take last list item off the rolling encounters list
+    set encounter-rate mean encounter-list
+  ]
+end
+
+to Leave-patch
+  ask foragers
+    [
+      if encounter-rate < (resource-density / 100) [ ; check whether encounter rate in ecopatch is less than average encounter rate (=resource density)
+        rt random 360
+        forward 10
+        set encounter-list n-values 10 [food-value] ;reset the encounter list to full
+      ]
+  ]
+end
+
+to Regrow
+  ask patches [ ; regrow food in harvested patches
+    if random 100 < regrow-rate [ set food food-value set pcolor green]
+  ]
+end
+
+to Do_Plots ; track simulation values
+  set-current-plot-pen "encounter rate"
+  if count foragers > 0 [plot sum [encounter-rate] of foragers / count foragers]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-216
+419
 10
-841
-636
+1059
+651
 -1
 -1
-18.7
+20.4
 1
 10
 1
@@ -53,41 +108,24 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
 0
+30
 0
+30
+1
+1
 1
 ticks
 30.0
 
 BUTTON
-3
+5
 10
-66
-43
-NIL
-setup\n
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
 71
-10
-130
 43
-go
-go
-T
+setup
+Setup
+NIL
 1
 T
 OBSERVER
@@ -98,9 +136,89 @@ NIL
 1
 
 BUTTON
-133
+75
 10
-196
+138
+43
+run
+Go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+5
+50
+177
+83
+init-foragers
+init-foragers
+1
+20
+2.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+156
+177
+189
+regrow-rate
+regrow-rate
+0
+20
+0.0
+.1
+1
+%
+HORIZONTAL
+
+PLOT
+-4
+303
+401
+512
+Search costs & encounters
+Ticks
+Mean forager returns
+0.0
+10.0
+0.0
+5.0
+true
+false
+"" ""
+PENS
+"encounter rate" 1.0 0 -2674135 true "" ""
+
+SLIDER
+5
+121
+177
+154
+food-value
+food-value
+1
+50
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+145
+10
+208
 43
 step
 go
@@ -114,111 +232,79 @@ NIL
 NIL
 1
 
-PLOT
-12
-227
-211
-382
-Fitness
-NIL
-NIL
-0.0
-500.0
-0.0
-1.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot mean [fitness] of turtles"
-
-PLOT
-11
-387
-211
-537
-Age
-NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot mean [age] of turtles"
-
-PLOT
-9
-552
-209
-702
-Population size
-NIL
-NIL
-0.0
-10.0
-0.0
-120.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot count turtles"
-
-INPUTBOX
-131
-65
-194
-125
-max-ticks
-500.0
-1
+SLIDER
+5
+86
+177
+119
+resource-density
+resource-density
 0
-Number
+100
+67.0
+1
+1
+%
+HORIZONTAL
 
-PLOT
-234
-642
-434
-792
-Max Age
+MONITOR
+185
+97
+287
+142
+encounter rate
+sum [encounter-rate] of foragers / count foragers
+17
+1
+11
+
+MONITOR
+185
+51
+324
+96
 NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot max [age] of turtles"
+[encounter-list] of turtle 0
+17
+1
+11
 
 @#$#@#$#@
-## WHAT IS IT?
+## OVERVIEW
 
-A simple model demonstrating the roulette wheel reprodution.
+This is an agent-based simulation of the classic "patch choice model" of optimal foraging theory. The model was originally written by C. Michael Barton. 
 
-This is an example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
+This version was heavily simplified to be used as an example in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
-Code blocks: 6.21-6.22
+Code blocks: 6.9-6.10
 
-## HOW IT WORKS
+## SIMULATION OPERATION
 
-Each agent has a probability of reproducing proportional to its fitness and a probability of death that is uniformly distributed. Newly hatched agents can mutate. Mutations are visualised as changes to the colour tone.
-Agents age, this is visualised by the direction they are facing.
+SETUP: The world is divided into productive (green) and unproductive (brown) patches with a food value (e.g., edible plants) set by the user (<food-value>). The density of patches with food (green) also can be set (<resource-density> ranging from 0-100%).
+
+FORAGERS: One or more foragers (<init-foragers> selected by the user) are placed randomly on the landscape. They begin to move in random directions each with a distance of 1. 
+
+FORAGING: The forager gains energy (<food-value>) by harvesting and consuming the food in each cell he/she encounters that has food. The forager keeps track of the past 10 time steps of food values collected. 
+
+REGROWTH: When the food is harvested, the cell's food value drops by the amount consumed. If it reaches zero it turns brown. Optionally, exhausted cells can regrow using a random function set by the user <regrow-rate>.
+
+MOVING: According to the patch choice model, a forager will continue to forage in a patch (area of the map, not a single patch) until the rate of encountering new food in a patch drops below the encounter rante for the entire region. The encounter rate for a forager is calculated as a rolling average of (successful encounters / total encounters) over some time interval. The time interval of the rolling average is set to 10 in setup. If the forager's average drops below the regional average then move to a new part of the landscape with distance 10.
 
 ## HOW TO USE IT
 
-Press setup,then press go. 
-You can change the duration of the simulation by entering a different number in the max-ticks box. 
+Set the options (see above). Press "setup". Then press "run".
+
+## THINGS TO TRY
+
+The classic patch choice model considers only one forager. What happens if more than one forager are placed in the simulation? Try changing the food values in each cell or the distance moved by each forger each cycle.
+
+## EXTENDING THE MODEL
+
+Barton's original model is more detailed and with more options than are presented here. https://www.comses.net/codebases/2224/releases/1.0.0/
 
 ## CREDITS AND REFERENCES
 
-C. Wren
+C. Michael Barton, Arizona State University
 @#$#@#$#@
 default
 true
@@ -412,22 +498,6 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
-sheep
-false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
-
 square
 false
 0
@@ -511,13 +581,6 @@ Line -7500403 true 216 40 79 269
 Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
-
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
 
 x
 false
