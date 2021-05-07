@@ -85,11 +85,11 @@ end
 GRAPHICS-WINDOW
 210
 10
-647
-448
+843
+644
 -1
 -1
-13.0
+18.94
 1
 10
 1
@@ -169,7 +169,7 @@ cow-forage-requirement
 cow-forage-requirement
 0
 100
-30.0
+15.0
 1
 1
 NIL
@@ -199,20 +199,20 @@ selfishness
 selfishness
 0
 10
-3.0
+2.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-681
-44
-881
-194
-plot 1
-NIL
-NIL
+5
+180
+205
+330
+Cow population
+Time
+Cows
 0.0
 10.0
 0.0

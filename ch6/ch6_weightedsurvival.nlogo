@@ -28,7 +28,7 @@ to setup-turtles
   create-turtles number
   [
     set size 1 set shape "circle"
-    set color orange
+    set color cyan
     move-to one-of patches with [not any? turtles-here]
   ]
 end
@@ -86,9 +86,9 @@ to make-hills   ; Adjusted SugarScape from ch. 3
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-150
+160
 50
-538
+548
 439
 -1
 -1
@@ -205,10 +205,10 @@ hs_death?
 -1000
 
 PLOT
-560
-25
-760
-175
+555
+50
+755
+200
 Agent ages (months)
 Age
 Freequency
@@ -270,10 +270,10 @@ Calculated in setup using hs_benefit to determine the strength of the environmen
 1
 
 PLOT
-560
-175
-760
-325
+555
+200
+755
+350
 Population size
 Ticks
 Population
