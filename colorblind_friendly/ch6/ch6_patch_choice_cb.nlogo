@@ -1,79 +1,102 @@
-breed [ cows cow ]
-breed [ herders herder ]
-cows-own [ owner forage ]
-herders-own [ now_cows past_cows ]
-globals [
-  ttl-runs
-  lonely-herder
-  combinedset prob
-]
+; patch choice model from optimal foraging theory
+; by Michael Barton, Arizona State University
 
-to setup
+breed [foragers forager]
+
+foragers-own [encounter-list avg-cost encounter-rate]
+patches-own [food]
+globals [global-return ]
+
+to Setup
   clear-all
-  ask patches [ set pcolor green ]
-
-  create-herders num-herders [
-    move-to one-of patches
-    set color white
-    set size 2
-    set shape "person"
-  ]
-
-  create-cows num-cows [
-    move-to one-of patches
-    set color brown
-    set size 2
-    set shape "cow"
-  ]
-
-  set ttl-runs 0
-  set lonely-herder 0
-
+  Setup_Patches
+  Setup_Foragers
   reset-ticks
 end
 
-to go
-  ask cows with [ owner = 0 ] [
-    set owner one-of herders
-;    print owner
-  ]
-
-  ask herders [
-    set now_cows count cows with [ owner = myself ]
-  ]
-
-  add-tally
-
-  ask cows [set owner 0]
+to Go
+  Forage
+  Leave-patch
+  Regrow
+  Do_Plots
   tick
+  if not any? foragers [stop]
 end
 
-to add-tally
-  ; make big agentset of all owner agentsets
-  set combinedset ( turtle-set [ owner ] of cows )
-;  print herders
-;  ask herders [type self]
-;  print combinedset
-;  ask combinedset [type self]
-
-  ; if any? herders NOT in big agentset, then + 1 lonely-herder
-  if NOT (herders = combinedset) [
-    set lonely-herder (lonely-herder + 1)
-
+to Setup_Patches
+  ask patches
+    [
+    set pcolor brown + 3
+    if random 100 < resource-density [
+      set food food-value ; put a food item on patches according to resource density
+      set pcolor green
+    ]
   ]
+end
 
-  set ttl-runs ttl-runs + 1
-  set prob ( lonely-herder / ttl-runs )
+to Setup_Foragers
+  create-foragers init-foragers
+  ask foragers
+    [
+    set shape "person"
+    set size 2
+    set color black
+    setxy random-xcor random-ycor ; place the foragers in the world
+    set encounter-list n-values 10 [food-value] ; rolling list encounters with cells that have food
+    pen-down
+    ]
+end
+
+to Forage
+  ask foragers [
+    rt random 360
+    forward 1
+    ifelse food > 0 [
+      let current-harvest random food
+      set encounter-list fput current-harvest encounter-list ; if there is food, count it as a successful encounter in the rolling encounters list
+      ask patch-here [set food food - current-harvest set pcolor pcolor + current-harvest
+        if food <= 0 [set pcolor brown + 3]
+      ] ; harvest the food and turn the patch white
+    ]
+    [
+      set encounter-list fput 0 encounter-list    ; if no food, count it as an unsuccessful encounter
+    ]
+
+    set encounter-list but-last encounter-list ; take last list item off the rolling encounters list
+    set encounter-rate mean encounter-list
+  ]
+end
+
+to Leave-patch
+  ask foragers
+    [
+      if encounter-rate < (resource-density / 100) [ ; check whether encounter rate in ecopatch is less than average encounter rate (=resource density)
+        rt random 360
+        forward 10
+        set encounter-list n-values 10 [food-value] ;reset the encounter list to full
+      ]
+  ]
+end
+
+to Regrow
+  ask patches [ ; regrow food in harvested patches
+    if random 100 < regrow-rate [ set food food-value set pcolor green]
+  ]
+end
+
+to Do_Plots ; track simulation values
+  set-current-plot-pen "encounter rate"
+  if count foragers > 0 [plot sum [encounter-rate] of foragers / count foragers]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+419
 10
-647
-448
+892
+484
 -1
 -1
-13.0
+15.0
 1
 10
 1
@@ -83,23 +106,23 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
 0
+30
 0
+30
+1
+1
 1
 ticks
 30.0
 
 BUTTON
-33
-20
-96
-53
-NIL
+5
+10
+71
+43
 setup
+Setup
 NIL
 1
 T
@@ -111,12 +134,12 @@ NIL
 1
 
 BUTTON
-26
-73
-89
-106
-go
-go
+75
+10
+138
+43
+run
+Go
 T
 1
 T
@@ -127,11 +150,74 @@ NIL
 NIL
 1
 
+SLIDER
+5
+50
+177
+83
+init-foragers
+init-foragers
+1
+20
+6.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+190
+120
+362
+153
+regrow-rate
+regrow-rate
+0
+20
+0.1
+.1
+1
+%
+HORIZONTAL
+
+PLOT
+-4
+303
+401
+453
+Search costs & encounters per forager
+NIL
+NIL
+0.0
+10.0
+0.0
+5.0
+true
+true
+"" ""
+PENS
+"encounter rate" 1.0 0 -2674135 true "" ""
+
+SLIDER
+190
+85
+362
+118
+food-value
+food-value
+1
+50
+5.0
+1
+1
+NIL
+HORIZONTAL
+
 BUTTON
-33
-116
-96
-149
+145
+10
+208
+43
 step
 go
 NIL
@@ -145,153 +231,78 @@ NIL
 1
 
 SLIDER
-13
-172
-198
-205
-cow-forage-requirement
-cow-forage-requirement
+190
+50
+362
+83
+resource-density
+resource-density
 0
 100
-10.0
+74.0
 1
 1
-NIL
+%
 HORIZONTAL
-
-SLIDER
-30
-252
-202
-285
-grass-regrowth-rate
-grass-regrowth-rate
-0
-1
-0.5
-.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-31
-214
-203
-247
-selfishness
-selfishness
-0
-10
-0.0
-1
-1
-NIL
-HORIZONTAL
-
-PLOT
-681
-44
-881
-194
-plot 1
-NIL
-NIL
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-
-PLOT
-677
-209
-877
-359
-plot 2
-runs
-ratio of lonely herders over ttl runs
-0.0
-100.0
-0.0
-1.0
-true
-false
-"" ""
-PENS
 
 MONITOR
-682
-388
-758
-433
-NIL
-prob
+106
+217
+208
+262
+encounter rate
+sum [encounter-rate] of foragers / count foragers
 17
 1
 11
 
-INPUTBOX
-133
-10
-196
-70
-num-cows
-10.0
+MONITOR
+106
+171
+245
+216
+NIL
+[encounter-list] of turtle 0
+17
 1
-0
-Number
-
-INPUTBOX
-130
-78
-203
-138
-num-herders
-6.0
-1
-0
-Number
+11
 
 @#$#@#$#@
-## WHAT IS IT?
+## OVERVIEW
 
-(a general understanding of what the model is trying to show or explain)
+This is an agent-based simulation of the classic "patch choice model" of optimal foraging theory.
 
-## HOW IT WORKS
+This has been used as an example in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
 
-(what rules the agents use to create the overall behavior of the model)
+Code blocks: 6.9-6.10
+
+## SIMULATION OPERATION
+
+SETUP: The world is divided into 9 eco-patches, each with their own ID number. Each cell in the eco-patch (i.e., a NetLogo "patch") has a food value (e.g., edible plants), set by the user (<food-value> in energy units or eu's). The density of patches with food also can be set (<resource-density> ranging fro 0-100%)
+
+FORAGERS: One or more foragers (<init-foragers> selected by the user) are placed randomly in the eco-patches and given 100 energy units (eu's) to start with. They begin to move in random directions a distance <move-dist> set by the user. Each cell moved costs the forager <search-cost> energy units (set by the user).
+
+FORAGING: The forager gains energy (<food-value>) by harvesting and consuming the food in each cell he/she encounters that has food. Processing the food can optionally also cost the forager <processing-cost> (set by the user).
+
+REGROWTH: When the food is harvested, the cell's food value goes to zero. Optionally, exhausted cells can regrow using a random function set by the user <regrow-rate>.
+
+MOVING: According to the patch choice model, a forager will continue to forage in a patch until the rate of encountering new food in a patch drops below the encounter rante for the entire region. The encounter rate for a forager is calculated as a rolling average of (successful encounters / total encounters) over some time interval. The time interval of the rolling average is set by the user <avg-interval> and varies from 2-100.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
-
-## THINGS TO NOTICE
-
-(suggested things for the user to notice while running the model)
+Set the options (see above). Press "setup". Then press "run".
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+The classic patch choice model considers only one forager. What happens if more than one forager are placed in the simulation? Try changing the food values in each cell or the distance moved by each forger each cycle.
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+Other OFT models could be simulated in this way.
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+C. Michael Barton, Arizona State University
 @#$#@#$#@
 default
 true
@@ -485,22 +496,6 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
-sheep
-false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
-
 square
 false
 0
@@ -584,13 +579,6 @@ Line -7500403 true 216 40 79 269
 Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
-
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
 
 x
 false
