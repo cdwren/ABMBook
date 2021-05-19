@@ -1038,6 +1038,10 @@ It should be cited as follows:
 
 Crabtree, Stefani A. 2016. "Simulating Littoral Trade: Modeling the Trade of Wine in the Bronze to Iron Age Transition in Southern France." Land 2016, 5(1), 5; doi:10.3390/land5010005
 
+This is an example model used in chapter 9 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+
+Code blocks: 9.5 and all examples using Behavior Space.
+
 ## HOW IT WORKS
 
 The base of this model allows Gaulish agents to extract resources from the earth (they farm). Agents need farmed products to be able to survive and reproduce. 
@@ -1384,7 +1388,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1393,6 +1397,61 @@ NetLogo 6.1.1
     <setup>setup</setup>
     <go>go</go>
     <final>export-plot "Wine" (word "metals_ " metals? "_wtc" weighted-trade-choice "_" behaviorspace-run-number ".csv")</final>
+    <metric>count turtles</metric>
+    <metric>total-amphora</metric>
+    <steppedValueSet variable="weighted-trade-choice" first="0" step="10" last="100"/>
+    <enumeratedValueSet variable="metals?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="reproduction">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="GrainTradeRate">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="harvest-calories">
+      <value value="4"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="buying-radius">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="life-expectancy">
+      <value value="33"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="harvest-amount">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="number-Gauls">
+      <value value="150"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="number-Colonists">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="planting-calories">
+      <value value="4"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="two-colonist-populations?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="number-mining-Gauls">
+      <value value="19"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Etruscan-arrival">
+      <value value="34"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Greek-arrival">
+      <value value="100"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="trade and metals" repetitions="3" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <final>export-plot "Wine" (word 
+ "metals_ " metals? "_wtc" 
+ weighted-trade-choice "_" 
+ behaviorspace-run-number 
+ ".csv")</final>
     <metric>count turtles</metric>
     <metric>total-amphora</metric>
     <steppedValueSet variable="weighted-trade-choice" first="0" step="10" last="100"/>
