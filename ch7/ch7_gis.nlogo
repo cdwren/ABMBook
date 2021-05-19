@@ -67,7 +67,7 @@ to setup
   ]
 
   ; create an agent with an empty toolkit list
-  ask n-of 1 patches with [ patch-elevation > 0 ] [
+  ask n-of num-foragers patches with [ patch-elevation > 0 ] [
     sprout-foragers 1 [
       set size 8
       set shape "person"
@@ -96,12 +96,10 @@ to go
     if patch-quarry = true [
       reprovision-toolkit
     ]
-  ]
 
-  ; if any tools in toolkit, discard
-  ask foragers [
+    ; if any tools in toolkit, discard
     if length toolkit > 0 [
-      ; pass-artefact
+      pass-artefact
       discard-tools
     ]
   ]
@@ -139,7 +137,6 @@ to go-down-hill
     let next min-one-of neighbors with [patch-elevation > 0] [patch-elevation]
     move-to next
   ]
-  tick
 end
 
 to walk-quarry
@@ -205,7 +202,7 @@ to pass-artefact
     let i random length toolkit
     let passed? false
 
-    if t != nobody[
+    if t != nobody [
       ask t [
         if length toolkit < max-carry [
           set toolkit lput (item i [ toolkit ] of myself) toolkit
@@ -291,9 +288,9 @@ NIL
 
 SLIDER
 5
-45
+85
 190
-78
+118
 max-carry
 max-carry
 0
@@ -306,9 +303,9 @@ HORIZONTAL
 
 SLIDER
 5
-80
+120
 190
-113
+153
 time-limit
 time-limit
 1000
@@ -321,9 +318,9 @@ HORIZONTAL
 
 BUTTON
 5
-150
+190
 135
-183
+223
 write diversity
 write-diversity
 NIL
@@ -338,12 +335,12 @@ NIL
 
 SWITCH
 5
-115
+155
 137
-148
+188
 random-walk?
 random-walk?
-1
+0
 1
 -1000
 
@@ -366,9 +363,9 @@ NIL
 
 BUTTON
 5
-185
+225
 135
-218
+258
 write assemblages
 write-assemblages
 NIL
@@ -381,6 +378,21 @@ NIL
 NIL
 1
 
+SLIDER
+5
+50
+190
+83
+num-foragers
+num-foragers
+1
+10
+1.0
+1
+1
+NIL
+HORIZONTAL
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -392,20 +404,19 @@ Romanowska, Iza, Stefani A. Crabtree, Kathryn Harris, and Benjamin Davies. 2019.
 
 Crabtree, Stefani A., Kathryn Harris, Benjamin Davies, and Iza Romanowska. 2019. “Outreach in Archaeology with Agent-Based Modeling: Part 3 of 3.” Advances in Archaeological Practice 7 (2): 194–202. https://doi.org/10.1017/aap.2019.4.
 
-This version is an example model used in chapter 7 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
+This version has been modified by Wren for use an example model used in chapter 7 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 7.0-7.20
 
 ## HOW IT WORKS
 
-During each time step, the turtle moves to one of the surrounding patches or stays on its current patch. If the agent is at an elevation that is less than the preset *elevation-theshold*, it will perform the movement operation once; otherwise, it will perform the movement 
+During each time step, the turtles move to one of the surrounding patches or stays on their current patch. Use the random-walk? switch to control movement type. 
 
 Turtles possess a *toolkit* which contains stone objects that originate from a particular quarry. After each sequence of movements, if the turtle has any objects in its toolkit, it will discard one object, which becomes part of the *assemblage* of the local patch. 
 
-A set of quarry locations exist in the map. If the turtle crosses over a patch with a quarry, it will replenish its toolkit with stone objects from that quarry up to a preset *max-carry* limit. 
+A set of quarry locations exist in the map. If the turtle crosses over a patch with a quarry, it will replenish its toolkit with stone objects from that quarry up to a preset *max-carry* limit. If num-foragers is greater than one, agents who come within range of another agent will exchange artefacts.  
 
 After a period of time (*time-limit*), the simulation stops, and the patches with stone objects in their assemblages are shaded red according to the number of artefacts.
-
 
 ## HOW TO USE IT
 
