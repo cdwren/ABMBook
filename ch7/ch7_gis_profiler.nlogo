@@ -5,7 +5,7 @@
 
 ;; Modified and extended by C. Wren
 
-extensions [ gis ]
+extensions [ gis profiler ]
 
 breed [quarries quarry]
 breed [foragers forager]
@@ -105,11 +105,11 @@ to go
   ]
 
   if viz-assemblages? [
-    display-assemblages
+    display-assemblages-faster
   ]
   ; at the end of the run colour the map so that we can see where did the agent go and dropped lithics
   if ticks = time-limit [
-    display-assemblages
+    display-assemblages-faster
     stop
   ]
   tick
@@ -175,7 +175,13 @@ to discard-tools
   set toolkit remove-item i toolkit
 end
 
-to display-assemblages
+to display-assemblages-slow     ;in this slow version max [] of patches is within ask patches, causing the model to run very slowly
+  ask patches with [ length assemblage > 0 ] [
+    set pcolor scale-color red (length assemblage) 0 (max [ length assemblage ] of patches)
+  	]
+end
+
+to display-assemblages-faster
   ; end of the run visualisation
   let mx  max [ length assemblage ] of patches ; mx is the max number of lithic pieces dropped anywhere on the map
   ask patches with [ length assemblage > 0 ] [
@@ -314,7 +320,7 @@ time-limit
 time-limit
 1000
 100000
-45000.0
+5000.0
 1000
 1
 NIL
@@ -403,7 +409,7 @@ BUTTON
 135
 258
 display-assemblages
-display-assemblages
+display-assemblages-faster
 NIL
 1
 T
@@ -431,6 +437,50 @@ TEXTBOX
 160
 311
 n.b. leaving the viz-assemblages? switch on will slow your model considerably
+11
+0.0
+1
+
+BUTTON
+865
+10
+932
+43
+profiler
+setup                 ;; set up the model\nprofiler:start        ;; start profiling\nrepeat 200 [ go ]      ;; run a procedure \nprofiler:stop         ;; stop profiling\nprint profiler:report ;; view the results\nprofiler:reset        ;; clear the data
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+865
+50
+997
+83
+profile-procedures
+;setup\nprofiler:start\nrepeat 30 [ display-assemblages-slow \n  display-assemblages-faster ]\nprofiler:stop\nprint profiler:report\nprofiler:reset
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+TEXTBOX
+870
+100
+1020
+175
+display-assemblages-slower may be impossibly slow if your model has run a lot of ticks first. Use Halt in the tools menu to stop profiler.
 11
 0.0
 1
