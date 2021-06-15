@@ -1,130 +1,21 @@
-globals [ goods ]
-breed [ buyers buyer ]
-breed [ sellers seller ]
-buyers-own [ shopping-list my-home basket ]
-sellers-own [ stock ]
-patches-own [ cellar ]
-turtles-own [ ]
+clear-all
+ask patches [sprout 1 set size 2]
+ask turtles [set color yellow]
+ask turtles [set shape "person student"]
+ask turtles with [ycor > 4][set shape "person graduate" set size 1]
 
 
-to setup
-  ca
-
-  ask patches [set pcolor white]
-
-  ; available goods
-  ; set goods ["potA" "potB" "potC" "potD" "potE" "potF" "potG"]
-  set goods ["potA" "potB" "potC" "potD" "potE"] ; reducing from 7 to 5 to tmake color scheme doable
-
-  ; workshops/sellers
-  ask n-of 7 patches with [count turtles-here = 0][
-    sprout-sellers 1 [
-      set shape "house"
-      set stock n-of 3 goods    ; each seller has three goods out of the list of 7
-    ]
-  ]
-
-  ; buyers, their number = half of the remaining patches
-  ask n-of floor ( count patches * 0.5 )  patches with [count turtles-here = 0][
-    sprout-buyers 1 [
-      set shape "person"
-      set color green
-      setxy random-pxcor random-pycor
-      set shopping-list n-of 5 goods       ; each buyer has a list of 5 items to buy
-      set my-home patch-here             ; their home is where they were born
-      ask my-home [set cellar []]        ; setup for the 'artificial archaeological record'
-      set basket []                      ; list used to take a 'pot' back home
-    ]
-  ]
-
-  reset-ticks
-end
-
-to go
-  ;ask turtles to shop until their shopping list is concluded
-  ask buyers with [not empty? shopping-list][
-    let target one-of sellers       ; agents choose a seller at random
-    move target                     ; they move to the seller
-    trade target                    ; trade with them
-    done-shopping?                  ; check whether they finished their list
-  ]
-
-  tick
-end
-
-to move [target]
-  move-to target
-  ; depending on the model we may be interested to see how the agents find sellers
-  ; face target
-  ; while [ patch-here != [patch-here] of target][
-  ; rt random 360
-  ; fd 1]
-end
-
-to trade [target]
-  ; check whether any matches between the shoping list and the seller's items
-  let purchases filter [ i -> member? i first (list shopping-list) ] first (list [stock] of target)
-
-  ; for each match, update the shopping list and update the basket
-  foreach purchases [i -> set shopping-list remove i shopping-list]
-  foreach purchases [i -> set basket fput i basket]
-
-end
-
-to done-shopping?
-  ; if finished shopping or time has run out
-  if length shopping-list = 0 or remainder ticks  3 = 0 [
-    move-to my-home                 ; go home
-    deposit-pots                    ; deposit the pots for future archaeologists to find
-  ]
-end
-
-to deposit-pots
-  ; move purchased items from the basket to the 'cellar'
-  foreach basket [ i ->
-    ask my-home[
-      set cellar fput i cellar
-    ]
-  ]
-  ; setup a new shopping list and make sure the basket is empty
-  set shopping-list n-of 5 goods
-  set basket []
-end
-
-to show-distribution
-  let colors ;[14 24 44 64 84 104 124]
-    [
-      [215 25 28]
-      [253 174 97]
-      [255 255 0]
-      [171 217 233]
-      [44 123 182]
-    ]
-
-  ask turtles [ hide-turtle ]
-  ask patches [set pcolor white]
-  ask patches with [ cellar != 0 ][
-    let most-pottery one-of modes cellar         ; identify the most frequent item
-    let potcolor position most-pottery goods     ; get the index of that item type
-    set pcolor item potcolor colors             ; colour the patch accordingly
-  ]
-end
-
-
-; This model uses a combination of code from
-; Hamil and Gilbert 2016, chapter 2 "Starting Agent-based Modelling"
-; and 'Where is my pot?' model developed by F. Scherjon, I. Romanowska and students
-; of the "Simulation for Archaeologists" module run at Leiden University
-; all additional changes by I. Romanowska
+observer> ask patches [sprout 1 [set size 0.75 set color yellow set shape "person student"]]
+observer> ask turtles with [ycor > 4][set shape "person graduate" set size 1]
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
-10
-647
-448
+165
+26
+773
+635
 -1
 -1
-13.0
+100.0
 1
 10
 1
@@ -134,103 +25,52 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
+0
+5
+0
+5
 0
 0
 1
 ticks
 30.0
 
-BUTTON
-21
-20
-84
-53
-NIL
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-115
-22
-178
-55
-NIL
-go
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-18
-196
-144
-229
-NIL
-show-distribution
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 @#$#@#$#@
 ## WHAT IS IT?
 
-Model showcasing the basic dynamic of supply and demand.
-
-This is an example model (Code 2.2.3-2.2.8) used in chapter 2.2 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-based modelling for archaeologists. Santa Fe Institute Press.
-
-For the original version of a simple supply and demand model see Hamill and Gilbert 2016, ch. 2. 
+(a general understanding of what the model is trying to show or explain)
 
 ## HOW IT WORKS
 
-Agents venture to buy items from their shopping list from sellers. They subsequently deposit the purchased items in their houses, thus creating an 'artificial archaeological record'
+(what rules the agents use to create the overall behavior of the model)
 
 ## HOW TO USE IT
 
-Press Setup, then Go. Stop the simulation by pressing on Go and press on Show-distribution to visualise spatial distribution of goods. 
+(how to use the model, including a description of each of the items in the Interface tab)
 
+## THINGS TO NOTICE
+
+(suggested things for the user to notice while running the model)
 
 ## THINGS TO TRY
 
-- try changing the proportions between the stock of sellers and the number of items on the shopping list. 
-- try changing the number of sellers 
+(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
 
 ## EXTENDING THE MODEL
 
-A small chunk of code in the Move procedure (commented out) can be used to model agents engaging in random walk (don't forget to comment out the 'move-to' line and modify the 'target' to the seller-here). If used the distribution of deposited pots will reflect the proximity of the sellers rather than the availability of different items. 
+(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
 
+## NETLOGO FEATURES
+
+(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
 
 ## RELATED MODELS
 
-Hamill, Lynne, and Nigel Gibert. 2016. Agent Based Modelling in Economics. Chichester: Wiley, chapter 2: "Starting Agent-based Modelling".
-
+(models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
 
-This model uses a combination of code from Hamill and Gilbert 2016, chapter 2 "Starting Agent-based Modelling" and 'Where is my pot?' model developed by F. Scherjon, I. Romanowska and students of the "Simulation for Archaeologists" module run at Leiden University. All additional changes by I. Romanowska
+(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
@@ -411,6 +251,39 @@ Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300
 Rectangle -7500403 true true 127 79 172 94
 Polygon -7500403 true true 195 90 240 150 225 180 165 105
 Polygon -7500403 true true 105 90 60 150 75 180 135 105
+
+person graduate
+false
+0
+Circle -16777216 false false 39 183 20
+Polygon -1 true false 50 203 85 213 118 227 119 207 89 204 52 185
+Circle -7500403 true true 110 5 80
+Rectangle -7500403 true true 127 79 172 94
+Polygon -8630108 true false 90 19 150 37 210 19 195 4 105 4
+Polygon -8630108 true false 120 90 105 90 60 195 90 210 120 165 90 285 105 300 195 300 210 285 180 165 210 210 240 195 195 90
+Polygon -1184463 true false 135 90 120 90 150 135 180 90 165 90 150 105
+Line -2674135 false 195 90 150 135
+Line -2674135 false 105 90 150 135
+Polygon -1 true false 135 90 150 105 165 90
+Circle -1 true false 104 205 20
+Circle -1 true false 41 184 20
+Circle -16777216 false false 106 206 18
+Line -2674135 false 208 22 208 57
+
+person student
+false
+0
+Polygon -13791810 true false 135 90 150 105 135 165 150 180 165 165 150 105 165 90
+Polygon -7500403 true true 195 90 240 195 210 210 165 105
+Circle -7500403 true true 110 5 80
+Rectangle -7500403 true true 127 79 172 94
+Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Polygon -1 true false 100 210 130 225 145 165 85 135 63 189
+Polygon -13791810 true false 90 210 120 225 135 165 67 130 53 189
+Polygon -1 true false 120 224 131 225 124 210
+Line -16777216 false 139 168 126 225
+Line -16777216 false 140 167 76 136
+Polygon -7500403 true true 105 90 60 195 90 210 135 105
 
 plant
 false

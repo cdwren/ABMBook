@@ -1,103 +1,86 @@
-breed [ producers producer ]
-breed [ vendors vendor ]
-globals [ mean-goods ]
-vendors-own [ goods distance-level ]
-producers-own [ goods distance-level ]
+;; Original code published with:
+;; Davies, B., Romanowska, I., Harris, K., Crabtree, S.A., 2019.
+;; Combining Geographic Information Systems and Agent-Based Models in Archaeology: Part 2 of 3.
+;; Advances in Archaeological Practice 7, 185–193. https://doi.org/10.1017/aap.2019.5
+
+;; Modified and extended by C. Wren
+
+extensions [ gis ]
+
+breed [quarries quarry]
+breed [foragers forager]
+globals [ elevation-dataset quarries-dataset base orth ]
+
+foragers-own [ toolkit ]
+quarries-own [ id name ]
+patches-own [ patch-elevation assemblage material-type diversity patch-quarry assemblage-size water-distance]
 
 to setup
-  ca
-  ; create producer at the center of the screen (make sure the location of origin is set to 'center')
-  create-producers 1 [
-    set color red
-    set shape "house"
-    set goods 0            ;variables initialise as 0 if not specified otherwise but it is a good practice to initialise them explicitly
-    set distance-level 0
+  clear-all
 
+  ; use coordinate system associated with raster dataset
+  gis:load-coordinate-system "dem.prj"
+
+  ; load elevation data from ascii raster
+  set elevation-dataset gis:load-dataset "dem.asc"
+  ;  load lithic source data from point shapefile
+  set quarries-dataset gis:load-dataset "quarries.shp"
+  ; resize the world to fit the patch-elevation data
+  gis:set-world-envelope gis:envelope-of elevation-dataset
+  ;gis:set-world-envelope gis:envelope-union-of gis:envelope-of elevation-dataset gis:envelope-of quarries-dataset
+
+  ; add elevation data to patch data and color accordingly
+  let mx gis:maximum-of elevation-dataset
+  ask patches [
+    set patch-elevation ( gis:raster-sample elevation-dataset self )
+    ifelse patch-elevation > 0  [
+      set pcolor scale-color green patch-elevation 0 mx
+    ]
+    [
+      set pcolor blue
+    ]
   ]
-  ; create the first level of vendors around the producer
-  ask patches at-points [[0 -1][0 1][-1 0][1 0]] [
-    sprout-vendors 1 [
-      set color grey
+
+  ; mark the locations of quarries by finding the intersections between the vectors and patches.
+  ; this is problematic in cases where there are two quarries on a patch or if a quarry is on the border of two patches
+  ask patches [
+    if gis:intersects? quarries-dataset self [
+      set patch-quarry true
+      set pcolor red
+    ]
+  ]
+
+  ; this code accesses the exact location of each quarry
+  let points gis:feature-list-of quarries-dataset
+  foreach points [ quarry-point ->
+    let location gis:location-of (first first gis:vertex-lists-of quarry-point)
+    let temp_id gis:property-value quarry-point "ID"
+    let temp_name gis:property-value quarry-point "Name"
+    create-quarries 1 [
+      setxy item 0 location item 1 location
+      set size 2
+      set shape "circle"
+      set color red
+      set id temp_id
+      set name temp_name
+    ]
+  ]
+
+  ; create an agent with an empty toolkit list
+  ask n-of 1 patches with [ patch-elevation > 0 ] [
+    sprout-foragers 1 [
+      set size 8
       set shape "person"
-      set goods 0
-      set distance-level 1 ; the distance level has to be higher than the distance level of the producer
+      set color yellow
+      set toolkit []
     ]
   ]
 
-  repeat (level - 1) [ populate ]  ; create as many distance level as required. level - 1 because we create the first distance-level explicitly above
-  ask vendors  [ set label goods ] ; visualise the number of goods each vendor has
-  set mean-goods (list 0 0 0 0 0 0 ) ; initialise the list of mean number of goods at each distance-level
-
+  ;give patches empty assemblage lists
+  ask patches [
+    set assemblage []
+  ]
   reset-ticks
-end
-
-to populate
-  ; procedure used to populate the world with vendors in a concentric fashion
-  ask vendors [
-    let not-occupied-count count neighbors4 with [ not any? turtles-here ] ; only create new vendors on empty patches
-    hatch not-occupied-count [
-      set color color - 10                                                 ; here color refers to the color of parent
-      set distance-level [distance-level + 1] of myself                        ; distance-level equals distance-level of parent + 1
-      set size 1
-      set goods 0
-      move-to one-of neighbors4 with [ not any? turtles-here ]
-    ]
-  ]
-end
-
-to go
-  ; main loop of the simulation
-
-  ask turtles [ set label goods ]
-  ask producers [ set goods production-level ]              ; 1. producer produces goods
-  ask producers [ trade ]                                   ; 2. producer distributes goods to the closest markets
-  ask vendors with [goods > 0 ] [ trade ]                   ; 3. markets that have goods trade goods moving them further away from the production site
-  ask vendors with [ goods >= 1 ] [ set goods goods - 1 ]   ; 4. some percentage of goods is destroyed in the process
-
-  iterate-list-of-mean-goods                                ; 5. we record the mean number of goods at each distance-level
-  tick
-end
-
-to trade1
-  ; trade procedure, used by both the producers and vendors
-  let next-tier-neighbors (vendors-on neighbors4) with [ distance-level = [ distance-level + 1 ] of myself ] ; establish trading partners: turtles on neighbouring patches with a higher distance-level
-  while [goods > storage * storage-threshold] [                                                              ; only goods over threshold are traded
-    ifelse any? next-tier-neighbors with [ goods < storage ] [                                               ; if any trading partners
-      ask one-of next-tier-neighbors with [ goods < storage ] [                                              ; trade with one of the trading partners
-        set goods goods + 1
-      ]
-      set goods goods - 1
-    ]
-    [stop]                                                                                                   ; if no more trading partners, stop
-  ]
-end
-
-to trade
-  ; trade procedure, used by both the producers and vendors
-  let next-tier-neighbors (vendors-on neighbors4) with [ distance-level = [ distance-level + 1 ] of myself ] ; establish trading partners: turtles on neighbouring patches with a higher distance-level
-  while [goods > storage * storage-threshold and any? next-tier-neighbors with [ goods < storage ]] [
-      set goods goods - 1
-    ; if any trading partners
-      ask one-of next-tier-neighbors with [ goods < storage ] [                                              ; trade with one of the trading partners
-        set goods goods + 1
-      ]
-    ]
-end
-to-report calculate-volume [a]
-  ; reporter function used to calculate the mean number of goods at a given distance-level
-  let vendors-tier vendors with [ distance-level = a ]
-  report mean [ goods ] of vendors-tier
-end
-
-to iterate-list-of-mean-goods
-  ; auxilary procedure used to update the current mean number of goods at each distance-level
-  ; results are stored in the list "mean-goods"
-  let i 1
-  while [ i <= level ] [                                               ; for each distance-level
-    let goods-at-distance calculate-volume i                           ; calculate the mean number of goods
-    set mean-goods replace-item (i - 1) mean-goods goods-at-distance   ; store the result in the correct position in the list
-    set i i + 1
-  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -127,183 +110,42 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
-BUTTON
-5
-15
-68
-48
-NIL
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-70
-15
-133
-48
-NIL
-go
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-721
-225
-784
-258
-step
-go
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-10
-65
-182
-98
-level
-level
-0
-6
-6.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-105
-182
-138
-production-level
-production-level
-4
-50
-44.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-145
-182
-178
-storage
-storage
-0
-100
-32.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-185
-182
-218
-storage-threshold
-storage-threshold
-0
-0.5
-0.49
-.01
-1
-NIL
-HORIZONTAL
-
-PLOT
-740
-30
-1035
-205
-NIL
-NIL
-NIL
-0.0
-10.0
-0.0
-5.0
-true
-false
-"" ""
-PENS
-"distance 1" 1.0 0 -6759204 true "" "plot item 0 mean-goods"
-"distance 2" 1.0 0 -8275240 true "" "plot item 1 mean-goods"
-"distance 3" 1.0 0 -13791810 true "" "plot item 2 mean-goods"
-"distance 4" 1.0 0 -13345367 true "" "plot item 3 mean-goods"
-"distance 5" 1.0 0 -14730904 true "" "plot item 4 mean-goods"
-"distance 6" 1.0 0 -16050907 true "" "plot item 5 mean-goods"
-
 @#$#@#$#@
 ## WHAT IS IT?
 
-A reimplementation of a model published here:
-
-Romanowska, Iza. 2018. ‘Using Agent-Based Modelling to Infer Economic Processes in the Past’. In Quantifying Ancient Economies. Problems and Methodologies, edited by Jose Remsal Rodriguez, Victor Revilla Calvo, and Juan Manuel Bermudez Lorenzo, 107–18. Instrumenta 60. Barcelona: University of Barcelona.
-
-
-This is an example model used in chapter 2 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
-
-Code Blocks 2.0-2.26.
+(a general understanding of what the model is trying to show or explain)
 
 ## HOW IT WORKS
 
-The production centre (in the centre of the screen) produces and distributes goods to the four surounding markets. From there markets can sell their good further on (but not backwards, in the direction of the production centre) depending on their current stock and the demand of their neighbouring markets.
-
-The objective was to investigate what kind of economic processes could have given rise to different shapes of pottery frequency curves. Would that curve was steeper if the production centre produced more, or perhaps the distance to the production centre changes the shape of the initial frequency.  
+(what rules the agents use to create the overall behavior of the model)
 
 ## HOW TO USE IT
 
-Press setup, then press go. You can change three parameters:
-- production capacity: how many goods the production centre creates. Slider production-level 
-- storage capacity: how many goods can markets hold. Slider storage.
-- trade capacity: what percentage of goods are the markets willing to sell on (0-100%). Slider storage-threshold.
-In addition you can set up how many concentric "triers" of markets there are in the world (slider level). 
+(how to use the model, including a description of each of the items in the Interface tab)
 
 ## THINGS TO NOTICE
 
-The "Frequency of goods at each distance level" show how many goods on avarage the markets at distance 1, 2, 3, 4 from the production centre etc have. In some cases goods never arrive at markets most further away. You can observe it by looking at the lables next to markets. They show the number of good currently in storage.
-
-The most interesting part of the model is comparing the "artificial frequency curves" (plot) at the very beginning of the simulation. It is worth slowing the model down or going step by step to observe the differences for different markets. 
+(suggested things for the user to notice while running the model)
 
 ## THINGS TO TRY
 
-Try changing the storage and trading capacity of some of the markets to account for some cities being larger than others. Also, you can add another production centre and see what happens.
+(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+
+## EXTENDING THE MODEL
+
+(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+
+## NETLOGO FEATURES
+
+(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
 
 ## RELATED MODELS
 
-Most of the concepts deployed in this model are standard for macroeconomic modelling.
+(models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
 
-__Add url to the release__
+(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
@@ -627,5 +469,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-1
+0
 @#$#@#$#@
