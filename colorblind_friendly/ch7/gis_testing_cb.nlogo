@@ -43,11 +43,7 @@ to setup
   let mn gis:minimum-of elevation-dataset
 
   ask patches [
-    ifelse elevation > 0 [
-      set pcolor scale-color green elevation 0 mx
-    ][
-      set pcolor scale-color blue elevation mn 0
-    ]
+      set pcolor scale-color green elevation mn mx
     ; if ch-map = 2 [set pcolor scale-color green elevation -50 mx]
   ]
 end
@@ -162,11 +158,11 @@ end
 GRAPHICS-WINDOW
 304
 10
-812
-519
+1014
+721
 -1
 -1
-5.0
+7.02
 1
 10
 1

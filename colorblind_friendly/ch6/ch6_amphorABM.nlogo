@@ -87,8 +87,8 @@ to setup
   ;;where the Gaulish farmers can live.
 
   set earth-patches patches with [ pycor > -6 ]
-  ask earth-patches [ set pcolor one-of [ green green 37 ] ]
- ; ask earth-patches [ ifelse random-float 0.5 [set pcolor green][ set pcolor 37] ]
+  ask earth-patches [ set pcolor one-of [ green green brown ] ]
+ ; ask earth-patches [ ifelse random-float 0.5 [set pcolor green][ set pcolor brown] ]
   ask earth-patches [ set countdown random grass-regrowth-time ] ;;a slider that says how many ticks a patch will be productive. The lower it is, the more frequently farmed fields decay
 
   ;; don't worry about metals for today, but there's archaeological evidence that metal was mined
@@ -117,7 +117,7 @@ to setup
     ;; importantly, it's below the reproduction threshold, so agents don't show up and have babies right away.
     ;; they have to farm/trade before they can reproduce.
 
-    set color violet
+    set color red
     move-to one-of earth-patches
     set owned? true
     ;;    set trading-costs 1
@@ -198,7 +198,7 @@ to go
         ;;set label lineageA
         set energy 55
         set GreekWine 20
-        set color violet + 1
+        set color orange
         move-to one-of littoral-patches  with [pcolor = lime ]
         set owned? true
         landing-Greek-colonists
@@ -293,7 +293,7 @@ end
 ;;if Gaulish agents are spending too much to get wine they adjust their location
 to moveCloser
   ask lineageA [
-    if pcolor = 37 [
+    if pcolor = brown [
       if trading-costs > 10 [
         move-to one-of patches with [pycor >= -10 and pycor <= -6  ] ]
       if trading-costs < 10 [
@@ -304,7 +304,7 @@ end
 
 to regrow
   ;; a simple way to enable the world to go back to it's basic state. Since we track if the patches are farmed based on color
-  ask patches [ if pcolor = 37 [
+  ask patches [ if pcolor = brown [
     ifelse countdown <= 0
       [ set pcolor green
         set countdown grass-regrowth-time ]
@@ -316,7 +316,7 @@ to regrow
   ask patches [ if pcolor = red
     [set pcolor lime ] ]
 
-  ask patches [ if pcolor = white
+  ask patches [ if pcolor = cyan
     [set pcolor green ]
   ]
 end
@@ -366,7 +366,7 @@ end
 
 to grow-grass  ;; patch procedure
                ;; countdown on brown patches: if reach 0, grow some grass
-  if pcolor = 37 [
+  if pcolor = brown [
     ifelse countdown <= 0
       [ set pcolor green
         set countdown grass-regrowth-time ]
@@ -375,9 +375,9 @@ to grow-grass  ;; patch procedure
 end
 
 to patch-degrade  ;; patch procedure
-  if pcolor = white [
+  if pcolor = cyan [
     ifelse countdown <= 0
-    [  set pcolor 37
+    [  set pcolor brown
       set countdown 5 ]
     [  set countdown countdown - 1 ]
   ]
@@ -544,15 +544,15 @@ end
 ;; each tick Gaulish agents take fallow fields and plant them. They gain a certain amount of energy from fields and can only extract
 ;; more energy if they plant more
 to make-my-farm
-  if pcolor != 37 [
-    set pcolor white ;;
+  if pcolor != brown [
+    set pcolor cyan ;;
   ]
 end
 
 to plant
   ;;ethnographically, people use beer parties to help with planting costs, so here wine makes planting easier!
-  if pcolor != 37 [
-    set pcolor white ;; this way we can differentiate between unfarmed patches, dead patches, and farmed patches
+  if pcolor != brown [
+    set pcolor cyan ;; this way we can differentiate between unfarmed patches, dead patches, and farmed patches
     set energy energy - planting-calories  ;; agents expend energy by planting
     if (EtruscanWine > 1) or (GreekWine > 1)
     [ set energy energy + 1 ]
@@ -561,7 +561,7 @@ to plant
 end
 
 to harvest
-  if pcolor = white [ ;;again, only those patches with the pcolor white can be harvested as a field
+  if pcolor = cyan [ ;;again, only those patches with the pcolor cyan can be harvested as a field
     set energy energy + harvest-amount   ;; harvest amount is how much agents get from each farm patch
     set energy energy - harvest-calories  ;; it costs calories to harvest grain
     set total-harvest total-harvest + harvest-amount
@@ -653,10 +653,10 @@ to-report Etruscan-wine-wealth
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-824
-19
-1885
-1081
+488
+10
+1549
+1072
 -1
 -1
 13.0
@@ -697,10 +697,10 @@ NIL
 1
 
 SLIDER
-465
-519
-637
-552
+259
+726
+431
+759
 number-Gauls
 number-Gauls
 0
@@ -744,10 +744,10 @@ NIL
 1
 
 SLIDER
-465
-477
-637
-510
+259
+684
+431
+717
 number-Colonists
 number-Colonists
 0
@@ -759,10 +759,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-462
-601
-634
-634
+256
+808
+428
+841
 harvest-amount
 harvest-amount
 0
@@ -774,10 +774,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-237
-448
-409
-481
+31
+655
+203
+688
 Etruscan-arrival
 Etruscan-arrival
 0
@@ -806,10 +806,10 @@ NIL
 1
 
 SLIDER
-235
-522
-407
-555
+29
+729
+201
+762
 planting-calories
 planting-calories
 0
@@ -832,10 +832,10 @@ metals?
 -1000
 
 SLIDER
-462
-560
-655
-593
+256
+767
+449
+800
 number-mining-Gauls
 number-mining-Gauls
 0
@@ -858,10 +858,10 @@ two-colonist-populations?
 -1000
 
 PLOT
-405
-137
-816
-392
+15
+396
+401
+602
 Population
 NIL
 NIL
@@ -873,10 +873,10 @@ true
 true
 "" ""
 PENS
-"Gauls" 1.0 0 -2674135 true "" "plot count lineageA"
-"miners" 1.0 0 -612749 true "" "plot count lineageAminers"
-"Etruscans" 1.0 0 -5509967 true "" "plot count lineageB1"
-"Greeks" 1.0 0 -13345367 true "" "plot count lineageB2"
+"Gauls" 1.0 0 -5298144 true "" "plot count lineageA"
+"miners" 1.0 0 -16383231 true "" "plot count lineageAminers"
+"Etruscans" 1.0 0 -14454117 true "" "plot count lineageB1"
+"Greeks" 1.0 0 -955883 true "" "plot count lineageB2"
 
 SLIDER
 15
@@ -894,10 +894,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-235
-560
-407
-593
+29
+767
+201
+800
 harvest-calories
 harvest-calories
 0
@@ -924,14 +924,14 @@ true
 true
 "" ""
 PENS
-"Etruscan" 1.0 0 -5509967 true "" "if ticks > Etruscan-arrival [plotxy ticks mean [EtruscanWine] of lineageA]"
-"Greek" 1.0 0 -13345367 true "" "if ticks > Greek-arrival [plotxy ticks mean [GreekWine] of lineageA]"
+"Etruscan" 1.0 0 -13791810 true "" "if ticks > Etruscan-arrival [plotxy ticks mean [EtruscanWine] of lineageA]"
+"Greek" 1.0 0 -955883 true "" "if ticks > Greek-arrival [plotxy ticks mean [GreekWine] of lineageA]"
 
 PLOT
-15
-398
-215
-548
+13
+834
+213
+984
 Total Agent Population
 NIL
 NIL
@@ -946,10 +946,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot count turtles"
 
 SLIDER
-236
-411
-408
-444
+30
+618
+202
+651
 Greek-arrival
 Greek-arrival
 150
@@ -976,10 +976,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-237
-485
-409
-518
+31
+692
+203
+725
 buying-radius
 buying-radius
 0
@@ -991,10 +991,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-466
-399
-638
+260
+606
 432
+639
 GrainTradeRate
 GrainTradeRate
 0
@@ -1006,10 +1006,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-466
-438
-651
-471
+260
+645
+445
+678
 grass-regrowth-time
 grass-regrowth-time
 0
@@ -1019,23 +1019,6 @@ grass-regrowth-time
 1
 NIL
 HORIZONTAL
-
-BUTTON
-2203
-783
-2266
-816
-NIL
-NIL
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1052,7 +1035,7 @@ It should be cited as follows:
 
 Crabtree, Stefani A. 2016. "Simulating Littoral Trade: Modeling the Trade of Wine in the Bronze to Iron Age Transition in Southern France." Land 2016, 5(1), 5; doi:10.3390/land5010005
 
-This is example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021 Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe Institute Press.
+This version is an example model used in chapter 6 of Romanowska, I., Wren, C., Crabtree, S. 2021. Agent-Based Modeling for Archaeology: Simulating the Complexity of Societies. Santa Fe, NM: SFI Press.
 
 Code blocks: 6.7
 
