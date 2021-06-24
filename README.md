@@ -1,2 +1,2 @@
-# ABMBook
-Code repository for Agent-based Modeling for Archaeology and Social Science
+# Agent-Based Modeling for Archaeology
+Welcome to the code repository for the Agent-Based Modeling for Archaeology textbook.
