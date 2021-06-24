@@ -3,4 +3,4 @@ Welcome to the code repository for *Agent-Based Modeling for Archaeology*, by Iz
 
 **Put something about `colorblind_friendly` here.**
 
-This book uses the modeling software NetLogo. If you do not have it already, you can get NetLogo here: <a href="https://ccl.northwestern.edu/netlogo/download.shtml">Download NetLogo</a>.
+This book uses the modeling software NetLogo. If you do not have NetLogo already, you can get it here: <a href="https://ccl.northwestern.edu/netlogo/download.shtml">Download NetLogo</a>.
