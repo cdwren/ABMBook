@@ -59,8 +59,7 @@ end
 
 to trade [target]
   ; check whether any matches between the shoping list and the seller's items
-  let purchases filter [ i -> member? i first (list shopping-list) ] first (list [stock] of target)
-
+  let purchases filter [i -> member? i shopping-list] [stock] of target
   ; for each match, update the shopping list and update the basket
   foreach purchases [i -> set shopping-list remove i shopping-list]
   foreach purchases [i -> set basket fput i basket]
