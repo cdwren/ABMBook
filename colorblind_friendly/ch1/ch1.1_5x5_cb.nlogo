@@ -3,8 +3,8 @@ extensions [palette]
 to setup
   clear-all
   ; ask patches [set pcolor scale-color green (pxcor + pycor) 0 25]
-  ask patches [set pcolor palette:scale-gradient palette:scheme-colors "Sequential" "YlGnBu" 5 (pxcor + pycor) 0 25]
-  create-turtles 10 [
+  ask patches [set pcolor palette:scale-gradient palette:scheme-colors "Sequential" "YlGnBu" 5 (pxcor + pycor) 0 10]
+  create-turtles 5 [
     setxy random 5 random 5
     set color palette:scale-gradient palette:scheme-colors "Sequential" "OrRd" 5 ([xcor] of self + [ycor] of self) 20 0
   ]
@@ -31,13 +31,13 @@ end
 GRAPHICS-WINDOW
 3
 10
-511
-519
+641
+649
 -1
 -1
-100.0
+126.0
 1
-12
+20
 1
 1
 1

@@ -9,7 +9,7 @@ to setup
   set nextNovelVariant 1
 
   ; create initial population of agents, give them a unique cult trait
-  let nAgents 100
+  let nAgents population-size
   while [nAgents > 0][
     ask one-of patches [
       sprout 1[
@@ -25,13 +25,13 @@ to setup
 end
 
 to go
-  if ticks = 300 [stop]
+  if ticks = 100 [stop]
 
   ask turtles[ ;old generation gets old
     set age 1
   ]
 
- let nAgents 100   ; new generation is born
+ let nAgents population-size   ; new generation is born
  while [nAgents > 0][
     ask one-of patches [
       sprout 1 [set age 0]
@@ -129,26 +129,26 @@ SLIDER
 mu
 mu
 0
-1
-0.06
+0.1
+0.03
 0.01
 1
 NIL
 HORIZONTAL
 
 PLOT
-3
-87
-203
-237
+4
+122
+208
+341
+NIL
+Time
 # of Unique Variants
-NIL
-NIL
 0.0
-10.0
+100.0
 0.0
-10.0
-true
+300.0
+false
 false
 "" ""
 PENS
@@ -170,6 +170,21 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+3
+85
+175
+118
+population-size
+population-size
+100
+1000
+300.0
+100
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

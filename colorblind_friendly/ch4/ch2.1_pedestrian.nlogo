@@ -17,9 +17,10 @@ to setup
     ]
   ]
   if walk = "weighted-random" [
+    ask turtles [set color black]
     ask patches [
       set habitat_quality pxcor
-      set pcolor scale-color green habitat_quality 0 100
+      set pcolor scale-color turquoise habitat_quality -20 120
     ]
   ]
   reset-ticks
@@ -227,7 +228,7 @@ CHOOSER
 walk
 walk
 "random1" "random2" "random3" "random4" "random-patches" "correlated" "target" "weighted-random" "levy" "restricted" "leap-frog" "IDD"
-10
+7
 
 BUTTON
 127
@@ -588,7 +589,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
